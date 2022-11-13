@@ -30,4 +30,13 @@ export class OperandStack {
         else throw `OperandStack pop failed even though it has size: ${this.stack.length}`
     }
 
+    public getStackOverview(): string {
+        let overview = "OperandStack:\n"
+        for (let i = this.stack.length - 1; i >= 0; i--) {
+            const element = this.stack[i]
+            overview += `@${i}: ${element}\n`
+        }
+        return overview
+    }
+
 }

@@ -18,6 +18,7 @@ export class Frame {
 
     public getLocalVariable(index: number): LocalVariable {
         const variable = this.localVariables[index]
+        if (!variable) throw `Tried loading unset local variable at ${index}`
         if (variable.get() instanceof Block) throw `Tried to get upper half of long or double local variable at ${index}`
         return variable
     }
@@ -28,6 +29,15 @@ export class Frame {
             this.localVariables[index + 1] = new LocalVariable(new Block())
         }
         this.localVariables[index] = variable
+    }
+
+    public getLocalVariablesOverview(): string {
+        let overview = "LocalVariables:\n"
+        for (let i = 0; i < this.localVariables.length; i++) {
+            const localVariable = this.localVariables[i].get()
+            overview += `@${i}: ${localVariable.get()}\n`
+        }
+        return overview
     }
 
 }

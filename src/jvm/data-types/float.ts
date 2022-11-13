@@ -17,7 +17,7 @@ export class float extends DataType<number> {
         return this.value
     }
     public set(value: number) {
-        if ((value > 0 && (value > float.MAX_POSITIVE || value < float.MIN_POSITIVE)) || (value < 0 && (value < float.MAX_NEGATIVE || value > float.MIN_NEGATIVE)) || value === 0) {
+        if ((value > 0 && (value > float.MAX_POSITIVE || value < float.MIN_POSITIVE)) || (value < 0 && (value < float.MAX_NEGATIVE || value > float.MIN_NEGATIVE)) && value !== 0) {
             throw `invalid float assignment: ${value}`
         }
         this.value = value
