@@ -3,7 +3,7 @@ import { OpCodes } from "../opcodes"
 
 export class invokespecial extends Instruction {
     opcode: number = OpCodes.invokespecial
-    length: number = 6
+    length: number = 3
     args: string = ""
 
     public override setArgs(args: string): void {
@@ -13,6 +13,6 @@ export class invokespecial extends Instruction {
     public override execute(): void {}
 
     public override toString(): string {
-        return `invokespecial ${this.args.substring(0, 2)} ${this.args.substring(2)}`
+        return `invokespecial 0x${this.args.substring(0, 2)} 0x${this.args.substring(2)}`
     }
 }

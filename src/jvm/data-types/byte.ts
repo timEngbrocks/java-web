@@ -1,8 +1,12 @@
-export class byte {
+import { DataType } from "./data-type"
+
+export class byte extends DataType<number> {
+    public isWide: boolean = false
+
     static MAX = 127
     static MIN = -128
 
-    value: number = 0
+    private value: number = 0
     public get(): number {
         return this.value
     }

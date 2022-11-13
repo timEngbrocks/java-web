@@ -1,8 +1,12 @@
-export class short {
+import { DataType } from "./data-type"
+
+export class short extends DataType<number> {
+    public isWide: boolean = false
+
     static MAX = 32767
     static MIN = -32768
 
-    value: number = 0
+    private value: number = 0
     public get(): number {
         return this.value
     }

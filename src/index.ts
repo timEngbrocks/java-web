@@ -6,5 +6,10 @@ import { Parser } from './parser/parser';
 const buffer = fs.readFileSync('Main.class')
 const lexer = new Lexer(buffer)
 const parser = new Parser(lexer)
+
+console.log()
+console.log('--------------')
+console.log()
+
 const jvm = JVMService.get()
-jvm.run([parser.classFile])
+jvm.run(parser.classFile)

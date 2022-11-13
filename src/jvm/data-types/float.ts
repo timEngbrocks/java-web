@@ -1,31 +1,25 @@
-export class float {
+import { DataType } from "./data-type"
+
+export class float extends DataType<number> {
+    public isWide: boolean = false
+
     static NaN = Number.NaN
     static positiveInfinity = Number.POSITIVE_INFINITY
     static negativeInfinity = Number.NEGATIVE_INFINITY
 
-    static eMAX = 127
-    static eMIN = -128
-    static mMAX = 16777216
-    static mMIN = 0
+    static MAX_POSITIVE = 3.40282347 * Math.pow(10, 38)
+    static MIN_POSITIVE = 1.40239846 * Math.pow(10, -45)
+    static MAX_NEGATIVE = -float.MAX_POSITIVE
+    static MIN_NEGATIVE = -float.MIN_POSITIVE
 
-    sign: number = 1
-    exponent: number = 0
-    mantisse: number = 0
+    private value: number = 0
     public get(): number {
-        return this.sign * this.mantisse * Math.pow(2, this.exponent - 25)
+        return this.value
     }
-    public set(sign: number, exponent: number, mantisse: number) {
-        if (!(sign === -1 || sign === 1)) {
-            throw `Invalid float assignment: sign = ${sign}`
+    public set(value: number) {
+        if ((value > 0 && (value > float.MAX_POSITIVE || value < float.MIN_POSITIVE)) || (value < 0 && (value < float.MAX_NEGATIVE || value > float.MIN_NEGATIVE)) || value === 0) {
+            throw `invalid float assignment: ${value}`
         }
-        if (!(exponent >= float.eMIN && exponent <= float.eMAX)) {
-            throw `Invalid float assignment: exponent = ${exponent}`
-        }
-        if (!(mantisse >= float.mMIN && mantisse < float.mMAX)) {
-            throw `Invalid float assignment: mantisse = ${mantisse}`
-        }
-        this.sign = sign
-        this.exponent = exponent
-        this.mantisse = mantisse
+        this.value = value
     }
 }

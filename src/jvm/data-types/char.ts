@@ -1,8 +1,12 @@
-export class char {
+import { DataType } from "./data-type"
+
+export class char extends DataType<number> {
+    public isWide: boolean = false
+
     static MAX = 65535
     static MIN = 0
 
-    value: number = 0
+    private value: number = 0
     public get(): number {
         return this.value
     }

@@ -33,10 +33,32 @@ const getInstructionByCode = (code: string): Instruction => {
 }
 
 export class InstructionStream {
-    stream: Instruction[]
 
-    constructor(code: string) {
+    private name: string = ''
+    private pc: number = 0
+    private stream: Instruction[]
+
+    constructor(name: string, code: string) {
+        this.name = name
         this.stream = this.parseCode(code)
+    }
+
+    public getName(): string {
+        return this.name
+    }
+
+    public next(): Instruction {
+        const instruction = this.stream[this.pc]
+        this.pc += instruction.length
+        return instruction
+    }
+
+    public hasNext(): boolean {
+        return this.pc < this.stream.length
+    }
+
+    public setPC(pc: number): void {
+        this.pc = pc
     }
 
     private parseCode(code: string): Instruction[] {
@@ -46,7 +68,8 @@ export class InstructionStream {
         while (cursor < code.length) {
             const instruction = getInstructionByCode(code.substring(cursor))
             instructions.push(instruction)
-            cursor += instruction.length
+            for (let i = 0; i < instruction.length - 1; i++) instructions.push(new Instruction())
+            cursor += instruction.length * 2
         }
 
         return instructions

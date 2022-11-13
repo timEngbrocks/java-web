@@ -1,9 +1,10 @@
+import { AttributeCode } from "../types/attributes/AttributeCode";
 import { ClassFile } from "../types/ClassFile";
-import { ConstantPool } from "./memory/constantPool";
-import { Heap } from "./memory/heap";
-import { MethodArea } from "./memory/methodArea";
-import { PCRegister } from "./memory/pcRegister";
-import { Stack } from "./memory/stack";
+import { ConstantUtf8 } from "../types/constants/ConstantUtf8";
+import { CPInfo } from "../types/CPInfo";
+import { InstructionStream } from "./InstructionStream";
+import { ConstantPool } from "./memory/constant-pool";
+import { Frame } from "./memory/frame";
 
 export class JVMService {
     static instance: JVM
@@ -17,15 +18,46 @@ export class JVMService {
 
 export class JVM {
 
-    private pcRegister = new PCRegister()
-    private stack = new Stack()
-    private heap = new Heap()
+    runtimeConstantPool: ConstantPool = new ConstantPool([])
 
-    private methodArea = new MethodArea()
-    private runtimeConstantPool = new ConstantPool()
+    activeFrame: Frame = new Frame(0, 0, new ConstantPool([]))
+    frames: Frame[] = []
 
-    public run(classes: ClassFile[]): void {
+    activeInstructionStream: InstructionStream = new InstructionStream('', '')
+    instructionStreams: InstructionStream[] = []
+
+    public run(classFile: ClassFile): void {
+
+        this.initialize(classFile)
         
+        while (this.activeInstructionStream.hasNext()) {
+            const instruction = this.activeInstructionStream.next()
+
+            console.log(instruction.toString())
+
+        }
+
+    }
+
+    private initialize(classFile: ClassFile): void {
+        this.runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
+
+        classFile.data.methods.forEach(method => {
+            const name = (this.runtimeConstantPool.get(method.data.nameIndex - 1) as ConstantUtf8).data.bytes.toString().split(',').join('')
+            const code = method.data.attributes.find(attribute => attribute instanceof AttributeCode) as AttributeCode
+
+            const frame = new Frame(code.data.maxLocals, code.data.maxStack, this.runtimeConstantPool)
+            const instructionStream = new InstructionStream(name, code.getCode())
+
+            if (name === '<init>') {
+                this.activeFrame = frame
+                this.activeInstructionStream = instructionStream
+            }
+            else {
+                this.frames.push(frame)
+                this.instructionStreams.push(instructionStream)
+            }
+        })
     }
 
 }

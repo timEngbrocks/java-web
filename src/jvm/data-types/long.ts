@@ -1,8 +1,12 @@
-export class long {
+import { DataType } from "./data-type"
+
+export class long extends DataType<bigint> {
+    public isWide: boolean = true
+
     static MAX = 9223372036854775807n
     static MIN = -9223372036854775808n
 
-    value: bigint = 0n
+    private value: bigint = 0n
     public get(): bigint {
         return this.value
     }

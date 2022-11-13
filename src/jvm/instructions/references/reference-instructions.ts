@@ -18,7 +18,7 @@ export const getReferenceInstructionByCode = (code: string): Instruction => {
     }
 
     if (instruction.length > 2) {
-        instruction.setArgs(code.substring(2, instruction.length))
+        instruction.setArgs(code.substring(2, instruction.length * 2))
     }
 
     return instruction
