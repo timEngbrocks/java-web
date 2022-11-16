@@ -14,4 +14,5 @@ export class char extends DataType<number> {
         if (value <= char.MAX && value >= char.MIN) this.value = value
         else throw `invalid char assignment: ${value}`
     }
+    public toString(): string { return 'char' }
 }

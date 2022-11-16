@@ -14,4 +14,5 @@ export class byte extends DataType<number> {
         if (value <= byte.MAX && value >= byte.MIN) this.value = value
         else throw `invalid byte assignment: ${value}`
     }
+    public toString(): string { return 'byte' }
 }

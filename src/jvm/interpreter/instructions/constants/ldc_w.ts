@@ -6,9 +6,9 @@ import { Instruction } from "../../Instruction"
 import { Runtime } from "../../Runtime"
 import { OpCodes } from "../opcodes"
 
-export class ldc extends Instruction {
+export class ldc_w extends Instruction {
     opcode: number = OpCodes.ldc
-    length: number = 2
+    length: number = 3
     args: string = ""
 
     public override setArgs(args: string): void {
@@ -16,7 +16,9 @@ export class ldc extends Instruction {
     }
 
     public override execute(): void {
-        const index = Number.parseInt(this.args.substring(0, 2), 16)
+        const indexbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
+        const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
+        const index = (indexbyte1 << 8) | indexbyte2
         const value = Runtime.getConstant(index)
         if (value instanceof ConstantInteger) {
             const x = new int()
@@ -30,10 +32,10 @@ export class ldc extends Instruction {
             Runtime.push(x)
             return
         }
-        throw `Unimplemented case for ldc value: ${value.toString()}`
+        throw `Unimplemented case for ldc_w value: ${value.toString()}`
     }
 
     public override toString(): string {
-        return `ldc 0x${this.args.substring(0, 2)}`
+        return `ldc_w 0x${this.args.substring(0, 2)} 0x${this.args.substring(2, 4)}`
     }
 }

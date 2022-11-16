@@ -14,4 +14,5 @@ export class double extends DataType<number> {
     public set(value: number) {
         this.value = value
     }
+    public toString(): string { return 'double' }
 }

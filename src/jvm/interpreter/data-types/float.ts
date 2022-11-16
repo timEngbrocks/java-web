@@ -22,4 +22,5 @@ export class float extends DataType<number> {
         }
         this.value = value
     }
+    public toString(): string { return 'float' }
 }

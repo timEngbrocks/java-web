@@ -14,4 +14,5 @@ export class short extends DataType<number> {
         if (value <= short.MAX && value >= short.MIN) this.value = value
         else throw `invalid short assignment: ${value}`
     }
+    public toString(): string { return 'short' }
 }

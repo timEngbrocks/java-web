@@ -14,4 +14,5 @@ export class int extends DataType<number> {
         if (value <= int.MAX && value >= int.MIN) this.value = value
         else throw `invalid int assignment: ${value}`
     }
+    public toString(): string { return 'int' }
 }

@@ -15,4 +15,5 @@ export class HeapObject extends DataType<any> {
     public set(value: any): void {
         this.value = value
     }
+    public toString(): string { return 'heap object' }
 }
