@@ -141,5 +141,10 @@ export const getLoadInstructionByCode = (code: string): Instruction => {
             break
         }
     }
+
+    if (instruction.length > 1) {
+        instruction.setArgs(code.substring(2, instruction.length * 2))
+    }
+
     return instruction
 }

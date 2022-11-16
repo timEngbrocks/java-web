@@ -5,9 +5,10 @@ import { int } from "../../data-types/int";
 import { long } from "../../data-types/long";
 import { reference } from "../../data-types/references";
 import { Instruction } from "../../Instruction";
+import { HeapAddress } from "../../memory/heap";
 import { Runtime } from "../../Runtime";
 
-class xload_n<T extends DataType<number | bigint>> extends Instruction {
+class xload_n<T extends DataType<number | bigint | HeapAddress | null>> extends Instruction {
     length = 1
     private i: number
     constructor(i: number, private type: new () => T) {
@@ -17,10 +18,7 @@ class xload_n<T extends DataType<number | bigint>> extends Instruction {
     public override execute(): void {
         const localVariable = Runtime.getLocalVariable(this.i)
         const value = localVariable.get()
-        if (value instanceof reference) {
-            const heapObject = Runtime.load(value.get())
-            Runtime.push(heapObject.get())
-        } else Runtime.push(value)
+        Runtime.push(value)
     }
     public override toString(): string {
         return `${this.newConstant().toString()} : load_${this.i}`
@@ -50,7 +48,7 @@ export const dload_1 = new xload_n<double>(1, double)
 export const dload_2 = new xload_n<double>(2, double)
 export const dload_3 = new xload_n<double>(3, double)
 
-export const aload_0 = new xload_n<reference<any>>(0, reference)
-export const aload_1 = new xload_n<reference<any>>(1, reference)
-export const aload_2 = new xload_n<reference<any>>(2, reference)
-export const aload_3 = new xload_n<reference<any>>(3, reference)
+export const aload_0 = new xload_n<reference>(0, reference)
+export const aload_1 = new xload_n<reference>(1, reference)
+export const aload_2 = new xload_n<reference>(2, reference)
+export const aload_3 = new xload_n<reference>(3, reference)
