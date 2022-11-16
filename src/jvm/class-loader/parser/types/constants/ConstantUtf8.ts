@@ -13,6 +13,6 @@ export class ConstantUtf8 extends CPInfo<ConstantUtf8Data> {
     public override toString(): string {
         return dedent`tag: ${this.data.tag}
         length: ${this.data.length}
-        bytes: ${this.data.bytes.toString()}`
+        bytes: ${this.data.bytes.toHexString()}`
     }
 }
