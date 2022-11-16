@@ -1,4 +1,4 @@
-import { reference } from "../../data-types/reference";
+import { reference } from "../../data-types/references";
 import { Instruction } from "../../Instruction";
 import { Runtime } from "../../Runtime";
 

@@ -1,6 +1,6 @@
-import { DataType } from "./data-type"
+import { FloatingPointType } from "./data-type"
 
-export class double extends DataType<number> {
+export class double extends FloatingPointType<number> {
     public isWide: boolean = true
 
     static NaN = Number.NaN

@@ -1,59 +1,27 @@
-import { AttributeCode } from "../class-loader/parser/types/attributes/AttributeCode"
 import { ClassFile } from "../class-loader/parser/types/ClassFile"
-import { ConstantUtf8 } from "../class-loader/parser/types/constants/ConstantUtf8"
-import { CPInfo } from "../class-loader/parser/types/CPInfo"
-import { DataType } from "./data-types/data-type"
-import { HeapObject } from "./data-types/heapObject"
-import { Reference } from "./data-types/reference"
-import { InstructionStream } from "./InstructionStream"
-import { ConstantPool } from "./memory/constant-pool"
-import { Frame } from "./memory/frame"
-import { Heap, HeapAddress } from "./memory/heap"
-import { LocalVariable } from "./memory/local-variable"
+import { ClassObject } from "./ClassObject"
 import { Runtime } from "./Runtime"
 
 export class Interpreter {
-    private runtimeConstantPool: ConstantPool = new ConstantPool([])
+    private classes: ClassObject[] = []
+    private activeClassIndex: number = -1
 
-    private heap: Heap = new Heap()
+    constructor(classFiles: ClassFile[]) {
+        for (const classFile of classFiles) {
+            const classObject = new ClassObject()
+            classObject.initialize(classFile)
+            this.classes.push(classObject)
+        }
 
-    private activeFrame: Frame = new Frame('', 0, 0)
-    private frames: Frame[] = []
-
-    private activeInstructionStream: InstructionStream = new InstructionStream('', '')
-    private instructionStreams: InstructionStream[] = []
-
-    constructor(classFile: ClassFile) {
-        this.initialize(classFile)
-        Runtime.set(this)
-    }
-
-    public getConstant(index: number): CPInfo<any> {
-        return this.runtimeConstantPool.get(index)
-    }
-
-    public allocate(value: any): HeapAddress {
-        return this.heap.allocate(value)
-    }
-
-    public load(address: HeapAddress): HeapObject {
-        return this.heap.load(address)
-    }
-
-    public push(value: DataType<any>): void {
-        this.activeFrame.operandStack.push(value)
-    }
-
-    public pop(): DataType<any> {
-        return this.activeFrame.operandStack.pop()
-    }
-
-    public setLocalVariable(variable: LocalVariable, index: number): void {
-        this.activeFrame.setLocalVariable(variable, index)
-    }
-
-    public getLocalVariable(index: number): LocalVariable {
-        return this.activeFrame.getLocalVariable(index)
+        for (let i = 0; i < this.classes.length; i++) {
+            for (const instructionStream of this.classes[i].instructionStreams) {
+                if (instructionStream.getName() === 'main') {
+                    this.activeClassIndex = i
+                    Runtime.set(this.classes[i])
+                }
+            }
+        }
+        if (this.activeClassIndex < 0) throw 'Could not find main method'
     }
 
     public execute(): void {
@@ -61,8 +29,10 @@ export class Interpreter {
         console.log('--------executing------------')
         console.log()
 
-        while (this.activeInstructionStream.hasNext()) {
-            const instruction = this.activeInstructionStream.next()
+        const activeClass = this.classes[this.activeClassIndex]
+
+        while (activeClass.activeInstructionStream.hasNext()) {
+            const instruction = activeClass.activeInstructionStream.next()
 
             console.log(instruction.toString())
             instruction.execute()
@@ -72,33 +42,8 @@ export class Interpreter {
         console.log()
         console.log('--------state after execution------------')
         console.log()
-        console.log(this.activeFrame.operandStack.getStackOverview())
-        console.log(this.activeFrame.getLocalVariablesOverview())
+        console.log(activeClass.activeFrame.operandStack.getStackOverview())
+        console.log(activeClass.activeFrame.getLocalVariablesOverview())
 
-    }
-
-    private initialize(classFile: ClassFile): void {
-        this.runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
-
-        classFile.data.methods.forEach(method => {
-            const name = (this.runtimeConstantPool.get(method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-            const code = method.data.attributes.find(attribute => attribute instanceof AttributeCode) as AttributeCode
-
-            if (name !== 'main') return
-
-            const frame = new Frame(name, code.data.maxLocals, code.data.maxStack)
-            const thisAddress = this.heap.allocate(classFile)
-            const thisReference = new Reference()
-            thisReference.set(thisAddress)
-            frame.setLocalVariable(new LocalVariable(thisReference), 0)
-            const instructionStream = new InstructionStream(name, code.getCode())
-            
-            if (name === 'main') {
-                this.activeFrame = frame
-                this.activeInstructionStream = instructionStream
-            }
-            this.frames.push(frame)
-            this.instructionStreams.push(instructionStream)
-        })
     }
 }

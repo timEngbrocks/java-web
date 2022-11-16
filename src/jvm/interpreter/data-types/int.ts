@@ -1,6 +1,6 @@
-import { DataType } from "./data-type"
+import { IntegralType } from "./data-type"
 
-export class int extends DataType<number> {
+export class int extends IntegralType<number> {
     public isWide: boolean = false
 
     static MAX = 2147483647
