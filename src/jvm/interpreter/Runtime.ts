@@ -29,6 +29,10 @@ export class Runtime {
         return this.classObject.pop()
     }
 
+    public static peek(): DataType<any> {
+        return this.classObject.peek()
+    }
+
     public static setLocalVariable(variable: LocalVariable, index: number): void {
         this.classObject.setLocalVariable(variable, index)
     }

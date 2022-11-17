@@ -30,6 +30,21 @@ export class OperandStack {
         else throw `OperandStack pop failed even though it has size: ${this.stack.length}`
     }
 
+    public peek(): DataType<any> {
+        if (this.stack.length === 0) {
+            throw 'Can not peek. Operand Stack is empty'
+        }
+        let value = this.pop()
+        if (value instanceof Block) {
+            value = this.pop()
+            this.push(value)
+            this.push(new Block())
+        } else {
+            this.push(value)
+        }
+        return value
+    }
+
     public getStackOverview(): string {
         let overview = "OperandStack:\n"
         for (let i = this.stack.length - 1; i >= 0; i--) {

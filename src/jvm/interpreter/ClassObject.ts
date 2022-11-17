@@ -41,6 +41,10 @@ export class ClassObject {
         return this.activeFrame.operandStack.pop()
     }
 
+    public peek(): DataType<any> {
+        return this.activeFrame.operandStack.peek()
+    }
+
     public setLocalVariable(variable: LocalVariable, index: number): void {
         this.activeFrame.setLocalVariable(variable, index)
     }
