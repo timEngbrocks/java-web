@@ -7,11 +7,11 @@ A runtime environment for Java based on TypeScript.
 - Constants
 - Loads
 - Store
+- Stack
+- Math
 
 ## Missing instruction categories
 
-- Stack
-- Math
 - Conversions
 - Comparisons
 - References
