@@ -10,10 +10,10 @@ A runtime environment for Java based on TypeScript.
 - Stack
 - Math
 - Conversions
+- Comparisons
 
 ## Missing instruction categories
 
-- Comparisons
 - References
 - Control
 - Extended

@@ -26,8 +26,7 @@ const instructionTypes = [
 ]
 const getInstructionByCode = (code: string): Instruction => {
     for (const instructionType of instructionTypes) {
-        const instruction = instructionType(code)
-        if (instruction.opcode != -1) return instruction
+        return instructionType(code)
     }
     throw `Unimplemented opcode: 0x${code.substring(0, 2)}`
 }
@@ -59,6 +58,10 @@ export class InstructionStream {
 
     public setPC(pc: number): void {
         this.pc = pc
+    }
+
+    public setOffset(offset: number): void {
+        this.pc += offset
     }
 
     private parseCode(code: string): Instruction[] {

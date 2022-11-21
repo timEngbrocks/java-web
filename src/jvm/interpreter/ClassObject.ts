@@ -53,6 +53,10 @@ export class ClassObject {
         return this.activeFrame.getLocalVariable(index)
     }
 
+    public jumpByOffset(offset: number): void {
+        this.activeInstructionStream.setOffset(offset)
+    }
+
     public initialize(classFile: ClassFile): void {
         this.runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
 

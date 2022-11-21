@@ -40,4 +40,8 @@ export class Runtime {
     public static getLocalVariable(index: number): LocalVariable {
         return this.classObject.getLocalVariable(index)
     }
+
+    public static jumpByOffset(offset: number): void {
+        this.classObject.jumpByOffset(offset)
+    }
 }
