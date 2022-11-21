@@ -7,10 +7,10 @@ export class swap extends Instruction {
     length: number = 1
 
     public override execute(): void {
-        const value1 = Runtime.pop()
         const value2 = Runtime.pop()
-        Runtime.push(value1)
+        const value1 = Runtime.pop()
         Runtime.push(value2)
+        Runtime.push(value1)
     }
 
     public override toString(): string {

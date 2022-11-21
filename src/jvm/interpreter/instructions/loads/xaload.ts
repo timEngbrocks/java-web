@@ -18,8 +18,8 @@ class xaload<T extends DataType<any>> extends Instruction {
         super()
     }
     public override execute(): void {
-        const arrayRef = Runtime.pop()
         const index = Runtime.pop()
+        const arrayRef = Runtime.pop()
         if (!(arrayRef instanceof reference && index instanceof int)) throw 'Did not find correct operand types on stack for xaload'
         const ref = arrayRef.get()
         if (!(ref !== null && ref.getType() === HEAP_TYPES.ARRAY)) throw 'Tried loading from array without a non-null array reference'

@@ -12,8 +12,8 @@ class xdiv<T extends DataType<any>> extends Instruction {
         super()
     }
     public override execute(): void {
-        const value1 = Runtime.pop()
         const value2 = Runtime.pop()
+        const value1 = Runtime.pop()
         if (!(value1 instanceof this.type && value2 instanceof this.type)) throw `Tried using xdiv with wrong types`
         if (value2.get() == 0) throw 'Division by zero'
         if (value1 instanceof int && value2 instanceof int) {

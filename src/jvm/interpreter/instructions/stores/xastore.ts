@@ -18,9 +18,9 @@ class xastore<T extends DataType<any>> extends Instruction {
         super()
     }
     public override execute(): void {
-        const arrayRef = Runtime.pop()
-        const index = Runtime.pop()
         const value = Runtime.pop()
+        const index = Runtime.pop()
+        const arrayRef = Runtime.pop()
         if (!(value instanceof this.type)) throw 'Tried to store incompatible type into array'
         if (!(arrayRef instanceof reference && index instanceof int)) throw 'Did not find correct operand types on stack for xastore'
         const ref = arrayRef.get()

@@ -12,8 +12,8 @@ class xadd<T extends DataType<any>> extends Instruction {
         super()
     }
     public override execute(): void {
-        const value1 = Runtime.pop()
         const value2 = Runtime.pop()
+        const value1 = Runtime.pop()
         if (!(value1 instanceof this.type && value2 instanceof this.type)) throw `Tried using xadd with wrong types`
         const result = this.newConstant()
         result.set(value1.get() + value2.get())
