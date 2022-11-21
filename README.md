@@ -8,7 +8,7 @@ A runtime environment for Java based on TypeScript.
 - Loads
 - Store
 - Stack
-- Math
+- Math (up to ddiv)
 - Conversions
 - Comparisons
 
