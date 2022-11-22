@@ -17,7 +17,7 @@ export class Interpreter {
             for (const instructionStream of this.classes[i].instructionStreams) {
                 if (instructionStream.getName() === 'main') {
                     this.activeClassIndex = i
-                    Runtime.set(this.classes[i])
+                    Runtime.set(this.classes[i], this.classes)
                 }
             }
         }

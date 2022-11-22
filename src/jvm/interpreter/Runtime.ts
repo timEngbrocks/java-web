@@ -6,8 +6,10 @@ import { LocalVariable } from "./memory/local-variable"
 
 export class Runtime {
     private static classObject: ClassObject
-    public static set(classObject: ClassObject): void {
+    private static classes: ClassObject[] = []
+    public static set(classObject: ClassObject, classes: ClassObject[]): void {
         this.classObject = classObject
+        this.classes = classes
     }
     public static getConstant(index: number): CPInfo<any> {
         return this.classObject.getConstant(index)

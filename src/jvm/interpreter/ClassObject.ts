@@ -64,11 +64,9 @@ export class ClassObject {
             const name = (this.runtimeConstantPool.get(method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
             const code = method.data.attributes.find(attribute => attribute instanceof AttributeCode) as AttributeCode
 
-            if (name !== 'main') return // FIXME:
-
             const frame = new Frame(name, code.data.maxLocals, code.data.maxStack)
             const thisAddress = this.heap.allocate(this)
-            const thisReference = new reference() // FIXME:
+            const thisReference = new reference()
             thisReference.set(thisAddress)
             frame.setLocalVariable(new LocalVariable(thisReference), 0)
             const instructionStream = new InstructionStream(name, code.getCode())
