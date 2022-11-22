@@ -37,8 +37,9 @@ export class Frame {
     public getLocalVariablesOverview(): string {
         let overview = "LocalVariables:\n"
         for (let i = 0; i < this.localVariables.length; i++) {
-            const localVariable = this.localVariables[i].get()
-            overview += `@${i}: ${localVariable.get()}\n`
+            const localVariable = this.localVariables[i]
+            if (!localVariable) overview += `@${i}: -\n`
+            else overview += `@${i}: ${localVariable.get().toString()}\n`
         }
         return overview
     }

@@ -14,5 +14,5 @@ export class double extends FloatingPointType<number> {
     public set(value: number) {
         this.value = value
     }
-    public toString(): string { return 'double' }
+    public toString(): string { return `${this.value} (double)` }
 }

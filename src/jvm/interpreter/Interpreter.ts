@@ -3,25 +3,19 @@ import { ClassObject } from "./ClassObject"
 import { Runtime } from "./Runtime"
 
 export class Interpreter {
-    private classes: ClassObject[] = []
-    private activeClassIndex: number = -1
-
     constructor(classFiles: ClassFile[]) {
+        const classes = []
         for (const classFile of classFiles) {
             const classObject = new ClassObject()
             classObject.initialize(classFile)
-            this.classes.push(classObject)
+            classes.push(classObject)
         }
 
-        for (let i = 0; i < this.classes.length; i++) {
-            for (const instructionStream of this.classes[i].instructionStreams) {
-                if (instructionStream.getName() === 'main') {
-                    this.activeClassIndex = i
-                    Runtime.set(this.classes[i], this.classes)
-                }
+        for (let i = 0; i < classes.length; i++) {
+            if (classes[i].hasMainMethod) {
+                Runtime.set(classes[i], classes)
             }
         }
-        if (this.activeClassIndex < 0) throw 'Could not find main method'
     }
 
     public execute(): void {
@@ -29,21 +23,17 @@ export class Interpreter {
         console.log('--------executing------------')
         console.log()
 
-        const activeClass = this.classes[this.activeClassIndex]
-
-        while (activeClass.activeInstructionStream.hasNext()) {
-            const instruction = activeClass.activeInstructionStream.next()
-
+        while (Runtime.classObject.currentMethod.activeInstructionStream.hasNext()) {
+            const instruction = Runtime.classObject.currentMethod.activeInstructionStream.next()
             console.log(instruction.toString())
             instruction.execute()
-
         }
 
         console.log()
         console.log('--------state after execution------------')
         console.log()
-        console.log(activeClass.activeFrame.operandStack.getStackOverview())
-        console.log(activeClass.activeFrame.getLocalVariablesOverview())
+        console.log(Runtime.classObject.currentMethod.activeFrame.operandStack.getStackOverview())
+        console.log(Runtime.classObject.currentMethod.activeFrame.getLocalVariablesOverview())
 
     }
 }

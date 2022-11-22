@@ -11,7 +11,7 @@ A runtime environment for Java based on TypeScript.
 - Math
 - Conversions
 - Comparisons
-- Control up to lookupswitch
+- Control
 - Reserved
 
 ## Missing instruction categories

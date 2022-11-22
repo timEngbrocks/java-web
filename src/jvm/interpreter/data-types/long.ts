@@ -14,5 +14,5 @@ export class long extends IntegralType<bigint> {
         if (value <= long.MAX && value >= long.MIN) this.value = value
         else throw `invalid long assignment: ${value}`
     }
-    public toString(): string { return 'long' }
+    public toString(): string { return `${this.value} (long)` }
 }

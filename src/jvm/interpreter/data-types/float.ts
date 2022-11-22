@@ -22,5 +22,5 @@ export class float extends FloatingPointType<number> {
         }
         this.value = value
     }
-    public toString(): string { return 'float' }
+    public toString(): string { return `${this.value} (float)` }
 }

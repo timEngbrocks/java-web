@@ -14,5 +14,5 @@ export class char extends IntegralType<number> {
         if (value <= char.MAX && value >= char.MIN) this.value = value
         else throw `invalid char assignment: ${value}`
     }
-    public toString(): string { return 'char' }
+    public toString(): string { return `${this.value} (char)` }
 }

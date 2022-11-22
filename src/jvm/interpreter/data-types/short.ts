@@ -14,5 +14,5 @@ export class short extends IntegralType<number> {
         if (value <= short.MAX && value >= short.MIN) this.value = value
         else throw `invalid short assignment: ${value}`
     }
-    public toString(): string { return 'short' }
+    public toString(): string { return `${this.value} (short)` }
 }

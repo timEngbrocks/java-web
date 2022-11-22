@@ -10,5 +10,5 @@ export class returnAddress extends ReturnAddressType<number> {
     public set(value: number): void {
         this.value = value
     }
-    public toString(): string { return 'returnAddress' }
+    public toString(): string { return `${this.value} (returnAddress)` }
 }

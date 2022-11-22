@@ -11,5 +11,5 @@ export class reference extends DataType<HeapAddress | null> {
     public set(value: HeapAddress | null): void {
         this.value = value
     }
-    public toString(): string { return `${this.value?.getType().toString()} reference` }    
+    public toString(): string { return `${this.value?.getType().toString()} (reference)` }    
 }

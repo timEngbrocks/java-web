@@ -1,4 +1,4 @@
 
 import { JVM } from './jvm/JVM';
 
-new JVM('Main.class')
+new JVM(['Main.class'])

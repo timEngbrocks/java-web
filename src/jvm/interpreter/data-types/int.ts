@@ -14,5 +14,5 @@ export class int extends IntegralType<number> {
         if (value <= int.MAX && value >= int.MIN) this.value = value
         else throw `invalid int assignment: ${value}`
     }
-    public toString(): string { return 'int' }
+    public toString(): string { return `${this.value} (int)` }
 }

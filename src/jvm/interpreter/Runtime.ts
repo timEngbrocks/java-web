@@ -1,13 +1,13 @@
 import { CPInfo } from "../class-loader/parser/types/CPInfo"
 import { ClassObject } from "./ClassObject"
 import { DataType } from "./data-types/data-type"
-import { Instruction } from "./Instruction"
 import { HeapAddress, HeapData } from "./memory/heap"
 import { LocalVariable } from "./memory/local-variable"
 
 export class Runtime {
-    private static classObject: ClassObject
-    private static classes: ClassObject[] = []
+    public static classObject: ClassObject
+    public static classes: ClassObject[] = []
+    public static classStack: ClassObject[] = []
     public static set(classObject: ClassObject, classes: ClassObject[]): void {
         this.classObject = classObject
         this.classes = classes
@@ -49,10 +49,47 @@ export class Runtime {
     }
 
     public static getPC(): number {
-        return this.classObject.activeInstructionStream.getPC()
+        return this.classObject.currentMethod.activeInstructionStream.getPC()
     }
 
     public static setPC(pc: number): void {
-        this.classObject.activeInstructionStream.setPC(pc)
+        this.classObject.currentMethod.activeInstructionStream.setPC(pc)
+    }
+
+    public static callFunction(className: string, functionName: string): void {
+        if (className == this.classObject.name) {
+            this.classObject.callFunction(functionName)
+        } else {
+            this.classStack.push(this.classObject)
+            const newClassObject = this.classes.find(clazz => clazz.name == className)
+            if (!newClassObject) throw `Could not find class: ${className}`
+            this.classObject = newClassObject
+            this.classObject.callFunction(functionName)
+        }
+    }
+
+    public static setReturnValue(value: DataType<any>): void {
+        if (this.classObject.lengthOfCallStack() == 0) {
+            this.classStack[this.classStack.length - 1].setReturnValue(value)
+        } else {
+            this.classObject.setReturnValue(value)
+        }
+    }
+
+    public static returnFromFunction(): void {
+        this.classObject.returnFromFunction()
+        if (this.classObject.lengthOfCallStack() == 0) {
+            const newClassObject = this.classStack.pop()
+            if (!newClassObject) throw 'Empty class stack'
+            this.classObject = newClassObject
+        }
+    }
+
+    public static getReturnType(): any {
+        if (this.classObject.lengthOfCallStack() == 0) {
+            return this.classStack[this.classStack.length - 1].getReturnType()
+        } else {
+            return this.classObject.getReturnType()
+        }
     }
 }

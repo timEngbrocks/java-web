@@ -26,9 +26,11 @@ const instructionTypes = [
 ]
 const getInstructionByCode = (code: string): Instruction => {
     for (const instructionType of instructionTypes) {
-        return instructionType(code)
+       const instruction =  instructionType(code)
+       if (instruction.toString() != 'invalid') return instruction
     }
-    throw `Unimplemented opcode: 0x${code.substring(0, 2)}`
+    console.log(`Unimplemented opcode: 0x${code.substring(0, 2)}`)
+    return new Instruction()
 }
 
 export class InstructionStream {

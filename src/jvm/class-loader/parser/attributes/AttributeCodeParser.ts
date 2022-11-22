@@ -10,7 +10,6 @@ export class AttributeCodeParser {
         const maxLocals = lexer.read(2).toNumber()
         const codeLength = lexer.read(4).toNumber()
         const code = lexer.read(codeLength)
-        console.log(code.toHexString())
         const exceptionTableLength = lexer.read(2).toNumber()
         const exceptionTable = []
         for (let i = 0; i < exceptionTableLength; i++) {
