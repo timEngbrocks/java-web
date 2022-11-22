@@ -56,6 +56,10 @@ export class InstructionStream {
         return this.pc < this.stream.length
     }
 
+    public getPC(): number {
+        return this.pc
+    }
+
     public setPC(pc: number): void {
         this.pc = pc
     }

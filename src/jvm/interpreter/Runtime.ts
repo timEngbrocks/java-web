@@ -1,6 +1,7 @@
 import { CPInfo } from "../class-loader/parser/types/CPInfo"
 import { ClassObject } from "./ClassObject"
 import { DataType } from "./data-types/data-type"
+import { Instruction } from "./Instruction"
 import { HeapAddress, HeapData } from "./memory/heap"
 import { LocalVariable } from "./memory/local-variable"
 
@@ -45,5 +46,13 @@ export class Runtime {
 
     public static jumpByOffset(offset: number): void {
         this.classObject.jumpByOffset(offset)
+    }
+
+    public static getPC(): number {
+        return this.classObject.activeInstructionStream.getPC()
+    }
+
+    public static setPC(pc: number): void {
+        this.classObject.activeInstructionStream.setPC(pc)
     }
 }
