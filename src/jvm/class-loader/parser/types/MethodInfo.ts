@@ -5,7 +5,7 @@ import { AttributeInfo } from "./AttributeInfo";
 import { JType, JTypeData } from "./JType";
 
 export interface MethodInfoData extends JTypeData {
-    accessFlags: MethodAccessFlags[]
+    accessFlags: number
     nameIndex: number
     descriptorIndex: number
     attributesCount: number
@@ -14,7 +14,7 @@ export interface MethodInfoData extends JTypeData {
 
 export class MethodInfo extends JType<MethodInfoData> {
     public override toString(): string {
-        return dedent`access flags: ${map(this.data.accessFlags, flag => MethodAccessFlags[flag]).join(', ')}
+        return dedent`access flags: ${this.data.accessFlags}
         nameIndex: ${this.data.nameIndex}
         descriptorIndex: ${this.data.descriptorIndex}
         #attributes: ${this.data.attributesCount}`

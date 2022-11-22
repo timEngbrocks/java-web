@@ -1,12 +1,15 @@
+import { FieldAccessFlags } from "../class-loader/parser/FieldInfoParser"
 import { AttributeCode } from "../class-loader/parser/types/attributes/AttributeCode"
+import { AttributeConstantValue } from "../class-loader/parser/types/attributes/AttributeConstantValue"
 import { ClassFile } from "../class-loader/parser/types/ClassFile"
 import { ConstantUtf8 } from "../class-loader/parser/types/constants/ConstantUtf8"
+import { ConstantValueData } from "../class-loader/parser/types/constants/ConstantValueData"
 import { CPInfo } from "../class-loader/parser/types/CPInfo"
 import { array } from "./data-types/array"
 import { byte } from "./data-types/byte"
 import { char } from "./data-types/char"
 import { classType } from "./data-types/classType"
-import { DataType } from "./data-types/data-type"
+import { DataType, DescriptorType, PrimitiveType } from "./data-types/data-type"
 import { double } from "./data-types/double"
 import { float } from "./data-types/float"
 import { int } from "./data-types/int"
@@ -18,6 +21,7 @@ import { ConstantPool } from "./memory/constant-pool"
 import { Frame } from "./memory/frame"
 import { Heap, HeapAddress, HeapData } from "./memory/heap"
 import { LocalVariable } from "./memory/local-variable"
+import { Runtime } from "./Runtime"
 
 export interface MethodContext {
     name: string
@@ -37,6 +41,7 @@ export class ClassObject {
         activeInstructionStream: new InstructionStream('', ''),
         returnType: DataType
     }
+    public staticFields: Map<string, DataType<any>> = new Map()
 
     private callStack: MethodContext[] = []
     private methods: MethodContext[] = []
@@ -102,9 +107,25 @@ export class ClassObject {
         return this.callStack.length
     }
 
+    public getStaticField(name: string): DataType<any> | undefined {
+        return this.staticFields.get(name)
+    }
+
     public initialize(classFile: ClassFile): void {
         const runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
         this.name = runtimeConstantPool.getClassName()
+
+        classFile.data.fields.forEach(field => {
+            if (field.data.accessFlags & FieldAccessFlags.ACC_STATIC) {
+                const name = (runtimeConstantPool.get(field.data.nameIndex) as ConstantUtf8).data.bytes.toString()
+                const descriptor = (runtimeConstantPool.get(field.data.descriptorIndex) as ConstantUtf8).data.bytes.toString()
+                const type = this.getTypeFromDescriptor(descriptor)
+                const value = new type(type as any)
+                const constant = Runtime.getConstant((field.data.attributes.find(attribute => attribute instanceof AttributeConstantValue) as AttributeConstantValue).data.constantValueIndex).data as ConstantValueData
+                value.set(constant.value)
+                this.staticFields.set(name, value)
+            }
+        })
 
         classFile.data.methods.forEach(method => {
             const name = (runtimeConstantPool.get(method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
@@ -123,14 +144,14 @@ export class ClassObject {
                 name,
                 activeFrame: frame,
                 activeInstructionStream: instructionStream,
-                returnType: this.getReturnTypeFromMethodDescriptor(descriptor)
+                returnType: this.getTypeFromDescriptor(descriptor)
             })
         })
         if (this.hasMainMethod) this.callFunction('main')
     }
 
-    private getReturnTypeFromMethodDescriptor(methodDescriptor: string): any {
-        const returnDescriptor = methodDescriptor.split(')')[1]
+    private getTypeFromDescriptor(descriptor: string): DescriptorType {
+        const returnDescriptor = descriptor.split(')')[1]
         switch (returnDescriptor) {
             case 'B': return byte
             case 'C': return char

@@ -26,7 +26,7 @@ export class FieldInfoParser {
     }
 
     public static parse(lexer: Lexer, constantResolver: ConstantResolver): FieldInfo {
-        const accessFlags = FieldInfoParser.parseFieldAccessFlags(lexer.read(2))
+        const accessFlags = lexer.read(2).toNumber()
         const nameIndex = lexer.read(2).toNumber()
         const descriptorIndex = lexer.read(2).toNumber()
         const attributesCount = lexer.read(2).toNumber()
@@ -39,20 +39,5 @@ export class FieldInfoParser {
             attributesCount,
             attributes
         })
-    }
-
-    public static parseFieldAccessFlags(bytes: ByteStream): FieldAccessFlags[] {
-        const mask = bytes.toNumber()
-        const flags = []
-        if (mask & FieldAccessFlags.ACC_PUBLIC) flags.push(FieldAccessFlags.ACC_PUBLIC)
-        if (mask & FieldAccessFlags.ACC_PRIVATE) flags.push(FieldAccessFlags.ACC_PRIVATE)
-        if (mask & FieldAccessFlags.ACC_PROTECTED) flags.push(FieldAccessFlags.ACC_PROTECTED)
-        if (mask & FieldAccessFlags.ACC_STATIC) flags.push(FieldAccessFlags.ACC_STATIC)
-        if (mask & FieldAccessFlags.ACC_FINAL) flags.push(FieldAccessFlags.ACC_FINAL)
-        if (mask & FieldAccessFlags.ACC_VOLATILE) flags.push(FieldAccessFlags.ACC_VOLATILE)
-        if (mask & FieldAccessFlags.ACC_TRANSIENT) flags.push(FieldAccessFlags.ACC_TRANSIENT)
-        if (mask & FieldAccessFlags.ACC_SYNTHETIC) flags.push(FieldAccessFlags.ACC_SYNTHETIC)
-        if (mask & FieldAccessFlags.ACC_ENUM) flags.push(FieldAccessFlags.ACC_ENUM)
-        return flags
     }
 }

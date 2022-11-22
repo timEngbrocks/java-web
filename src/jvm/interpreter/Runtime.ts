@@ -92,4 +92,8 @@ export class Runtime {
             return this.classObject.getReturnType()
         }
     }
+
+    public static getStaticField(className: string, fieldName: string): DataType<any> | undefined {
+        return this.classes.find(clazz => clazz.name == className)?.getStaticField(fieldName)
+    }
 }

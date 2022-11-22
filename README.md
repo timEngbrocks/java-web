@@ -12,11 +12,11 @@ A runtime environment for Java based on TypeScript.
 - Conversions
 - Comparisons
 - Control
+- References up to getstatic
 - Reserved
 
 ## Missing instruction categories
 
-- References
 - Extended
 
 ## Resources

@@ -1,8 +1,8 @@
 import dedent from "dedent";
 import { CPInfo } from "../CPInfo";
-import { JTypeData } from "../JType";
+import { ConstantValueData } from "./ConstantValueData";
 
-export interface ConstantFloatData extends JTypeData {
+export interface ConstantFloatData extends ConstantValueData {
     tag: number
     value: number
 }

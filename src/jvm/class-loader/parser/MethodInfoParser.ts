@@ -29,7 +29,7 @@ export class MethodInfoParser {
     }
 
     public static parse(lexer: Lexer, constantResolver: ConstantResolver): MethodInfo {
-        const accessFlags = MethodInfoParser.parseMethodAccessFlags(lexer.read(2))
+        const accessFlags = lexer.read(2).toNumber()
         const nameIndex = lexer.read(2).toNumber()
         const descriptorIndex = lexer.read(2).toNumber()
         const attributesCount = lexer.read(2).toNumber()
@@ -42,23 +42,5 @@ export class MethodInfoParser {
             attributesCount,
             attributes
         })
-    }
-
-    public static parseMethodAccessFlags(bytes: ByteStream): MethodAccessFlags[] {
-        const mask = bytes.toNumber()
-        const flags = []
-        if (mask & MethodAccessFlags.ACC_PUBLIC) flags.push(MethodAccessFlags.ACC_PUBLIC)
-        if (mask & MethodAccessFlags.ACC_PRIVATE) flags.push(MethodAccessFlags.ACC_PRIVATE)
-        if (mask & MethodAccessFlags.ACC_PROTECTED) flags.push(MethodAccessFlags.ACC_PROTECTED)
-        if (mask & MethodAccessFlags.ACC_STATIC) flags.push(MethodAccessFlags.ACC_STATIC)
-        if (mask & MethodAccessFlags.ACC_FINAL) flags.push(MethodAccessFlags.ACC_FINAL)
-        if (mask & MethodAccessFlags.ACC_SYNCHRONIZED) flags.push(MethodAccessFlags.ACC_SYNCHRONIZED)
-        if (mask & MethodAccessFlags.ACC_BRIDGE) flags.push(MethodAccessFlags.ACC_BRIDGE)
-        if (mask & MethodAccessFlags.ACC_VARARGS) flags.push(MethodAccessFlags.ACC_VARARGS)
-        if (mask & MethodAccessFlags.ACC_NATIVE) flags.push(MethodAccessFlags.ACC_NATIVE)
-        if (mask & MethodAccessFlags.ACC_ABSTRACT) flags.push(MethodAccessFlags.ACC_ABSTRACT)
-        if (mask & MethodAccessFlags.ACC_STRICT) flags.push(MethodAccessFlags.ACC_STRICT)
-        if (mask & MethodAccessFlags.ACC_SYNTHETIC) flags.push(MethodAccessFlags.ACC_SYNTHETIC)
-        return flags
     }
 }
