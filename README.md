@@ -11,13 +11,13 @@ A runtime environment for Java based on TypeScript.
 - Math
 - Conversions
 - Comparisons
+- Reserved
 
 ## Missing instruction categories
 
 - References
 - Control
 - Extended
-- Reserved
 
 ## Resources
 
