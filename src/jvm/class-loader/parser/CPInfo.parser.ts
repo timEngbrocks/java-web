@@ -3,6 +3,7 @@ import { ConstantDoubleParser } from "./constants/ConstantDoubleParser";
 import { ConstantFieldRefParser } from "./constants/ConstantFieldRefParser";
 import { ConstantFloatParser } from "./constants/ConstantFloatParser";
 import { ConstantIntegerParser } from "./constants/ConstantIntegerParser";
+import { ConstantInterfaceMethodRefParser } from "./constants/ConstantInterfaceMethodRefParser";
 import { ConstantLongParser } from "./constants/ConstantLongParser";
 import { ConstantMethodHandleParser } from "./constants/ConstantMethodHandleParser";
 import { ConstantMethodRefParser } from "./constants/ConstantMethodRefParser";
@@ -54,6 +55,7 @@ export class CPInfoParser {
             case CPInfoTypes.CONSTANT_Float: return ConstantFloatParser.parse(lexer)
             case CPInfoTypes.CONSTANT_MethodType: return ConstantMethodTypeParser.parse(lexer)
             case CPInfoTypes.CONSTANT_MethodHandle: return ConstantMethodHandleParser.parse(lexer)
+            case CPInfoTypes.CONSTANT_InterfaceMethodref: return ConstantInterfaceMethodRefParser.parse(lexer)
             default:
                 console.debug(`Unimplemented CPInfoType: ${tag}`)
                 console.debug(lexer.read(4).toString())

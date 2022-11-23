@@ -68,6 +68,12 @@ export class Runtime {
         }
     }
 
+    public static callFunctionOnObject(classObject: ClassObject, functionName: string): void {
+        this.classStack.push(this.classObject)
+        this.classObject = classObject
+        this.classObject.callFunction(functionName)
+    }
+
     public static setReturnValue(value: DataType<any>): void {
         if (this.classObject.lengthOfCallStack() == 0) {
             this.classStack[this.classStack.length - 1].setReturnValue(value)
@@ -95,5 +101,9 @@ export class Runtime {
 
     public static getStaticField(className: string, fieldName: string): DataType<any> | undefined {
         return this.classes.find(clazz => clazz.name == className)?.getStaticField(fieldName)
+    }
+
+    public static putStaticField(className: string, fieldName: string, value: DataType<any>): void {
+        return this.classes.find(clazz => clazz.name == className)?.putStaticField(fieldName, value)
     }
 }

@@ -5,29 +5,26 @@ import { ClassFile } from "../class-loader/parser/types/ClassFile"
 import { ConstantUtf8 } from "../class-loader/parser/types/constants/ConstantUtf8"
 import { ConstantValueData } from "../class-loader/parser/types/constants/ConstantValueData"
 import { CPInfo } from "../class-loader/parser/types/CPInfo"
-import { array } from "./data-types/array"
-import { byte } from "./data-types/byte"
-import { char } from "./data-types/char"
-import { classType } from "./data-types/classType"
-import { DataType, DescriptorType, PrimitiveType } from "./data-types/data-type"
-import { double } from "./data-types/double"
-import { float } from "./data-types/float"
-import { int } from "./data-types/int"
-import { long } from "./data-types/long"
+import { DataType, DescriptorType, VoidType } from "./data-types/data-type"
 import { reference } from "./data-types/references"
-import { short } from "./data-types/short"
+import { Void } from "./data-types/void"
 import { InstructionStream } from "./InstructionStream"
 import { ConstantPool } from "./memory/constant-pool"
 import { Frame } from "./memory/frame"
 import { Heap, HeapAddress, HeapData } from "./memory/heap"
 import { LocalVariable } from "./memory/local-variable"
 import { Runtime } from "./Runtime"
+import { getTypeFromFieldDescriptor, getTypesFromMethodDescriptor } from "./util"
 
+export interface MethodTypes {
+    parameters: DescriptorType[]
+    returnType: DescriptorType | VoidType
+}
 export interface MethodContext {
     name: string
     activeFrame: Frame
     activeInstructionStream: InstructionStream
-    returnType: any
+    types: MethodTypes
 }
 
 export class ClassObject {
@@ -39,9 +36,13 @@ export class ClassObject {
         name: '',
         activeFrame: new Frame('', 0, 0),
         activeInstructionStream: new InstructionStream('', ''),
-        returnType: DataType
+        types: {
+            parameters: [],
+            returnType: new Void()
+        }
     }
     public staticFields: Map<string, DataType<any>> = new Map()
+    public fields: Map<string, DataType<any>> = new Map()
 
     private callStack: MethodContext[] = []
     private methods: MethodContext[] = []
@@ -87,6 +88,7 @@ export class ClassObject {
         if (!methodContext) throw `Could not find method: ${name}`
         this.callStack.push(this.currentMethod)
         this.currentMethod = methodContext
+        this.currentMethod.activeInstructionStream.setPC(0)
     }
 
     public returnFromFunction(): void {
@@ -99,8 +101,8 @@ export class ClassObject {
         this.callStack[this.callStack.length - 1].activeFrame.operandStack.push(value)
     }
 
-    public getReturnType(): DataType<any> {
-        return this.callStack[this.callStack.length - 1].returnType
+    public getReturnType(): DescriptorType | VoidType {
+        return this.callStack[this.callStack.length - 1].types.returnType
     }
 
     public lengthOfCallStack(): number {
@@ -111,25 +113,40 @@ export class ClassObject {
         return this.staticFields.get(name)
     }
 
+    public putStaticField(name: string, value: DataType<any>): void {
+        this.staticFields.set(name, value)
+    }
+
+    public getField(name: string): DataType<any> | undefined {
+        return this.fields.get(name)
+    }
+
+    public putField(name: string, value: DataType<any>): void {
+        this.fields.set(name, value)
+    }
+
     public initialize(classFile: ClassFile): void {
         const runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
         this.name = runtimeConstantPool.getClassName()
 
         classFile.data.fields.forEach(field => {
+            const name = (runtimeConstantPool.get(field.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+            const descriptor = (runtimeConstantPool.get(field.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+            const type = getTypeFromFieldDescriptor(descriptor)
+            if (!type) throw `Could not read field descriptor for: ${this.name} -> ${name}`
+            const value = new type(type as any)
+            const constant = Runtime.getConstant((field.data.attributes.find(attribute => attribute instanceof AttributeConstantValue) as AttributeConstantValue).data.constantValueIndex).data as ConstantValueData
+            value.set(constant.value)
             if (field.data.accessFlags & FieldAccessFlags.ACC_STATIC) {
-                const name = (runtimeConstantPool.get(field.data.nameIndex) as ConstantUtf8).data.bytes.toString()
-                const descriptor = (runtimeConstantPool.get(field.data.descriptorIndex) as ConstantUtf8).data.bytes.toString()
-                const type = this.getTypeFromDescriptor(descriptor)
-                const value = new type(type as any)
-                const constant = Runtime.getConstant((field.data.attributes.find(attribute => attribute instanceof AttributeConstantValue) as AttributeConstantValue).data.constantValueIndex).data as ConstantValueData
-                value.set(constant.value)
                 this.staticFields.set(name, value)
+            } else {
+                this.fields.set(name, value)
             }
         })
 
         classFile.data.methods.forEach(method => {
             const name = (runtimeConstantPool.get(method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-            const descriptor = (runtimeConstantPool.get(method.data.descriptorIndex) as ConstantUtf8).data.bytes.toString()
+            const descriptor = (runtimeConstantPool.get(method.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 
             if (name === 'main') this.hasMainMethod = true
 
@@ -144,37 +161,10 @@ export class ClassObject {
                 name,
                 activeFrame: frame,
                 activeInstructionStream: instructionStream,
-                returnType: this.getTypeFromDescriptor(descriptor)
+                types: getTypesFromMethodDescriptor(descriptor)
             })
         })
         if (this.hasMainMethod) this.callFunction('main')
-    }
-
-    private getTypeFromDescriptor(descriptor: string): DescriptorType {
-        const returnDescriptor = descriptor.split(')')[1]
-        switch (returnDescriptor) {
-            case 'B': return byte
-            case 'C': return char
-            case 'D': return double
-            case 'F': return float
-            case 'I': return int
-            case 'J': return long
-            case 'S': return short
-            case 'Z': return int
-        }
-        if (returnDescriptor.startsWith('[')) {
-            switch (returnDescriptor.substring(1)) {
-                case 'B': return array<byte>
-                case 'C': return array<char>
-                case 'D': return array<double>
-                case 'F': return array<float>
-                case 'I': return array<int>
-                case 'J': return array<long>
-                case 'S': return array<short>
-                case 'Z': return array<int>
-            }
-        }
-        return classType
     }
 
 }

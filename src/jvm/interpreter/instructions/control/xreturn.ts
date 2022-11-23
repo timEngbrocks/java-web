@@ -1,5 +1,5 @@
 import { Block } from "../../data-types/block";
-import { DataType } from "../../data-types/data-type";
+import { DataType, VoidType } from "../../data-types/data-type";
 import { double } from "../../data-types/double";
 import { float } from "../../data-types/float";
 import { int } from "../../data-types/int";
@@ -17,6 +17,7 @@ class xreturn<T extends DataType<any>> extends Instruction {
         if (this.newConstant() instanceof Block) return
         // FIXME: synchronized method return
         const returnType = Runtime.getReturnType()
+        if (returnType instanceof VoidType) throw 'Tried returning void'
         const value = Runtime.pop()
         const returnValue = new returnType()
         returnValue.set(value)

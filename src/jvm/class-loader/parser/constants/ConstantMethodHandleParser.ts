@@ -1,6 +1,6 @@
 import { CPInfoTypes } from "../CPInfo.parser";
 import { Lexer } from "../lexer";
-import { ConstantMethodHandle } from "../types/constants/ConstantMethodHandle";
+import { ConstantMethodHandle, MethodHandleReferenceKind } from "../types/constants/ConstantMethodHandle";
 
 export class ConstantMethodHandleParser {
     public static parse(lexer: Lexer): ConstantMethodHandle {

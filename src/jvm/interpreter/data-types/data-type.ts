@@ -1,6 +1,7 @@
 import { ClassObject } from "../ClassObject"
 import { InterfaceObject } from "../InterfaceObject"
 import { array } from "./array"
+import { Void } from "./void"
 
 export abstract class DataType<T> {
     public abstract isWide: boolean
@@ -16,5 +17,6 @@ export abstract class FloatingPointType<T> extends NumericType<T> {}
 export abstract class ReturnAddressType<T> extends PrimitiveType<T> {}
 export abstract class ClassType extends DataType<ClassObject> {}
 export abstract class InterfaceType extends DataType<InterfaceObject> {}
+export abstract class VoidType extends DataType<undefined> {}
 
 export type DescriptorType = (new () => (PrimitiveType<any> | ClassType)) | { new (type: new () => any, values?: any[]): array<any>; prototype: array<any>; }

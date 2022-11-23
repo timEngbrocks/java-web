@@ -12,7 +12,7 @@ A runtime environment for Java based on TypeScript.
 - Conversions
 - Comparisons
 - Control
-- References up to getstatic
+- References up to invokespecial
 - Reserved
 
 ## Missing instruction categories
