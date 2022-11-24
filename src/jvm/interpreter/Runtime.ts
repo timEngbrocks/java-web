@@ -1,3 +1,5 @@
+import { AttributeBootstrapMethodsBootstrapMethod } from "../class-loader/parser/types/attributes/AttributeBootstrapMethods"
+import { ConstantData } from "../class-loader/parser/types/constants/ConstantData"
 import { CPInfo } from "../class-loader/parser/types/CPInfo"
 import { ClassObject } from "./ClassObject"
 import { DataType } from "./data-types/data-type"
@@ -12,7 +14,7 @@ export class Runtime {
         this.classObject = classObject
         this.classes = classes
     }
-    public static getConstant(index: number): CPInfo<any> {
+    public static getConstant(index: number): CPInfo<ConstantData> {
         return this.classObject.getConstant(index)
     }
 
@@ -105,5 +107,9 @@ export class Runtime {
 
     public static putStaticField(className: string, fieldName: string, value: DataType<any>): void {
         return this.classes.find(clazz => clazz.name == className)?.putStaticField(fieldName, value)
+    }
+
+    public static getBootstrapMethod(index: number): AttributeBootstrapMethodsBootstrapMethod {
+        return this.classObject.getBootstrapMethod(index)
     }
 }

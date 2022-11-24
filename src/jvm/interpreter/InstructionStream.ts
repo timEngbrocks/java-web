@@ -35,13 +35,20 @@ const getInstructionByCode = (code: string): Instruction => {
 
 export class InstructionStream {
 
+    public static create(name: string, stream: Instruction[]): InstructionStream {
+        const instrutionStream = new InstructionStream(name)
+        instrutionStream.stream = stream
+        return instrutionStream
+    }
+
     private name: string = ''
     private pc: number = 0
     private stream: Instruction[]
 
-    constructor(name: string, code: string) {
+    constructor(name: string, code: string = '') {
         this.name = name
-        this.stream = this.parseCode(code)
+        if (code === '') this.stream = []
+        else this.stream = this.parseCode(code)
     }
 
     public getName(): string {

@@ -1,13 +1,13 @@
-import { Lexer } from "../../lexer";
-import { AttributeNestHost } from "../../types/attributes/AttributeNestHost";
-import { AttributeInfoHeader } from "../AttributeInfoParser";
+import { Lexer } from "../lexer"
+import { AttributeInfoHeader } from "../types/AttributeInfo"
+import { AttributeNestHost } from "../types/attributes/AttributeNestHost"
 
 export class AttributeNestHostParser {
-    public parse(lexer: Lexer, header: AttributeInfoHeader): AttributeNestHost {
+    public static parse(lexer: Lexer, header: AttributeInfoHeader): AttributeNestHost {
         const hostClassIndex = lexer.read(2).toNumber()
 
         return new AttributeNestHost({
-            ...header,
+            header,
             hostClassIndex
         })
     }

@@ -1,9 +1,11 @@
 import { ConstantClassParser } from "./constants/ConstantClassParser";
 import { ConstantDoubleParser } from "./constants/ConstantDoubleParser";
+import { ConstantDynamicParser } from "./constants/ConstantDynamicParser";
 import { ConstantFieldRefParser } from "./constants/ConstantFieldRefParser";
 import { ConstantFloatParser } from "./constants/ConstantFloatParser";
 import { ConstantIntegerParser } from "./constants/ConstantIntegerParser";
 import { ConstantInterfaceMethodRefParser } from "./constants/ConstantInterfaceMethodRefParser";
+import { ConstantInvokeDynamicParser } from "./constants/ConstantInvokeDynamicParser";
 import { ConstantLongParser } from "./constants/ConstantLongParser";
 import { ConstantMethodHandleParser } from "./constants/ConstantMethodHandleParser";
 import { ConstantMethodRefParser } from "./constants/ConstantMethodRefParser";
@@ -15,6 +17,7 @@ import { Lexer } from "./lexer";
 import { CPInfo } from "./types/CPInfo";
 
 export enum CPInfoTypes {
+    invalid = -1,
     CONSTANT_Class = 7,
     CONSTANT_Fieldref = 9,
     CONSTANT_Methodref = 10,
@@ -28,7 +31,10 @@ export enum CPInfoTypes {
     CONSTANT_Utf8 = 1,
     CONSTANT_MethodHandle = 15,
     CONSTANT_MethodType = 16,
+    CONSTANT_Dynamic = 17,
     CONSTANT_InvokeDynamic = 18,
+    CONSTANT_Module = 19,
+    CONSTANT_Package = 20
 }
 
 export class CPInfoParser {
@@ -56,10 +62,12 @@ export class CPInfoParser {
             case CPInfoTypes.CONSTANT_MethodType: return ConstantMethodTypeParser.parse(lexer)
             case CPInfoTypes.CONSTANT_MethodHandle: return ConstantMethodHandleParser.parse(lexer)
             case CPInfoTypes.CONSTANT_InterfaceMethodref: return ConstantInterfaceMethodRefParser.parse(lexer)
+            case CPInfoTypes.CONSTANT_Dynamic: return ConstantDynamicParser.parse(lexer)
+            case CPInfoTypes.CONSTANT_InvokeDynamic: return ConstantInvokeDynamicParser.parse(lexer)
             default:
                 console.debug(`Unimplemented CPInfoType: ${tag}`)
                 console.debug(lexer.read(4).toString())
         }
-        return new CPInfo({})
+        return new CPInfo({tag: CPInfoTypes.invalid})
     }
 }

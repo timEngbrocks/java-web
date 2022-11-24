@@ -1,9 +1,9 @@
 import dedent from "dedent";
 import { ByteStream } from "../../byte-stream";
 import { CPInfo } from "../CPInfo";
-import { JTypeData } from "../JType";
+import { ConstantData } from "./ConstantData";
 
-export interface ConstantUtf8Data extends JTypeData {
+export interface ConstantUtf8Data extends ConstantData {
     tag: number
     length: number
     bytes: ByteStream

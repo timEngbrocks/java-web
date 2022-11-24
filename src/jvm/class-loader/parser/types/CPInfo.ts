@@ -1,3 +1,4 @@
-import { JType, JTypeData } from "./JType";
+import { ConstantData } from "./constants/ConstantData";
+import { JType } from "./JType";
 
-export class CPInfo<T extends JTypeData> extends JType<T> {}
+export class CPInfo<T extends ConstantData> extends JType<T> {}

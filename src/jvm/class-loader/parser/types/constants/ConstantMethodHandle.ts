@@ -1,6 +1,6 @@
 import dedent from "dedent";
 import { CPInfo } from "../CPInfo";
-import { JTypeData } from "../JType";
+import { ConstantData } from "./ConstantData";
 
 export enum MethodHandleReferenceKind {
     REF_getField = 1,
@@ -14,7 +14,7 @@ export enum MethodHandleReferenceKind {
     REF_invokeInterface = 9,
 }
 
-export interface ConstantMethodHandleData extends JTypeData {
+export interface ConstantMethodHandleData extends ConstantData {
     tag: number
     referenceKind: MethodHandleReferenceKind
     referenceIndex: number

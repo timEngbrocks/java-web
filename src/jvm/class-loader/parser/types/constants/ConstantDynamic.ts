@@ -1,17 +1,17 @@
 import dedent from "dedent";
-import { CPInfo } from "../CPInfo";
+import { JType } from "../JType";
 import { ConstantData } from "./ConstantData";
 
-export interface ConstantMethodRefData extends ConstantData {
+export interface ConstantDynamicData extends ConstantData {
     tag: number
-    classIndex: number
+    bootstrapMethodAttrIndex: number
     nameAndTypeIndex: number
 }
 
-export class ConstantMethodRef extends CPInfo<ConstantMethodRefData> {
+export class ConstantDynamic extends JType<ConstantDynamicData> {
     public override toString(): string {
         return dedent`tag: ${this.data.tag}
-        classIndex: ${this.data.classIndex}
+        bootstrapMethodAttrIndex: ${this.data.bootstrapMethodAttrIndex}
         nameAndTypeIndex: ${this.data.nameAndTypeIndex}`
     }
 }

@@ -1,4 +1,5 @@
 import { FieldAccessFlags } from "../class-loader/parser/FieldInfoParser"
+import { AttributeBootstrapMethods, AttributeBootstrapMethodsBootstrapMethod } from "../class-loader/parser/types/attributes/AttributeBootstrapMethods"
 import { AttributeCode } from "../class-loader/parser/types/attributes/AttributeCode"
 import { AttributeConstantValue } from "../class-loader/parser/types/attributes/AttributeConstantValue"
 import { ClassFile } from "../class-loader/parser/types/ClassFile"
@@ -44,8 +45,10 @@ export class ClassObject {
     public staticFields: Map<string, DataType<any>> = new Map()
     public fields: Map<string, DataType<any>> = new Map()
 
-    private callStack: MethodContext[] = []
-    private methods: MethodContext[] = []
+    public callStack: MethodContext[] = []
+    public methods: MethodContext[] = []
+
+    public bootstrapMethods: AttributeBootstrapMethodsBootstrapMethod[] = []
 
     public getConstant(index: number): CPInfo<any> {
         return this.runtimeConstantPool.get(index)
@@ -125,6 +128,10 @@ export class ClassObject {
         this.fields.set(name, value)
     }
 
+    public getBootstrapMethod(index: number): AttributeBootstrapMethodsBootstrapMethod {
+        return this.bootstrapMethods[index]
+    }
+
     public initialize(classFile: ClassFile): void {
         const runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
         this.name = runtimeConstantPool.getClassName()
@@ -141,6 +148,12 @@ export class ClassObject {
                 this.staticFields.set(name, value)
             } else {
                 this.fields.set(name, value)
+            }
+        })
+
+        classFile.data.attributes.forEach(attribute => {
+            if (attribute instanceof AttributeBootstrapMethods) {
+                this.bootstrapMethods = attribute.data.bootstrapMethods
             }
         })
 

@@ -1,6 +1,6 @@
-import { JTypeData } from "../JType";
+import { ConstantData } from "./ConstantData";
 
-export interface ConstantValueData extends JTypeData {
+export interface ConstantValueData extends ConstantData {
     tag: number
     value: number | bigint
 }

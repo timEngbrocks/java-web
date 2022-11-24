@@ -1,15 +1,15 @@
-import { Lexer } from "../../lexer";
-import { AttributeNestMembers } from "../../types/attributes/AttributeNestMembers";
-import { ConstantClassParser } from "../constants/ConstantClassParser";
-import { AttributeInfoHeader } from "../AttributeInfoParser";
+import { ConstantClassParser } from "../constants/ConstantClassParser"
+import { Lexer } from "../lexer"
+import { AttributeInfoHeader } from "../types/AttributeInfo"
+import { AttributeNestMembers } from "../types/attributes/AttributeNestMembers"
 
 export class AttributeNestMembersParser {
-    public parse(lexer: Lexer, header: AttributeInfoHeader): AttributeNestMembers {
+    public static parse(lexer: Lexer, header: AttributeInfoHeader): AttributeNestMembers {
         const numberOfClasses = lexer.read(2).toNumber()
         const classes = ConstantClassParser.parseMany(lexer, numberOfClasses)
 
         return new AttributeNestMembers({
-            ...header,
+            header,
             numberOfClasses,
             classes
         })
