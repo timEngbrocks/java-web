@@ -4,10 +4,10 @@ import { OperandStack } from "./operand-stack";
 
 export class Frame {
     
-    private name: string
+    public name: string
 
     public operandStack: OperandStack
-    private localVariables: LocalVariable[]
+    public localVariables: LocalVariable[]
 
     constructor(name: string, variableCount: number, stackSize: number) {
         this.name = name

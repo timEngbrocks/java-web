@@ -3,8 +3,8 @@ import { DataType } from "../data-types/data-type"
 
 export class OperandStack {
 
-    private size: number
-    private stack: DataType<any>[] = []
+    public size: number
+    public stack: DataType<any>[] = []
 
     constructor(size: number) {
         this.size = size

@@ -18,10 +18,10 @@ export class HeapAddress {
 
 export class Heap {
 
-    private count: number = 0
-    private classHeap: Map<number, ClassObject> = new Map<number, ClassObject>()
-    private interfaceHeap: Map<number, InterfaceObject> = new Map<number, InterfaceObject>()
-    private arrayHeap: Map<number, array<any>> = new Map<number, array<any>>()
+    public count: number = 0
+    public classHeap: Map<number, ClassObject> = new Map<number, ClassObject>()
+    public interfaceHeap: Map<number, InterfaceObject> = new Map<number, InterfaceObject>()
+    public arrayHeap: Map<number, array<any>> = new Map<number, array<any>>()
     
     public allocate(value: HeapData): HeapAddress {
         if (value instanceof ClassObject) {
