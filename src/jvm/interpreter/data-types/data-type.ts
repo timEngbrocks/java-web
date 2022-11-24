@@ -1,13 +1,12 @@
-import { ClassObject } from "../ClassObject"
-import { InterfaceObject } from "../InterfaceObject"
-import { array } from "./array"
-import { Void } from "./void"
+import { ClassObject } from '../ClassObject'
+import { InterfaceObject } from '../InterfaceObject'
+import { array } from './array'
 
 export abstract class DataType<T> {
-    public abstract isWide: boolean
-    public abstract get(): T
-    public abstract set(value: T): void
-    public abstract toString(): string
+	public abstract isWide: boolean
+	public abstract get(): T
+	public abstract set(value: T): void
+	public abstract toString(): string
 }
 
 export abstract class PrimitiveType<T> extends DataType<T> {}
@@ -19,4 +18,4 @@ export abstract class ClassType extends DataType<ClassObject> {}
 export abstract class InterfaceType extends DataType<InterfaceObject> {}
 export abstract class VoidType extends DataType<undefined> {}
 
-export type DescriptorType = (new () => (PrimitiveType<any> | ClassType)) | { new (type: new () => any, values?: any[]): array<any>; prototype: array<any>; }
+export type DescriptorType = (new () => (PrimitiveType<any> | ClassType)) | { new (type: new () => any, values?: any[]): array<any>, prototype: array<any> }

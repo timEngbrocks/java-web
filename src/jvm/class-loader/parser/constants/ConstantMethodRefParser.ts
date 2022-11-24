@@ -1,16 +1,16 @@
-import { CPInfoTypes } from "../CPInfo.parser"
-import { Lexer } from "../lexer"
-import { ConstantMethodRef } from "../types/constants/ConstantMethodRef"
+import { CPInfoTypes } from '../CPInfo.parser'
+import { Lexer } from '../lexer'
+import { ConstantMethodRef } from '../types/constants/ConstantMethodRef'
 
 export class ConstantMethodRefParser {
-    public static parse(lexer: Lexer): ConstantMethodRef {
-        const classIndex = lexer.read(2).toNumber()
-        const nameAndTypeIndex = lexer.read(2).toNumber()
+	public static parse(lexer: Lexer): ConstantMethodRef {
+		const classIndex = lexer.read(2).toNumber()
+		const nameAndTypeIndex = lexer.read(2).toNumber()
 
-        return new ConstantMethodRef({
-            tag: CPInfoTypes.CONSTANT_Methodref,
-            classIndex,
-            nameAndTypeIndex
-        })
-    }
+		return new ConstantMethodRef({
+			tag: CPInfoTypes.CONSTANT_Methodref,
+			classIndex,
+			nameAndTypeIndex
+		})
+	}
 }

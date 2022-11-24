@@ -1,29 +1,32 @@
-import { DataType } from "../../data-types/data-type";
-import { double } from "../../data-types/double";
-import { float } from "../../data-types/float";
-import { int } from "../../data-types/int";
-import { long } from "../../data-types/long";
-import { Instruction } from "../../Instruction";
-import { Runtime } from "../../Runtime";
+import { DataType } from '../../data-types/data-type'
+import { double } from '../../data-types/double'
+import { float } from '../../data-types/float'
+import { int } from '../../data-types/int'
+import { long } from '../../data-types/long'
+import { Instruction } from '../../Instruction'
+import { Runtime } from '../../Runtime'
 
 class xconst_n<T extends DataType<number | bigint>> extends Instruction {
-    length: number = 1
-    private i: number | bigint
-    constructor(i: number | bigint, private type: new () => T) {
-        super()
-        this.i = i
-    }
-    public override execute(): void {
-        const x = this.newConstant()
-        x.set(this.i)
-        Runtime.push(x)
-    }
-    public override toString(): string {
-        return `${this.newConstant().toString()} : const_${this.i}` 
-    }
-    private newConstant(): T {
-        return new this.type()
-    }
+	length: number = 1
+	private readonly i: number | bigint
+	constructor(i: number | bigint, private readonly type: new () => T) {
+		super()
+		this.i = i
+	}
+
+	public override execute(): void {
+		const x = this.newConstant()
+		x.set(this.i)
+		Runtime.push(x)
+	}
+
+	public override toString(): string {
+		return `${this.newConstant().toString()} : const_${this.i}`
+	}
+
+	private newConstant(): T {
+		return new this.type()
+	}
 }
 
 export const iconst_0 = new xconst_n<int>(0, int)

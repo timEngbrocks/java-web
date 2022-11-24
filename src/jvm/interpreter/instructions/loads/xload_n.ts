@@ -1,31 +1,34 @@
-import { DataType } from "../../data-types/data-type";
-import { double } from "../../data-types/double";
-import { float } from "../../data-types/float";
-import { int } from "../../data-types/int";
-import { long } from "../../data-types/long";
-import { reference } from "../../data-types/references";
-import { Instruction } from "../../Instruction";
-import { HeapAddress } from "../../memory/heap";
-import { Runtime } from "../../Runtime";
+import { DataType } from '../../data-types/data-type'
+import { double } from '../../data-types/double'
+import { float } from '../../data-types/float'
+import { int } from '../../data-types/int'
+import { long } from '../../data-types/long'
+import { reference } from '../../data-types/references'
+import { Instruction } from '../../Instruction'
+import { HeapAddress } from '../../memory/heap'
+import { Runtime } from '../../Runtime'
 
 class xload_n<T extends DataType<number | bigint | HeapAddress | null>> extends Instruction {
-    length = 1
-    private i: number
-    constructor(i: number, private type: new () => T) {
-        super()
-        this.i = i
-    }
-    public override execute(): void {
-        const localVariable = Runtime.getLocalVariable(this.i)
-        const value = localVariable.get()
-        Runtime.push(value)
-    }
-    public override toString(): string {
-        return `${this.newConstant().toString()} : load_${this.i}`
-    }
-    private newConstant(): T {
-        return new this.type()
-    }
+	length = 1
+	private readonly i: number
+	constructor(i: number, private readonly type: new () => T) {
+		super()
+		this.i = i
+	}
+
+	public override execute(): void {
+		const localVariable = Runtime.getLocalVariable(this.i)
+		const value = localVariable.get()
+		Runtime.push(value)
+	}
+
+	public override toString(): string {
+		return `${this.newConstant().toString()} : load_${this.i}`
+	}
+
+	private newConstant(): T {
+		return new this.type()
+	}
 }
 
 export const iload_0 = new xload_n<int>(0, int)

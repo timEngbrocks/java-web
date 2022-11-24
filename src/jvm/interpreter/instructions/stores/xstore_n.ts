@@ -1,32 +1,35 @@
-import { DataType } from "../../data-types/data-type"
-import { double } from "../../data-types/double"
-import { float } from "../../data-types/float"
-import { int } from "../../data-types/int"
-import { long } from "../../data-types/long"
-import { reference } from "../../data-types/references"
-import { Instruction } from "../../Instruction"
-import { HeapAddress } from "../../memory/heap"
-import { LocalVariable } from "../../memory/local-variable"
-import { Runtime } from "../../Runtime"
+import { DataType } from '../../data-types/data-type'
+import { double } from '../../data-types/double'
+import { float } from '../../data-types/float'
+import { int } from '../../data-types/int'
+import { long } from '../../data-types/long'
+import { reference } from '../../data-types/references'
+import { Instruction } from '../../Instruction'
+import { HeapAddress } from '../../memory/heap'
+import { LocalVariable } from '../../memory/local-variable'
+import { Runtime } from '../../Runtime'
 
 class xstore_n<T extends DataType<number | bigint | HeapAddress | null>> extends Instruction {
-    length = 1
-    private i: number
-    constructor(i: number, private type: new () => T) {
-        super()
-        this.i = i
-    }
-    public override execute(): void {
-        const value = Runtime.pop()
-        if (!(value instanceof this.type)) throw 'Tried to store incompatible type using xstore_n'
-        Runtime.setLocalVariable(new LocalVariable(value), this.i)
-    }
-    public override toString(): string {
-        return `${this.newConstant().toString()} : store_${this.i}`
-    }
-    private newConstant(): T {
-        return new this.type()
-    }
+	length = 1
+	private readonly i: number
+	constructor(i: number, private readonly type: new () => T) {
+		super()
+		this.i = i
+	}
+
+	public override execute(): void {
+		const value = Runtime.pop()
+		if (!(value instanceof this.type)) throw 'Tried to store incompatible type using xstore_n'
+		Runtime.setLocalVariable(new LocalVariable(value), this.i)
+	}
+
+	public override toString(): string {
+		return `${this.newConstant().toString()} : store_${this.i}`
+	}
+
+	private newConstant(): T {
+		return new this.type()
+	}
 }
 
 export const istore_0 = new xstore_n<int>(0, int)

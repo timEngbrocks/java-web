@@ -1,24 +1,22 @@
-import * as fs from 'fs';
-import { Lexer } from './parser/lexer';
-import { Parser } from './parser/Parser';
-import { ClassFile } from "./parser/types/ClassFile";
+import * as fs from 'fs'
+import { Lexer } from './parser/lexer'
+import { Parser } from './parser/Parser'
+import { ClassFile } from './parser/types/ClassFile'
 
 export class ClassLoader {
+	private readonly lexer: Lexer
+	private readonly parser: Parser
 
-    private lexer: Lexer
-    private parser: Parser
+	private readonly classFile: ClassFile
 
-    private classFile: ClassFile
+	constructor(path: string) {
+		const buffer = fs.readFileSync(path)
+		this.lexer = new Lexer(buffer)
+		this.parser = new Parser(this.lexer)
+		this.classFile = this.parser.classFile
+	}
 
-    constructor(path: string) {
-        const buffer = fs.readFileSync(path)
-        this.lexer = new Lexer(buffer)
-        this.parser = new Parser(this.lexer)
-        this.classFile = this.parser.classFile
-    }
-
-    public getClass(): ClassFile {
-        return this.classFile
-    }
-
+	public getClass(): ClassFile {
+		return this.classFile
+	}
 }

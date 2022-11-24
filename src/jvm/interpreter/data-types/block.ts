@@ -1,8 +1,8 @@
-import { DataType } from "./data-type";
+import { DataType } from './data-type'
 
 export class Block extends DataType<undefined> {
-    public isWide: boolean = false
-    public get(): undefined { return undefined }
-    public set(value: undefined): void { throw 'Tried setting block type' }
-    public toString(): string { return 'block' }
+	public isWide: boolean = false
+	public get(): undefined { return undefined }
+	public set(value: undefined): void { throw 'Tried setting block type' }
+	public toString(): string { return 'block' }
 }

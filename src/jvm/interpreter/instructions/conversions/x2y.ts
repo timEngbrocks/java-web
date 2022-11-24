@@ -1,34 +1,38 @@
-import { byte } from "../../data-types/byte";
-import { char } from "../../data-types/char";
-import { DataType } from "../../data-types/data-type";
-import { double } from "../../data-types/double";
-import { float } from "../../data-types/float";
-import { int } from "../../data-types/int";
-import { long } from "../../data-types/long";
-import { short } from "../../data-types/short";
-import { Instruction } from "../../Instruction";
-import { Runtime } from "../../Runtime";
+import { byte } from '../../data-types/byte'
+import { char } from '../../data-types/char'
+import { DataType } from '../../data-types/data-type'
+import { double } from '../../data-types/double'
+import { float } from '../../data-types/float'
+import { int } from '../../data-types/int'
+import { long } from '../../data-types/long'
+import { short } from '../../data-types/short'
+import { Instruction } from '../../Instruction'
+import { Runtime } from '../../Runtime'
 
 class x2y<T extends DataType<any>, U extends DataType<any>> extends Instruction {
-    length = 1
-    constructor(private typeFrom: new () => T, private typeTo: new () => U) {
-        super()
-    }
-    public override execute(): void {
-        const value = Runtime.pop()
-        const result = this.newConstantTo()
-        result.set(value.get())
-        Runtime.push(result)
-    }
-    public override toString(): string {
-        return `${this.newConstantFrom().toString()} 2 ${this.newConstantTo().toString()}` 
-    }
-    private newConstantFrom(): T {
-        return new this.typeFrom()
-    }
-    private newConstantTo(): U {
-        return new this.typeTo()
-    }
+	length = 1
+	constructor(private readonly typeFrom: new () => T, private readonly typeTo: new () => U) {
+		super()
+	}
+
+	public override execute(): void {
+		const value = Runtime.pop()
+		const result = this.newConstantTo()
+		result.set(value.get())
+		Runtime.push(result)
+	}
+
+	public override toString(): string {
+		return `${this.newConstantFrom().toString()} 2 ${this.newConstantTo().toString()}`
+	}
+
+	private newConstantFrom(): T {
+		return new this.typeFrom()
+	}
+
+	private newConstantTo(): U {
+		return new this.typeTo()
+	}
 }
 
 export const i2l = new x2y<int, long>(int, long)

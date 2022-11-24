@@ -1,39 +1,39 @@
-import { ConstantFloat } from "../../../class-loader/parser/types/constants/ConstantFloat"
-import { ConstantInteger } from "../../../class-loader/parser/types/constants/ConstantInteger"
-import { float } from "../../data-types/float"
-import { int } from "../../data-types/int"
-import { Instruction } from "../../Instruction"
-import { Runtime } from "../../Runtime"
-import { OpCodes } from "../opcodes"
+import { ConstantFloat } from '../../../class-loader/parser/types/constants/ConstantFloat'
+import { ConstantInteger } from '../../../class-loader/parser/types/constants/ConstantInteger'
+import { float } from '../../data-types/float'
+import { int } from '../../data-types/int'
+import { Instruction } from '../../Instruction'
+import { Runtime } from '../../Runtime'
+import { OpCodes } from '../opcodes'
 
 export class ldc extends Instruction {
-    opcode: number = OpCodes.ldc
-    length: number = 2
-    args: string = ""
+	opcode: number = OpCodes.ldc
+	length: number = 2
+	args: string = ''
 
-    public override setArgs(args: string): void {
-        this.args = args
-    }
+	public override setArgs(args: string): void {
+		this.args = args
+	}
 
-    public override execute(): void {
-        const index = Number.parseInt(this.args.substring(0, 2), 16)
-        const value = Runtime.getConstant(index)
-        if (value instanceof ConstantInteger) {
-            const x = new int()
-            x.set(value.data.value)
-            Runtime.push(x)
-            return
-        }
-        if (value instanceof ConstantFloat) {
-            const x = new float()
-            x.set(value.data.value)
-            Runtime.push(x)
-            return
-        }
-        throw `Unimplemented case for ldc value: ${value.toString()}`
-    }
+	public override execute(): void {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		const value = Runtime.getConstant(index)
+		if (value instanceof ConstantInteger) {
+			const x = new int()
+			x.set(value.data.value)
+			Runtime.push(x)
+			return
+		}
+		if (value instanceof ConstantFloat) {
+			const x = new float()
+			x.set(value.data.value)
+			Runtime.push(x)
+			return
+		}
+		throw `Unimplemented case for ldc value: ${value.toString()}`
+	}
 
-    public override toString(): string {
-        return `ldc 0x${this.args.substring(0, 2)}`
-    }
+	public override toString(): string {
+		return `ldc 0x${this.args.substring(0, 2)}`
+	}
 }
