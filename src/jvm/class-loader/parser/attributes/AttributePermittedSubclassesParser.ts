@@ -1,5 +1,5 @@
 import { ConstantClassParser } from '../constants/ConstantClassParser'
-import { Lexer } from '../lexer'
+import { Lexer } from '../Lexer'
 import { AttributeInfoHeader } from '../types/AttributeInfo'
 import { AttributePermittedSubclasses } from '../types/attributes/AttributePermittedSubclasses'
 

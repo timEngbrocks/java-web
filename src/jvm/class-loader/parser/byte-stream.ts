@@ -24,8 +24,13 @@ export class ByteStream {
 	}
 
 	public toNumber(): number {
-		return this.bytes.reduce((acc, x, idx) => {
-			return acc | (x << (this.bytes.length - idx - 1))
-		}, 0)
+		let value = 0
+		let exponent = 1
+		const binary = this.toBinaryString()
+		for (let i = binary.length - 1; i >= 0; i--) {
+			value += Number.parseInt(binary[i]) * exponent
+			exponent *= 2
+		}
+		return value
 	}
 }

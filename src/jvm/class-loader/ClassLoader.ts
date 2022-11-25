@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { Lexer } from './parser/lexer'
+import { Lexer } from './parser/Lexer'
 import { Parser } from './parser/Parser'
 import { ClassFile } from './parser/types/ClassFile'
 

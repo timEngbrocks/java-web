@@ -1,4 +1,4 @@
-import { Lexer } from '../lexer'
+import { Lexer } from '../Lexer'
 import { AttributeInfoHeader } from '../types/AttributeInfo'
 import { AttributeConstantValue } from '../types/attributes/AttributeConstantValue'
 

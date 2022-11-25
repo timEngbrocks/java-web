@@ -27,7 +27,7 @@ class xload<T extends DataType<any>> extends Instruction {
 
 	public override toString(): string {
 		const index = Number.parseInt(this.args.substring(0, 2), 16)
-		return `${this.newConstant().toString()} : load @ ${index}}`
+		return `${this.newConstant().toString()} : load @ ${index}`
 	}
 
 	private newConstant(): T {

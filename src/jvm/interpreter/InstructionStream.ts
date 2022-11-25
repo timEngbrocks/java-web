@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash'
 import { Instruction } from './Instruction'
 import { getConstantInstructionByCode } from './instructions/constants/constant-instructions'
 import { getControlInstructionByCode } from './instructions/control/control-instructions'
@@ -25,7 +26,7 @@ const instructionTypes = [
 ]
 const getInstructionByCode = (code: string): Instruction => {
 	for (const instructionType of instructionTypes) {
-		const instruction = instructionType(code)
+		const instruction = cloneDeep(instructionType(code))
 		if (instruction.toString() != 'invalid') return instruction
 	}
 	console.log(`Unimplemented opcode: 0x${code.substring(0, 2)}`)

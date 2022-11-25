@@ -4,7 +4,7 @@ import { AttributeConstantValueParser } from './attributes/AttributeConstantValu
 import { AttributeNestHostParser } from './attributes/AttributeNestHostParser'
 import { AttributeNestMembersParser } from './attributes/AttributeNestMembersParser'
 import { AttributePermittedSubclassesParser } from './attributes/AttributePermittedSubclassesParser'
-import { Lexer } from './lexer'
+import { Lexer } from './Lexer'
 import { ConstantResolver } from './Parser'
 import { AttributeInfo } from './types/AttributeInfo'
 import { ConstantUtf8 } from './types/constants/ConstantUtf8'

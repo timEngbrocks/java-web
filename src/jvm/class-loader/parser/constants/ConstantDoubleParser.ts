@@ -1,14 +1,12 @@
 import { CPInfoTypes } from '../CPInfo.parser'
-import { Lexer } from '../lexer'
+import { Lexer } from '../Lexer'
 import { ConstantDouble } from '../types/constants/ConstantDouble'
 
 export class ConstantDoubleParser {
 	public static parse(lexer: Lexer): ConstantDouble {
 		const highBytes = lexer.read(4).toNumber()
 		const lowBytes = lexer.read(4).toNumber()
-
 		const value = (BigInt(highBytes) << 32n) + BigInt(lowBytes)
-
 		if (value === 0x7ff0000000000000n) {
 			return new ConstantDouble({
 				tag: CPInfoTypes.CONSTANT_Double,

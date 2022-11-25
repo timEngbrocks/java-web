@@ -4,10 +4,8 @@ import { double } from '../../data-types/double'
 import { long } from '../../data-types/long'
 import { Instruction } from '../../Instruction'
 import { Runtime } from '../../Runtime'
-import { OpCodes } from '../opcodes'
 
 export class ldc2_w extends Instruction {
-	opcode: number = OpCodes.ldc
 	length: number = 3
 	args: string = ''
 
@@ -24,13 +22,11 @@ export class ldc2_w extends Instruction {
 			const x = new double()
 			x.set(value.data.value)
 			Runtime.push(x)
-		}
-		if (value instanceof ConstantLong) {
+		} else if (value instanceof ConstantLong) {
 			const x = new long()
 			x.set(value.data.value)
 			Runtime.push(x)
-		}
-		throw `Unimplemented case for ldc2_w value: ${value.toString()}`
+		} else throw `Unimplemented case for ldc2_w value: ${value.toString()}`
 	}
 
 	public override toString(): string {

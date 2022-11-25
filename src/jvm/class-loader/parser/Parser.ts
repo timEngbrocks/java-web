@@ -1,5 +1,5 @@
 import { ClassFileParser } from './ClassFile.parser'
-import { Lexer } from './lexer'
+import { Lexer } from './Lexer'
 import { ClassFileHeaderData, ClassFile } from './types/ClassFile'
 import { CPInfo } from './types/CPInfo'
 

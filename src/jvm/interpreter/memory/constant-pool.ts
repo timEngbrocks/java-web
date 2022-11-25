@@ -3,7 +3,7 @@ import { ConstantUtf8 } from '../../class-loader/parser/types/constants/Constant
 import { CPInfo } from '../../class-loader/parser/types/CPInfo'
 
 export class ConstantPool {
-	private readonly constants: CPInfo<any>[]
+	public constants: CPInfo<any>[]
 
 	constructor(constants: CPInfo<any>[]) {
 		this.constants = constants

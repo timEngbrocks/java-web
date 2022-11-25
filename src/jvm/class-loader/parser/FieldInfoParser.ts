@@ -1,5 +1,5 @@
 import { AttributeInfoParser } from './AttributeInfoParser'
-import { Lexer } from './lexer'
+import { Lexer } from './Lexer'
 import { ConstantResolver } from './Parser'
 import { FieldInfo } from './types/FieldInfo'
 
@@ -29,6 +29,7 @@ export class FieldInfoParser {
 		const nameIndex = lexer.read(2).toNumber()
 		const descriptorIndex = lexer.read(2).toNumber()
 		const attributesCount = lexer.read(2).toNumber()
+
 		const attributes = AttributeInfoParser.parseMany(lexer, constantResolver, attributesCount)
 
 		return new FieldInfo({

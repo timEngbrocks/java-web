@@ -13,7 +13,10 @@ import { ConstantMethodTypeParser } from './constants/ConstantMethodTypeParser'
 import { ConstantNameAndTypeParser } from './constants/ConstantNameAndTypeParser'
 import { ConstantStringParser } from './constants/ConstantStringParser'
 import { ConstantUtf8Parser } from './constants/ConstantUtf8Parser'
-import { Lexer } from './lexer'
+import { Lexer } from './Lexer'
+import { ConstantDouble } from './types/constants/ConstantDouble'
+import { ConstantLong } from './types/constants/ConstantLong'
+import { EmptyBlock } from './types/constants/EmptyBlock'
 import { CPInfo } from './types/CPInfo'
 
 export enum CPInfoTypes {
@@ -41,7 +44,12 @@ export class CPInfoParser {
 	public static parseMany(lexer: Lexer, count: number): CPInfo<any>[] {
 		const result: CPInfo<any>[] = []
 		for (let i = 0; i < count; i++) {
-			result.push(CPInfoParser.parse(lexer))
+			const constant = CPInfoParser.parse(lexer)
+			result.push(constant)
+			if (constant instanceof ConstantLong || constant instanceof ConstantDouble) {
+				result.push(new EmptyBlock({ tag: -1 }))
+				i++
+			}
 		}
 		return result
 	}

@@ -134,12 +134,12 @@ export class ClassObject {
 	}
 
 	public initialize(classFile: ClassFile): void {
-		const runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
-		this.name = runtimeConstantPool.getClassName()
+		this.runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
+		this.name = this.runtimeConstantPool.getClassName()
 
 		classFile.data.fields.forEach(field => {
-			const name = (runtimeConstantPool.get(field.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-			const descriptor = (runtimeConstantPool.get(field.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const name = (this.runtimeConstantPool.get(field.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const descriptor = (this.runtimeConstantPool.get(field.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 			const type = getTypeFromFieldDescriptor(descriptor)
 			if (!type) throw `Could not read field descriptor for: ${this.name} -> ${name}`
 			const value = new type(type as any)
@@ -159,8 +159,8 @@ export class ClassObject {
 		})
 
 		classFile.data.methods.forEach(method => {
-			const name = (runtimeConstantPool.get(method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-			const descriptor = (runtimeConstantPool.get(method.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const name = (this.runtimeConstantPool.get(method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const descriptor = (this.runtimeConstantPool.get(method.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 
 			if (name === 'main') this.hasMainMethod = true
 

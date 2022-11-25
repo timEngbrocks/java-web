@@ -1,5 +1,5 @@
 import { CPInfoTypes } from '../CPInfo.parser'
-import { Lexer } from '../lexer'
+import { Lexer } from '../Lexer'
 import { ConstantFieldRef } from '../types/constants/ConstantFieldRef'
 
 export class ConstantFieldRefParser {

@@ -17,15 +17,15 @@ class xdiv<T extends DataType<any>> extends Instruction {
 		const value1 = Runtime.pop()
 		if (!(value1 instanceof this.type && value2 instanceof this.type)) throw 'Tried using xdiv with wrong types'
 		if (value2.get() == 0) throw 'Division by zero'
+		const result = this.newConstant()
 		if (value1 instanceof int && value2 instanceof int) {
-			const result = this.newConstant()
 			result.set(Math.floor(value1.get() / value2.get()))
-			Runtime.push(result)
+		} else if (value1 instanceof long && value2 instanceof long) {
+			result.set(BigInt(value1.get()) / BigInt(value2.get()))
 		} else {
-			const result = this.newConstant()
 			result.set(value1.get() / value2.get())
-			Runtime.push(result)
 		}
+		Runtime.push(result)
 	}
 
 	public override toString(): string {

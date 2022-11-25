@@ -1,4 +1,4 @@
-import { Lexer } from '../lexer'
+import { Lexer } from '../Lexer'
 import { AttributeInfoHeader } from '../types/AttributeInfo'
 import { AttributeNestHost } from '../types/attributes/AttributeNestHost'
 

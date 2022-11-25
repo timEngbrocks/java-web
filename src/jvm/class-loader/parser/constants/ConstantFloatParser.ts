@@ -1,5 +1,5 @@
 import { CPInfoTypes } from '../CPInfo.parser'
-import { Lexer } from '../lexer'
+import { Lexer } from '../Lexer'
 import { ConstantFloat } from '../types/constants/ConstantFloat'
 
 export class ConstantFloatParser {

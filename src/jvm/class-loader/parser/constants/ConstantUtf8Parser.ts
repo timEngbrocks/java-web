@@ -1,5 +1,5 @@
 import { CPInfoTypes } from '../CPInfo.parser'
-import { Lexer } from '../lexer'
+import { Lexer } from '../Lexer'
 import { ConstantUtf8 } from '../types/constants/ConstantUtf8'
 
 export class ConstantUtf8Parser {

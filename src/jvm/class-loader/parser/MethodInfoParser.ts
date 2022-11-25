@@ -1,5 +1,5 @@
 import { AttributeInfoParser } from './AttributeInfoParser'
-import { Lexer } from './lexer'
+import { Lexer } from './Lexer'
 import { ConstantResolver } from './Parser'
 import { MethodInfo } from './types/MethodInfo'
 
