@@ -10,6 +10,13 @@ export class Runtime {
 	public static classObject: ClassObject
 	public static classes: ClassObject[] = []
 	public static classStack: ClassObject[] = []
+
+	public static reset(): void {
+		this.classObject = new ClassObject()
+		this.classes = []
+		this.classStack = []
+	}
+
 	public static set(classObject: ClassObject, classes: ClassObject[]): void {
 		this.classObject = classObject
 		this.classes = classes

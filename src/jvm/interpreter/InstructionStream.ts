@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash'
 import { Instruction } from './Instruction'
+import { getComparisonInstructionByCode } from './instructions/comparisons/comparison-instructions'
 import { getConstantInstructionByCode } from './instructions/constants/constant-instructions'
 import { getControlInstructionByCode } from './instructions/control/control-instructions'
 import { getConversionInstructionByCode } from './instructions/conversions/conversion-instructions'
@@ -18,7 +19,7 @@ const instructionTypes = [
 	getStackInstructionByCode,
 	getMathInstructionByCode,
 	getConversionInstructionByCode,
-	getConversionInstructionByCode,
+	getComparisonInstructionByCode,
 	getReferenceInstructionByCode,
 	getControlInstructionByCode,
 	getExtendedInstructionByCode,
@@ -74,6 +75,10 @@ export class InstructionStream {
 
 	public setOffset(offset: number): void {
 		this.pc += offset
+	}
+
+	public toString(): string {
+		return this.stream.reduce((acc, val, idx) => acc + `[${idx}]: ` + val.toString() + '\n', '')
 	}
 
 	private parseCode(code: string): Instruction[] {

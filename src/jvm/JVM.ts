@@ -1,10 +1,12 @@
 import { ClassLoader } from './class-loader/ClassLoader'
 import { Interpreter } from './interpreter/Interpreter'
+import { Runtime } from './interpreter/Runtime'
 
 export class JVM {
 	private readonly interpreter: Interpreter
 
 	constructor(paths: string[]) {
+		Runtime.reset()
 		const classes = []
 		for (const path of paths) {
 			const classLoader = new ClassLoader(path)
