@@ -6,7 +6,7 @@ A runtime environment for Java based on TypeScript.
 
 > Total Implemented: 188/204 (92%)
 
-> Total Tested: 45/204 (22%)
+> Total Tested: 49/204 (24%)
 
 | OpCode | Name | Implemented | Tested |
 | -- | -- | -- | -- |
@@ -36,7 +36,7 @@ A runtime environment for Java based on TypeScript.
 | 0x17 | fload | x | x |
 | 0x18 | dload | x | x |
 | 0x19 | aload | x | - |
-| 0x1a | iload_0 | x | - |
+| 0x1a | iload_0 | x | x |
 | 0x1b | iload_1 | x | x |
 | 0x1c | iload_2 | x | x |
 | 0x1d | iload_3 | x | - |
@@ -182,19 +182,19 @@ A runtime environment for Java based on TypeScript.
 | 0xa9 | ret | x | - |
 | 0xaa | tableswitch | x | - |
 | 0xab | lookupswitch | x | - |
-| 0xac | ireturn | x | - |
+| 0xac | ireturn | x | x |
 | 0xad | lreturn | x | - |
 | 0xae | freturn | x | - |
 | 0xaf | dreturn | x | - |
 | 0xb0 | areturn | x | - |
-| 0xb1 | return | x | - |
+| 0xb1 | return | x | x |
 | 0xb2 | getstatic | x | - |
 | 0xb3 | putstatic | x | - |
 | 0xb4 | getfield | x | - |
 | 0xb5 | putfield | x | - |
 | 0xb6 | invokevirtual | x | - |
 | 0xb7 | invokespecial | x | - |
-| 0xb8 | invokestatic | x | - |
+| 0xb8 | invokestatic | x | x |
 | 0xb9 | invokeinterface | x | - |
 | 0xba | invokedynamic | ~ | - |
 | 0xbb | new | - | - |

@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash'
 import { ConstantClass } from '../../../class-loader/parser/types/constants/ConstantClass'
 import { ConstantInterfaceMethodRef } from '../../../class-loader/parser/types/constants/ConstantInterfaceMethodRef'
 import { ConstantMethodRef } from '../../../class-loader/parser/types/constants/ConstantMethodRef'
@@ -30,11 +31,12 @@ export class invokestatic extends Instruction {
 		const descriptor = (Runtime.getConstant(nameAndType.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const types = getTypesFromMethodDescriptor(descriptor)
 
-		const classObject = Runtime.classes.find(clazz => clazz.name == className)
+		const parameters = []
+		for (let i = 0; i < types.parameters.length; i++) parameters.push(new LocalVariable(Runtime.pop()))
+		const classObject = cloneDeep(Runtime.classes.find(clazz => clazz.name == className))
 		if (!classObject) throw `invokestatic: could not find class: ${className}`
-		for (let i = 0; i < types.parameters.length; i++) classObject.setLocalVariable(new LocalVariable(Runtime.pop()), i + 1)
-
-		Runtime.callFunction(className, methodName)
+		Runtime.callFunctionOnObject(classObject, methodName)
+		for (let i = parameters.length - 1; i >= 0; i--) classObject.setLocalVariable(parameters[i], parameters.length - 1 - i)
 	}
 
 	public override toString(): string {

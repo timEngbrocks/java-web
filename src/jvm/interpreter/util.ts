@@ -18,7 +18,7 @@ export const getTypesFromMethodDescriptor = (descriptor: string): MethodTypes =>
 
 	const parameters: DescriptorType[] = []
 	let cursor = 1
-	while (parameterDescriptors != '' && cursor < parameterDescriptors.length) {
+	while (parameterDescriptors != '' && cursor <= parameterDescriptors.length) {
 		const parameterDescriptor = parameterDescriptors.substring(0, cursor)
 		const type = getTypeFromFieldDescriptor(parameterDescriptor)
 		if (!type) {

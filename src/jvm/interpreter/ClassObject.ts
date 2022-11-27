@@ -3,6 +3,7 @@ import { AttributeBootstrapMethods, AttributeBootstrapMethodsBootstrapMethod } f
 import { AttributeCode } from '../class-loader/parser/types/attributes/AttributeCode'
 import { AttributeConstantValue } from '../class-loader/parser/types/attributes/AttributeConstantValue'
 import { ClassFile } from '../class-loader/parser/types/ClassFile'
+import { ConstantClass } from '../class-loader/parser/types/constants/ConstantClass'
 import { ConstantUtf8 } from '../class-loader/parser/types/constants/ConstantUtf8'
 import { ConstantValueData } from '../class-loader/parser/types/constants/ConstantValueData'
 import { CPInfo } from '../class-loader/parser/types/CPInfo'
@@ -14,7 +15,6 @@ import { ConstantPool } from './memory/constant-pool'
 import { Frame } from './memory/frame'
 import { Heap, HeapAddress, HeapData } from './memory/heap'
 import { LocalVariable } from './memory/local-variable'
-import { Runtime } from './Runtime'
 import { getTypeFromFieldDescriptor, getTypesFromMethodDescriptor } from './util'
 
 export interface MethodTypes {
@@ -90,7 +90,7 @@ export class ClassObject {
 	public callFunction(name: string): void {
 		const methodContext = this.methods.find(methodContext => methodContext.name === name)
 		if (!methodContext) throw `Could not find method: ${name}`
-		this.callStack.push(this.currentMethod)
+		if (this.currentMethod.name !== '') this.callStack.push(this.currentMethod)
 		this.currentMethod = methodContext
 		this.currentMethod.activeInstructionStream.setPC(0)
 	}
@@ -102,11 +102,7 @@ export class ClassObject {
 	}
 
 	public setReturnValue(value: DataType<any>): void {
-		this.callStack[this.callStack.length - 1].activeFrame.operandStack.push(value)
-	}
-
-	public getReturnType(): DescriptorType | VoidType {
-		return this.callStack[this.callStack.length - 1].types.returnType
+		this.currentMethod.activeFrame.operandStack.push(value)
 	}
 
 	public lengthOfCallStack(): number {
@@ -135,7 +131,8 @@ export class ClassObject {
 
 	public initialize(classFile: ClassFile): void {
 		this.runtimeConstantPool = new ConstantPool(classFile.data.header.constantPool)
-		this.name = this.runtimeConstantPool.getClassName()
+		const thisClass = this.runtimeConstantPool.get(classFile.data.thisClass) as ConstantClass
+		this.name = (this.runtimeConstantPool.get(thisClass.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 
 		classFile.data.fields.forEach(field => {
 			const name = (this.runtimeConstantPool.get(field.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
@@ -143,7 +140,7 @@ export class ClassObject {
 			const type = getTypeFromFieldDescriptor(descriptor)
 			if (!type) throw `Could not read field descriptor for: ${this.name} -> ${name}`
 			const value = new type(type as any)
-			const constant = Runtime.getConstant((field.data.attributes.find(attribute => attribute instanceof AttributeConstantValue) as AttributeConstantValue).data.constantValueIndex).data as ConstantValueData
+			const constant = this.runtimeConstantPool.get((field.data.attributes.find(attribute => attribute instanceof AttributeConstantValue) as AttributeConstantValue).data.constantValueIndex).data as ConstantValueData
 			value.set(constant.value)
 			if (field.data.accessFlags & FieldAccessFlags.ACC_STATIC) {
 				this.staticFields.set(name, value)

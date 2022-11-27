@@ -38,9 +38,10 @@ export class invokespecial extends Instruction {
 		if (!address) throw 'invokespecial null dereference'
 		const classObject = Runtime.load(address) as ClassObject
 
-		for (let i = 0; i < types.parameters.length; i++) classObject.setLocalVariable(new LocalVariable(Runtime.pop()), i + 1)
-
+		const parameters = []
+		for (let i = 0; i < types.parameters.length; i++) parameters.push(new LocalVariable(Runtime.pop()))
 		Runtime.callFunctionOnObject(classObject, methodName)
+		for (let i = parameters.length - 1; i >= 0; i--) classObject.setLocalVariable(parameters[i], parameters.length - 1 - i)
 	}
 
 	public override toString(): string {

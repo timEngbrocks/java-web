@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash'
 import { AttributeBootstrapMethodsBootstrapMethod } from '../class-loader/parser/types/attributes/AttributeBootstrapMethods'
 import { ConstantData } from '../class-loader/parser/types/constants/ConstantData'
 import { CPInfo } from '../class-loader/parser/types/CPInfo'
@@ -67,11 +68,11 @@ export class Runtime {
 	}
 
 	public static callFunction(className: string, functionName: string): void {
+		this.classStack.push(this.classObject)
 		if (className == this.classObject.name) {
 			this.classObject.callFunction(functionName)
 		} else {
-			this.classStack.push(this.classObject)
-			const newClassObject = this.classes.find(clazz => clazz.name == className)
+			const newClassObject = cloneDeep(this.classes.find(clazz => clazz.name == className))
 			if (!newClassObject) throw `Could not find class: ${className}`
 			this.classObject = newClassObject
 			this.classObject.callFunction(functionName)
@@ -85,11 +86,7 @@ export class Runtime {
 	}
 
 	public static setReturnValue(value: DataType<any>): void {
-		if (this.classObject.lengthOfCallStack() == 0) {
-			this.classStack[this.classStack.length - 1].setReturnValue(value)
-		} else {
-			this.classObject.setReturnValue(value)
-		}
+		this.classStack[this.classStack.length - 1].setReturnValue(value)
 	}
 
 	public static returnFromFunction(): void {
@@ -98,14 +95,6 @@ export class Runtime {
 			const newClassObject = this.classStack.pop()
 			if (!newClassObject) throw 'Empty class stack'
 			this.classObject = newClassObject
-		}
-	}
-
-	public static getReturnType(): any {
-		if (this.classObject.lengthOfCallStack() == 0) {
-			return this.classStack[this.classStack.length - 1].getReturnType()
-		} else {
-			return this.classObject.getReturnType()
 		}
 	}
 

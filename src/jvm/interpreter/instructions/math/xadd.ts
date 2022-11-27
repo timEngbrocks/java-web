@@ -15,7 +15,7 @@ class xadd<T extends DataType<any>> extends Instruction {
 	public override execute(): void {
 		const value2 = Runtime.pop()
 		const value1 = Runtime.pop()
-		if (!(value1 instanceof this.type && value2 instanceof this.type)) throw 'Tried using xadd with wrong types'
+		if (!(value1 instanceof this.type && value2 instanceof this.type)) throw `Tried using xadd with wrong types ${value1.toString()} ${value2.toString()} ${this.newConstant().toString()}`
 		const result = this.newConstant()
 		if (this.newConstant() instanceof long) result.set(BigInt(value1.get()) + BigInt(value2.get()))
 		else result.set(value1.get() + value2.get())
