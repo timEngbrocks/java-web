@@ -16,7 +16,10 @@ class xreturn<T extends DataType<any>> extends Instruction {
 
 	// FIXME: synchronized method return
 	public override execute(): void {
-		if (this.newConstant() instanceof Block) return
+		if (this.newConstant() instanceof Block) {
+			Runtime.returnFromFunction()
+			return
+		}
 		const value = Runtime.pop()
 		const returnValue = this.newConstant()
 		returnValue.set(value.get())

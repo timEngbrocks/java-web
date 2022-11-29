@@ -21,7 +21,7 @@ export class New extends Instruction {
 		if (!(clazz instanceof ConstantClass)) throw 'Tried new without ConstantClass'
 		const name = (Runtime.getConstant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const classObject = Runtime.getClass(name)
-		if (classObject) throw `new: Could not find class: ${name}`
+		if (!classObject) throw `new: Could not find class: ${name}`
 		const address = Runtime.allocate(classObject)
 		const ref = new reference()
 		ref.set(address)

@@ -4,9 +4,9 @@ A runtime environment for Java based on TypeScript.
 
 ## Instruction Overview
 
-> Total Implemented: 188/204 (92%)
+> Total Implemented: 189/204 (92.6%)
 
-> Total Tested: 49/204 (24%)
+> Total Tested: 56/204 (27.4%)
 
 | OpCode | Name | Implemented | Tested |
 | -- | -- | -- | -- |
@@ -52,8 +52,8 @@ A runtime environment for Java based on TypeScript.
 | 0x27 | dload_1 | x | - |
 | 0x28 | dload_2 | x | - |
 | 0x29 | dload_3 | x | - |
-| 0x2a | aload_0 | x | - |
-| 0x2b | aload_1 | x | - |
+| 0x2a | aload_0 | x | x |
+| 0x2b | aload_1 | x | x |
 | 0x2c | aload_2 | x | - |
 | 0x2d | aload_3 | x | - |
 | 0x2e | iaload | x | - |
@@ -86,7 +86,7 @@ A runtime environment for Java based on TypeScript.
 | 0x49 | dstore_2 | x | - |
 | 0x4a | dstore_3 | x | - |
 | 0x4b | astore_0 | x | - |
-| 0x4c | astore_1 | x | - |
+| 0x4c | astore_1 | x | x |
 | 0x4d | astore_2 | x | - |
 | 0x4e | astore_3 | x | - |
 | 0x4f | iastore | x | - |
@@ -99,7 +99,7 @@ A runtime environment for Java based on TypeScript.
 | 0x56 | sastore | x | - |
 | 0x57 | pop | x | - |
 | 0x58 | pop2 | x | - |
-| 0x59 | dup | x | - |
+| 0x59 | dup | x | x |
 | 0x5a | dup_x1 | x | - |
 | 0x5b | dup_x2 | x | - |
 | 0x5c | dup2 | x | - |
@@ -192,12 +192,12 @@ A runtime environment for Java based on TypeScript.
 | 0xb3 | putstatic | x | - |
 | 0xb4 | getfield | x | - |
 | 0xb5 | putfield | x | - |
-| 0xb6 | invokevirtual | x | - |
-| 0xb7 | invokespecial | x | - |
+| 0xb6 | invokevirtual | x | x |
+| 0xb7 | invokespecial | x | x |
 | 0xb8 | invokestatic | x | x |
 | 0xb9 | invokeinterface | x | - |
 | 0xba | invokedynamic | ~ | - |
-| 0xbb | new | x | - |
+| 0xbb | new | x | x |
 | 0xbc | newarray | - | - |
 | 0xbd | anewarray | - | - |
 | 0xbe | arraylength | - | - |

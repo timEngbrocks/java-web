@@ -1,3 +1,4 @@
+import { ConstantClass } from '../../../class-loader/parser/types/constants/ConstantClass'
 import { ConstantInterfaceMethodRef } from '../../../class-loader/parser/types/constants/ConstantInterfaceMethodRef'
 import { ConstantMethodRef } from '../../../class-loader/parser/types/constants/ConstantMethodRef'
 import { ConstantNameAndType } from '../../../class-loader/parser/types/constants/ConstantNameAndType'
@@ -27,10 +28,19 @@ export class invokespecial extends Instruction {
 		const index = (indexbyte1 << 8) | indexbyte2
 		const methodRef = Runtime.getConstant(index)
 		if (!(methodRef instanceof ConstantInterfaceMethodRef || methodRef instanceof ConstantMethodRef)) throw 'Tried invokespecial without constant method ref'
+		const clazz = Runtime.getConstant(methodRef.data.classIndex) as ConstantClass
+		const className = (Runtime.getConstant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const nameAndType = Runtime.getConstant(methodRef.data.nameAndTypeIndex) as ConstantNameAndType
 		const methodName = (Runtime.getConstant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const descriptor = (Runtime.getConstant(nameAndType.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const types = getTypesFromMethodDescriptor(descriptor)
+
+		// FIXME:
+		if (className === 'java/lang/Object') {
+			Runtime.pop()
+			for (let i = 0; i < types.parameters.length; i++) Runtime.pop()
+			return
+		}
 
 		const objectref = Runtime.pop()
 		if (!(objectref instanceof reference) || objectref.get()?.getType() != HEAP_TYPES.CLASS) throw 'Tried invokespecial without objectref'

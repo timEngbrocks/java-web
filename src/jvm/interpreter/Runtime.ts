@@ -93,7 +93,7 @@ export class Runtime {
 		this.classObject.returnFromFunction()
 		if (this.classObject.lengthOfCallStack() == 0) {
 			const newClassObject = this.classStack.pop()
-			if (!newClassObject) throw 'Empty class stack'
+			if (!newClassObject) return
 			this.classObject = newClassObject
 		}
 	}
