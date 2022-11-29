@@ -6,6 +6,7 @@ import { invokeinterface } from './invokeinterface'
 import { invokespecial } from './invokespecial'
 import { invokestatic } from './invokestatic'
 import { invokevirtual } from './invokevirtual'
+import { New } from './new'
 import { putfield } from './putfield'
 import { putstatic } from './putstatic'
 
@@ -43,6 +44,10 @@ export const getReferenceInstructionByCode = (code: string): Instruction => {
 		}
 		case OpCodes.invokeinterface: {
 			instruction = new invokeinterface()
+			break
+		}
+		case OpCodes.new: {
+			instruction = new New()
 			break
 		}
 	}

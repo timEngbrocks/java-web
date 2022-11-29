@@ -109,4 +109,8 @@ export class Runtime {
 	public static getBootstrapMethod(index: number): AttributeBootstrapMethodsBootstrapMethod {
 		return this.classObject.getBootstrapMethod(index)
 	}
+
+	public static getClass(name: string): ClassObject | undefined {
+		return this.classes.find(clazz => clazz.name === name)
+	}
 }

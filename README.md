@@ -197,7 +197,7 @@ A runtime environment for Java based on TypeScript.
 | 0xb8 | invokestatic | x | x |
 | 0xb9 | invokeinterface | x | - |
 | 0xba | invokedynamic | ~ | - |
-| 0xbb | new | - | - |
+| 0xbb | new | x | - |
 | 0xbc | newarray | - | - |
 | 0xbd | anewarray | - | - |
 | 0xbe | arraylength | - | - |
