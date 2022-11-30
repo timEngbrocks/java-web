@@ -4,13 +4,15 @@ import { ConstantData } from '../class-loader/parser/types/constants/ConstantDat
 import { CPInfo } from '../class-loader/parser/types/CPInfo'
 import { ClassObject } from './ClassObject'
 import { DataType } from './data-types/data-type'
-import { HeapAddress, HeapData } from './memory/heap'
+import { Heap, HeapAddress, HeapData } from './memory/heap'
 import { LocalVariable } from './memory/local-variable'
 
 export class Runtime {
 	public static classObject: ClassObject
 	public static classes: ClassObject[] = []
 	public static classStack: ClassObject[] = []
+
+	public static heap: Heap = new Heap()
 
 	public static reset(): void {
 		this.classObject = new ClassObject()
@@ -28,11 +30,11 @@ export class Runtime {
 	}
 
 	public static allocate(value: any): HeapAddress {
-		return this.classObject.allocate(value)
+		return this.heap.allocate(value)
 	}
 
 	public static load(address: HeapAddress): HeapData {
-		return this.classObject.load(address)
+		return this.heap.load(address)
 	}
 
 	public static push(value: DataType<any>): void {

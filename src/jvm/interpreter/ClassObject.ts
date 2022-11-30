@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { FieldAccessFlags } from '../class-loader/parser/FieldInfoParser'
 import { AttributeBootstrapMethods, AttributeBootstrapMethodsBootstrapMethod } from '../class-loader/parser/types/attributes/AttributeBootstrapMethods'
 import { AttributeCode } from '../class-loader/parser/types/attributes/AttributeCode'
@@ -13,8 +14,8 @@ import { Void } from './data-types/void'
 import { InstructionStream } from './InstructionStream'
 import { ConstantPool } from './memory/constant-pool'
 import { Frame } from './memory/frame'
-import { Heap, HeapAddress, HeapData } from './memory/heap'
 import { LocalVariable } from './memory/local-variable'
+import { Runtime } from './Runtime'
 import { getTypeFromFieldDescriptor, getTypesFromMethodDescriptor } from './util'
 
 export interface MethodTypes {
@@ -22,6 +23,7 @@ export interface MethodTypes {
 	returnType: DescriptorType | VoidType
 }
 export interface MethodContext {
+	id: string
 	name: string
 	activeFrame: Frame
 	activeInstructionStream: InstructionStream
@@ -29,11 +31,12 @@ export interface MethodContext {
 }
 
 export class ClassObject {
+	public id = randomUUID()
 	public name: string = ''
 	public hasMainMethod = false
 	public runtimeConstantPool: ConstantPool = new ConstantPool([])
-	public heap: Heap = new Heap()
 	public currentMethod: MethodContext = {
+		id: '0',
 		name: '',
 		activeFrame: new Frame('', 0, 0),
 		activeInstructionStream: new InstructionStream('', ''),
@@ -53,14 +56,6 @@ export class ClassObject {
 
 	public getConstant(index: number): CPInfo<any> {
 		return this.runtimeConstantPool.get(index)
-	}
-
-	public allocate(value: HeapData): HeapAddress {
-		return this.heap.allocate(value)
-	}
-
-	public load(address: HeapAddress): HeapData {
-		return this.heap.load(address)
 	}
 
 	public push(value: DataType<any>): void {
@@ -163,12 +158,13 @@ export class ClassObject {
 
 			const code = method.data.attributes.find(attribute => attribute instanceof AttributeCode) as AttributeCode
 			const frame = new Frame(name, code.data.maxLocals, code.data.maxStack)
-			const thisAddress = this.heap.allocate(this)
+			const thisAddress = Runtime.allocate(this)
 			const thisReference = new reference()
 			thisReference.set(thisAddress)
 			frame.setLocalVariable(new LocalVariable(thisReference), 0)
 			const instructionStream = new InstructionStream(name, code.getCode())
 			this.methods.push({
+				id: randomUUID(),
 				name,
 				activeFrame: frame,
 				activeInstructionStream: instructionStream,

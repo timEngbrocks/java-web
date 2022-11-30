@@ -6,7 +6,7 @@ A runtime environment for Java based on TypeScript.
 
 > Total Implemented: 189/204 (92.6%)
 
-> Total Tested: 56/204 (27.4%)
+> Total Tested: 61/204 (29.9%)
 
 | OpCode | Name | Implemented | Tested |
 | -- | -- | -- | -- |
@@ -68,7 +68,7 @@ A runtime environment for Java based on TypeScript.
 | 0x37 | lstore | x | x |
 | 0x38 | fstore | x | x |
 | 0x39 | dstore | x | x |
-| 0x3a | astore | x | - |
+| 0x3a | astore | x | x |
 | 0x3b | istore_0 | x | - |
 | 0x3c | istore_1 | x | x |
 | 0x3d | istore_2 | x | x |
@@ -183,10 +183,10 @@ A runtime environment for Java based on TypeScript.
 | 0xaa | tableswitch | x | - |
 | 0xab | lookupswitch | x | - |
 | 0xac | ireturn | x | x |
-| 0xad | lreturn | x | - |
-| 0xae | freturn | x | - |
-| 0xaf | dreturn | x | - |
-| 0xb0 | areturn | x | - |
+| 0xad | lreturn | x | x |
+| 0xae | freturn | x | x |
+| 0xaf | dreturn | x | x |
+| 0xb0 | areturn | x | x |
 | 0xb1 | return | x | x |
 | 0xb2 | getstatic | x | - |
 | 0xb3 | putstatic | x | - |
