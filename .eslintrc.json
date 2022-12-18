@@ -9,7 +9,6 @@
             "files": ["*.ts"],
             "rules": {
                 "new-cap": "off",
-                "@typescript-eslint/no-throw-literal": "off",
                 "@typescript-eslint/restrict-template-expressions": "off",
                 "@typescript-eslint/strict-boolean-expressions": "off",
                 "@typescript-eslint/naming-convention": "off",
@@ -20,7 +19,8 @@
                 "@typescript-eslint/no-extraneous-class": "off",
                 "@typescript-eslint/indent": ["error", "tab"],
                 "no-tabs": "off",
-                "@typescript-eslint/array-type": "off"
+                "@typescript-eslint/array-type": "off",
+                "@typescript-eslint/no-non-null-assertion": "off"
             }
         }
     ],

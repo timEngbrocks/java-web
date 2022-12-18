@@ -1,10 +1,9 @@
-import { DataType } from '../../data-types/data-type'
+import { DataType, ReferenceType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { reference } from '../../data-types/references'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 class xload<T extends DataType<any>> extends Instruction {
@@ -20,9 +19,8 @@ class xload<T extends DataType<any>> extends Instruction {
 
 	public override execute(): void {
 		const index = Number.parseInt(this.args.substring(0, 2), 16)
-		const localVariable = Runtime.getLocalVariable(index)
-		const value = localVariable.get()
-		Runtime.push(value)
+		const localVariable = Runtime.it().getLocal(index)
+		Runtime.it().push(localVariable)
 	}
 
 	public override toString(): string {
@@ -39,4 +37,4 @@ export const iload = new xload<int>(int)
 export const lload = new xload<long>(long)
 export const fload = new xload<float>(float)
 export const dload = new xload<double>(double)
-export const aload = new xload<reference>(reference)
+export const aload = new xload<ReferenceType>(ReferenceType)

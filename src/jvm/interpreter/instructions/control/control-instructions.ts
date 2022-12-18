@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 import { goto } from './goto'
 import { jsr } from './jsr'
@@ -7,7 +7,7 @@ import { ret } from './ret'
 import { tableswitch } from './tableswitch'
 import { areturn, dreturn, freturn, ireturn, lreturn, Return } from './xreturn'
 
-export const getControlInstructionByCode = (code: string): Instruction => {
+export const getControlInstructionByCode = (code: string, address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {
@@ -24,11 +24,11 @@ export const getControlInstructionByCode = (code: string): Instruction => {
 			break
 		}
 		case OpCodes.tableswitch: {
-			instruction = new tableswitch()
+			instruction = new tableswitch(address)
 			break
 		}
 		case OpCodes.lookupswitch: {
-			instruction = new lookupswitch()
+			instruction = new lookupswitch(address)
 			break
 		}
 		case OpCodes.ireturn: {

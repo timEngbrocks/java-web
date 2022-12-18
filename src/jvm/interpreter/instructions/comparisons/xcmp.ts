@@ -3,7 +3,7 @@ import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 enum XCmpOps {
@@ -19,8 +19,8 @@ class xcmp<T extends DataType<any>> extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.pop()
-		const value1 = Runtime.pop()
+		const value2 = Runtime.it().pop()
+		const value1 = Runtime.it().pop()
 		const result = new int()
 
 		if (this.op === XCmpOps.l && (isNaN(value1.get()) || isNaN(value2.get()))) result.set(-1)
@@ -28,7 +28,7 @@ class xcmp<T extends DataType<any>> extends Instruction {
 		else if (value1.get() > value2.get()) result.set(1)
 		else if (value1.get() == value2.get()) result.set(0)
 		else if (value1.get() < value2.get()) result.set(-1)
-		Runtime.push(result)
+		Runtime.it().push(result)
 	}
 
 	public override toString(): string {

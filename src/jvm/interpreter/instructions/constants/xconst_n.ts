@@ -3,7 +3,7 @@ import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 class xconst_n<T extends DataType<number | bigint>> extends Instruction {
@@ -17,7 +17,7 @@ class xconst_n<T extends DataType<number | bigint>> extends Instruction {
 	public override execute(): void {
 		const x = this.newConstant()
 		x.set(this.i)
-		Runtime.push(x)
+		Runtime.it().push(x)
 	}
 
 	public override toString(): string {

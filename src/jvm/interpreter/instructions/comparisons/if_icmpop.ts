@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { IfOps } from './ifop'
 
@@ -14,8 +14,8 @@ class if_icmpop extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.pop().get()
-		const value1 = Runtime.pop().get()
+		const value2 = Runtime.it().pop().get()
+		const value1 = Runtime.it().pop().get()
 		let success = false
 		switch (this.op) {
 			case IfOps.eq: {
@@ -47,7 +47,7 @@ class if_icmpop extends Instruction {
 			const branchbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 			const branchbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 			const offset = (branchbyte1 << 8) | branchbyte2
-			Runtime.jumpByOffset(offset)
+			Runtime.it().jumpByOffset(offset)
 		}
 	}
 

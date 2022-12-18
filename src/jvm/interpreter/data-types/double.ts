@@ -1,20 +1,12 @@
 import { FloatingPointType } from './data-type'
 
-export class double extends FloatingPointType<number> {
-	public isWide: boolean = true
+export class double extends FloatingPointType {
+	public override isWide = true
 
-	static NaN = Number.NaN
-	static positiveInfinity = Number.POSITIVE_INFINITY
-	static negativeInfinity = Number.NEGATIVE_INFINITY
+	static NaN_upper = 0x7fffffffffffffffn
+	static NaN_lower = 0x7ff0000000000001n
+	static positiveInfinity = 0x7ff0000000000000n
+	static negativeInfinity = 0xfff0000000000000n
 
-	private value: number = 0
-	public get(): number {
-		return this.value
-	}
-
-	public set(value: number): void {
-		this.value = value
-	}
-
-	public toString(): string { return `${this.value} (double)` }
+	public override toString(): string { return `${this.value} (double)` }
 }

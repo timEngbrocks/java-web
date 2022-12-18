@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 export class ret extends Instruction {
@@ -10,8 +10,8 @@ export class ret extends Instruction {
 
 	public override execute(): void {
 		const index = Number.parseInt(this.args.substring(0, 2), 16)
-		const address = Runtime.getLocalVariable(index)
-		Runtime.setPC(address.get().get())
+		const address = Runtime.it().getLocal(index)
+		Runtime.it().setPC(address.get())
 	}
 
 	public override toString(): string {

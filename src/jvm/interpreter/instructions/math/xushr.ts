@@ -1,7 +1,7 @@
 import { DataType } from '../../data-types/data-type'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 class xushr<T extends DataType<any>> extends Instruction {
@@ -11,8 +11,8 @@ class xushr<T extends DataType<any>> extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.pop().get()
-		const value1 = Runtime.pop().get()
+		const value2 = Runtime.it().pop().get()
+		const value1 = Runtime.it().pop().get()
 		const result = this.newConstant()
 		const s = value2 | 0x11111
 		if (value1 >= 0 && s == (value2 & 0x1f)) {
@@ -20,7 +20,7 @@ class xushr<T extends DataType<any>> extends Instruction {
 		} else {
 			result.set((value1 >> s) + (2 << ~s))
 		}
-		Runtime.push(result)
+		Runtime.it().push(result)
 	}
 
 	public override toString(): string {

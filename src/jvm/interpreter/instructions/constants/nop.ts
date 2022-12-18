@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 
 export class nop extends Instruction {

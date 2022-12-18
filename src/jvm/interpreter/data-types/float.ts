@@ -1,28 +1,29 @@
 import { FloatingPointType } from './data-type'
 
-export class float extends FloatingPointType<number> {
-	public isWide: boolean = false
+export class float extends FloatingPointType {
+	static NaN = 5.104235503814077e+38
+	static positiveInfinity = 3.402823669209385e+38
+	static negativeInfinity = -3.402823669209385e+38
 
-	static NaN = Number.NaN
-	static positiveInfinity = Number.POSITIVE_INFINITY
-	static negativeInfinity = Number.NEGATIVE_INFINITY
-
-	static MAX_POSITIVE = 3.40282347 * Math.pow(10, 38)
-	static MIN_POSITIVE = 1.40239846 * Math.pow(10, -45)
+	static MAX_POSITIVE = 3.4028234663852886e+38
+	static MIN_POSITIVE = 1.401298464324817e-45
 	static MAX_NEGATIVE = -float.MAX_POSITIVE
 	static MIN_NEGATIVE = -float.MIN_POSITIVE
 
-	private value: number = 0
-	public get(): number {
-		return this.value
-	}
-
-	public set(value: number): void {
-		if (((value > 0 && (value > float.MAX_POSITIVE || value < float.MIN_POSITIVE)) || (value < 0 && (value < float.MAX_NEGATIVE || value > float.MIN_NEGATIVE))) && value !== 0) {
-			throw `invalid float assignment: ${value}`
+	public override set(value: number): void {
+		if (
+			value === 0 ||
+			(value > 0 && (value >= float.MIN_POSITIVE && value <= float.MAX_POSITIVE)) ||
+			(value < 0 && (value >= float.MAX_NEGATIVE && value <= float.MIN_NEGATIVE)) ||
+			value === float.NaN ||
+			value === float.positiveInfinity ||
+			value === float.negativeInfinity
+		) {
+			this.value = value
+			return
 		}
-		this.value = value
+		throw new Error(`invalid float assignment: ${value}`)
 	}
 
-	public toString(): string { return `${this.value} (float)` }
+	public override toString(): string { return `${this.value} (float)` }
 }

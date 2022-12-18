@@ -7,7 +7,7 @@ test('basic-instances', () => {
 		'src/tests/basic-instances/Container.class'
 	])
 
-	const localVariables = Runtime.classObject.currentMethod.activeFrame.localVariables
+	const localVariables = Runtime.it().get_debug_lastExecutionContext().localVariables
 
-	expect(localVariables[2].get().get()).toEqual(1)
+	expect(localVariables.get(2).get()).toEqual(1)
 })

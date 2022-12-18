@@ -1,10 +1,10 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 import { aaload, baload, caload, daload, faload, iaload, laload, saload } from './xaload'
 import { aload, dload, fload, iload, lload } from './xload'
 import { aload_0, aload_1, aload_2, aload_3, dload_0, dload_1, dload_2, dload_3, fload_1, fload_2, fload_3, iload_0, iload_1, iload_2, iload_3, lload_0, lload_1, lload_2, lload_3 } from './xload_n'
 
-export const getLoadInstructionByCode = (code: string): Instruction => {
+export const getLoadInstructionByCode = (code: string, address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

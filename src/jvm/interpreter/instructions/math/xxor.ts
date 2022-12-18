@@ -1,7 +1,7 @@
 import { DataType } from '../../data-types/data-type'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 class xxor<T extends DataType<any>> extends Instruction {
@@ -11,11 +11,11 @@ class xxor<T extends DataType<any>> extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.pop().get()
-		const value1 = Runtime.pop().get()
+		const value2 = Runtime.it().pop().get()
+		const value1 = Runtime.it().pop().get()
 		const result = this.newConstant()
 		result.set(value1 ^ value2)
-		Runtime.push(result)
+		Runtime.it().push(result)
 	}
 
 	public override toString(): string {

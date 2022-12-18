@@ -1,8 +1,8 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 import { d2f, d2i, d2l, f2d, f2i, f2l, i2b, i2c, i2d, i2f, i2l, i2s, l2d, l2f, l2i } from './x2y'
 
-export const getConversionInstructionByCode = (code: string): Instruction => {
+export const getConversionInstructionByCode = (code: string, address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

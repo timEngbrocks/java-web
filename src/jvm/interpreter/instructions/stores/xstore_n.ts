@@ -1,15 +1,12 @@
-import { DataType } from '../../data-types/data-type'
+import { DataType, reference, ReferenceType, ReturnAddressType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { reference } from '../../data-types/references'
-import { Instruction } from '../../Instruction'
-import { HeapAddress } from '../../memory/heap'
-import { LocalVariable } from '../../memory/local-variable'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
-class xstore_n<T extends DataType<number | bigint | HeapAddress | null>> extends Instruction {
+class xstore_n<T extends DataType<number | bigint | reference>> extends Instruction {
 	length = 1
 	private readonly i: number
 	constructor(i: number, private readonly type: new () => T) {
@@ -18,9 +15,11 @@ class xstore_n<T extends DataType<number | bigint | HeapAddress | null>> extends
 	}
 
 	public override execute(): void {
-		const value = Runtime.pop()
-		if (!(value instanceof this.type)) throw 'Tried to store incompatible type using xstore_n'
-		Runtime.setLocalVariable(new LocalVariable(value), this.i)
+		const value = Runtime.it().pop()
+		if (this.newConstant() instanceof ReferenceType) {
+			if (!(value instanceof this.type || value instanceof ReturnAddressType)) throw new Error('Tried to store incompatible type using xstore_n')
+		} else if (!(value instanceof this.type)) throw new Error('Tried to store incompatible type using xstore_n')
+		Runtime.it().setLocal(value, this.i)
 	}
 
 	public override toString(): string {
@@ -52,7 +51,7 @@ export const dstore_1 = new xstore_n<double>(1, double)
 export const dstore_2 = new xstore_n<double>(2, double)
 export const dstore_3 = new xstore_n<double>(3, double)
 
-export const astore_0 = new xstore_n<reference>(0, reference)
-export const astore_1 = new xstore_n<reference>(1, reference)
-export const astore_2 = new xstore_n<reference>(2, reference)
-export const astore_3 = new xstore_n<reference>(3, reference)
+export const astore_0 = new xstore_n<ReferenceType>(0, ReferenceType)
+export const astore_1 = new xstore_n<ReferenceType>(1, ReferenceType)
+export const astore_2 = new xstore_n<ReferenceType>(2, ReferenceType)
+export const astore_3 = new xstore_n<ReferenceType>(3, ReferenceType)

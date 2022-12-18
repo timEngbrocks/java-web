@@ -6,7 +6,7 @@ import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
 import { short } from '../../data-types/short'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 class x2y<T extends DataType<any>, U extends DataType<any>> extends Instruction {
@@ -16,10 +16,10 @@ class x2y<T extends DataType<any>, U extends DataType<any>> extends Instruction 
 	}
 
 	public override execute(): void {
-		const value = Runtime.pop()
+		const value = Runtime.it().pop()
 		const result = this.newConstantTo()
 		result.set(value.get())
-		Runtime.push(result)
+		Runtime.it().push(result)
 	}
 
 	public override toString(): string {

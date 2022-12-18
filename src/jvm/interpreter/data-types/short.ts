@@ -1,20 +1,13 @@
 import { IntegralType } from './data-type'
 
-export class short extends IntegralType<number> {
-	public isWide: boolean = false
-
+export class short extends IntegralType {
 	static MAX = 32767
 	static MIN = -32768
 
-	private value: number = 0
-	public get(): number {
-		return this.value
-	}
-
-	public set(value: number): void {
+	public override set(value: number): void {
 		if (value <= short.MAX && value >= short.MIN) this.value = value
-		else throw `invalid short assignment: ${value}`
+		else throw new Error(`invalid short assignment: ${value}`)
 	}
 
-	public toString(): string { return `${this.value} (short)` }
+	public override toString(): string { return `${this.value} (short)` }
 }

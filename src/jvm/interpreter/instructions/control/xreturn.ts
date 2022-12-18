@@ -1,11 +1,10 @@
 import { Block } from '../../data-types/block'
-import { DataType } from '../../data-types/data-type'
+import { DataType, ReferenceType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { reference } from '../../data-types/references'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 class xreturn<T extends DataType<any>> extends Instruction {
@@ -17,14 +16,14 @@ class xreturn<T extends DataType<any>> extends Instruction {
 	// FIXME: synchronized method return
 	public override execute(): void {
 		if (this.newConstant() instanceof Block) {
-			Runtime.returnFromFunction()
+			Runtime.it().returnFromFunction()
 			return
 		}
-		const value = Runtime.pop()
+		const value = Runtime.it().pop()
 		const returnValue = this.newConstant()
 		returnValue.set(value.get())
-		Runtime.setReturnValue(returnValue)
-		Runtime.returnFromFunction()
+		Runtime.it().setReturnValue(returnValue)
+		Runtime.it().returnFromFunction()
 	}
 
 	public override toString(): string {
@@ -41,5 +40,5 @@ export const ireturn = new xreturn<int>(int)
 export const lreturn = new xreturn<long>(long)
 export const freturn = new xreturn<float>(float)
 export const dreturn = new xreturn<double>(double)
-export const areturn = new xreturn<reference>(reference)
+export const areturn = new xreturn<ReferenceType>(ReferenceType)
 export const Return = new xreturn<Block>(Block)

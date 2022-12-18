@@ -33,25 +33,25 @@ test('basic-math', () => {
 	const floatDiv = e / f
 	const dobuleDiv = g / h
 
-	const localVariables = Runtime.classObject.currentMethod.activeFrame.localVariables
+	const localVariables = Runtime.it().get_debug_lastExecutionContext().localVariables
 
-	expect(localVariables[13].get().get()).toEqual(intAdd)
-	expect(localVariables[14].get().get()).toEqual(longAdd)
-	expect(localVariables[16].get().get()).toEqual(floatAdd)
-	expect(localVariables[17].get().get()).toEqual(dobuleAdd)
+	expect(localVariables.get(13).get()).toEqual(intAdd)
+	expect(localVariables.get(14).get()).toEqual(longAdd)
+	expect(localVariables.get(16).get()).toEqual(floatAdd)
+	expect(localVariables.get(17).get()).toEqual(dobuleAdd)
 
-	expect(localVariables[19].get().get()).toEqual(intSub)
-	expect(localVariables[20].get().get()).toEqual(longSub)
-	expect(localVariables[22].get().get()).toEqual(floatSub)
-	expect(localVariables[23].get().get()).toEqual(dobuleSub)
+	expect(localVariables.get(19).get()).toEqual(intSub)
+	expect(localVariables.get(20).get()).toEqual(longSub)
+	expect(localVariables.get(22).get()).toEqual(floatSub)
+	expect(localVariables.get(23).get()).toEqual(dobuleSub)
 
-	expect(localVariables[25].get().get()).toEqual(intMul)
-	expect(localVariables[26].get().get()).toEqual(longMul)
-	expect(localVariables[28].get().get()).toEqual(floatMul)
-	expect(localVariables[29].get().get()).toEqual(dobuleMul)
+	expect(localVariables.get(25).get()).toEqual(intMul)
+	expect(localVariables.get(26).get()).toEqual(longMul)
+	expect(localVariables.get(28).get()).toEqual(floatMul)
+	expect(localVariables.get(29).get()).toEqual(dobuleMul)
 
-	expect(localVariables[31].get().get()).toEqual(intDiv)
-	expect(localVariables[32].get().get()).toEqual(longDiv)
-	expect(localVariables[34].get().get()).toEqual(floatDiv)
-	expect(localVariables[35].get().get()).toEqual(dobuleDiv)
+	expect(localVariables.get(31).get()).toEqual(intDiv)
+	expect(localVariables.get(32).get()).toEqual(longDiv)
+	expect(localVariables.get(34).get()).toEqual(floatDiv)
+	expect(localVariables.get(35).get()).toEqual(dobuleDiv)
 })

@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { OpCodes } from '../opcodes'
 
@@ -7,10 +7,10 @@ export class swap extends Instruction {
 	length: number = 1
 
 	public override execute(): void {
-		const value2 = Runtime.pop()
-		const value1 = Runtime.pop()
-		Runtime.push(value2)
-		Runtime.push(value1)
+		const value2 = Runtime.it().pop()
+		const value1 = Runtime.it().pop()
+		Runtime.it().push(value2)
+		Runtime.it().push(value1)
 	}
 
 	public override toString(): string {

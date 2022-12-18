@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 export class goto extends Instruction {
@@ -12,7 +12,7 @@ export class goto extends Instruction {
 		const branchbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const branchbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const branchoffset = (branchbyte1 << 8) | branchbyte2
-		Runtime.jumpByOffset(branchoffset)
+		Runtime.it().jumpByOffset(branchoffset)
 	}
 
 	public override toString(): string {

@@ -1,6 +1,6 @@
 import { double } from '../../data-types/double'
 import { long } from '../../data-types/long'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { OpCodes } from '../opcodes'
 
@@ -9,9 +9,9 @@ export class pop2 extends Instruction {
 	length: number = 1
 
 	public override execute(): void {
-		const value = Runtime.pop()
+		const value = Runtime.it().pop()
 		if (value instanceof long || value instanceof double) return
-		Runtime.pop()
+		Runtime.it().pop()
 	}
 
 	public override toString(): string {

@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { OpCodes } from '../opcodes'
 
@@ -7,7 +7,7 @@ export class pop extends Instruction {
 	length: number = 1
 
 	public override execute(): void {
-		Runtime.pop()
+		Runtime.it().pop()
 	}
 
 	public override toString(): string {

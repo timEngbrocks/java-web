@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 
 export class impdep1 extends Instruction {
 	length = 1

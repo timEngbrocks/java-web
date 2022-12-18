@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 
 export class breakpoint extends Instruction {
 	length = 1

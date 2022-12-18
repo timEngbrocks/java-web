@@ -1,18 +1,22 @@
-import { ClassLoader } from './class-loader/ClassLoader'
 import { Interpreter } from './interpreter/Interpreter'
 import { Runtime } from './interpreter/Runtime'
 
 export class JVM {
+	private static runtime: Runtime
+
 	private readonly interpreter: Interpreter
 
-	constructor(paths: string[]) {
-		Runtime.reset()
-		const classes = []
-		for (const path of paths) {
-			const classLoader = new ClassLoader(path)
-			classes.push(classLoader.getClass())
-		}
-		this.interpreter = new Interpreter(classes)
+	public static suppressLogging(): void {
+		console.log = () => {}
+	}
+
+	constructor(classes: string[]) {
+		console.log('Starting JVM')
+		this.interpreter = new Interpreter()
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		JVM.runtime = new Runtime(this.interpreter.execute)
+		this.interpreter.loadClasses(classes)
 		this.interpreter.execute()
+		console.log('Exiting JVM')
 	}
 }

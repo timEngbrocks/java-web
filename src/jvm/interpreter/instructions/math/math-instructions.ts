@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 import { iinc } from './iinc'
 import { iadd, ladd, fadd, dadd } from './xadd'
@@ -14,7 +14,7 @@ import { isub, lsub, fsub, dsub } from './xsub'
 import { iushr, lushr } from './xushr'
 import { ixor, lxor } from './xxor'
 
-export const getMathInstructionByCode = (code: string): Instruction => {
+export const getMathInstructionByCode = (code: string, address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

@@ -3,7 +3,7 @@ import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 class xrem<T extends DataType<any>> extends Instruction {
@@ -13,12 +13,12 @@ class xrem<T extends DataType<any>> extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.pop().get()
-		if (value2 == 0) throw 'Division by zero'
-		const value1 = Runtime.pop().get()
+		const value2 = Runtime.it().pop().get()
+		if (value2 == 0) throw new Error('Division by zero')
+		const value1 = Runtime.it().pop().get()
 		const result = this.newConstant()
 		result.set(value1 - (value1 / value2) * value2)
-		Runtime.push(result)
+		Runtime.it().push(result)
 	}
 
 	public override toString(): string {

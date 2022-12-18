@@ -1,16 +1,20 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 export class tableswitch extends Instruction {
 	length = -1
 	args = ''
+	constructor(private readonly address: number) {
+		super()
+	}
+
 	public override setArgs(args: string): void {
 		this.args = args
 		this.calculateLength()
 	}
 
 	public override execute(): void {
-		const index = Runtime.pop().get()
+		const index = Runtime.it().pop().get()
 		const padding = this.calculatePadding()
 		const { defaultValue, lowValue, highValue } = this.calculateDefaultLowHighValues()
 
@@ -31,7 +35,7 @@ export class tableswitch extends Instruction {
 			offset = offsets[index - lowValue]
 		}
 
-		Runtime.jumpByOffset(offset)
+		Runtime.it().jumpByOffset(offset)
 	}
 
 	public override toString(): string {
@@ -41,7 +45,7 @@ export class tableswitch extends Instruction {
 	public calculateLength(): void {
 		const padding = this.calculatePadding()
 		const { lowValue, highValue } = this.calculateDefaultLowHighValues()
-		this.length = 13 + padding + ((highValue - lowValue + 1) * 4)
+		this.length = 13 + padding / 2 + ((highValue - lowValue + 1) * 4)
 	}
 
 	private constructValue(byte1: number, byte2: number, byte3: number, byte4: number): number {
@@ -69,7 +73,7 @@ export class tableswitch extends Instruction {
 	}
 
 	private calculatePadding(): number {
-		const pc = Runtime.getPC()
-		return (pc + 1) % 4 == 0 ? 0 : 4 - ((pc + 1) % 4)
+		const start = (this.address + 2) / 2
+		return 2 * ((start) % 4 == 0 ? 0 : 4 - (start % 4))
 	}
 }

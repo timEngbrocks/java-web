@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 import { bipush } from './bipush'
 import { dconst_0, dconst_1, fconst_0, fconst_1, fconst_2, iconst_0, iconst_1, iconst_2, iconst_3, iconst_4, iconst_5, iconst_m1, lconst_0, lconst_1 } from './xconst_n'
@@ -9,7 +9,7 @@ import { aconst_null } from './aconst_null'
 import { ldc_w } from './ldc_w'
 import { ldc2_w } from './ldc2_w'
 
-export const getConstantInstructionByCode = (code: string): Instruction => {
+export const getConstantInstructionByCode = (code: string, address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

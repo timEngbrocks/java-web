@@ -1,5 +1,5 @@
 import { returnAddress } from '../../data-types/returnAddress'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 export class jsr extends Instruction {
@@ -13,11 +13,11 @@ export class jsr extends Instruction {
 		const branchbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const branchbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const branchoffset = (branchbyte1 << 8) | branchbyte2
-		const pc = Runtime.getPC()
+		const pc = Runtime.it().currentPC()
 		const address = new returnAddress()
 		address.set(pc + 1)
-		Runtime.push(address)
-		Runtime.jumpByOffset(branchoffset)
+		Runtime.it().push(address)
+		Runtime.it().jumpByOffset(branchoffset)
 	}
 
 	public override toString(): string {

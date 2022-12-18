@@ -1,4 +1,4 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 import { dup } from './dup'
 import { dup2 } from './dup2'
@@ -10,7 +10,7 @@ import { pop } from './pop'
 import { pop2 } from './pop2'
 import { swap } from './swap'
 
-export const getStackInstructionByCode = (code: string): Instruction => {
+export const getStackInstructionByCode = (code: string, address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

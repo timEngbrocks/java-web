@@ -4,7 +4,7 @@ import { runJVM } from '../util/runJVM'
 test('basic-functions', () => {
 	runJVM(['src/tests/basic-functions/Main.class'])
 
-	const localVariables = Runtime.classObject.currentMethod.activeFrame.localVariables
+	const localVariables = Runtime.it().get_debug_lastExecutionContext().localVariables
 
-	expect(localVariables[1].get().get()).toEqual(3)
+	expect(localVariables.get(1).get()).toEqual(3)
 })

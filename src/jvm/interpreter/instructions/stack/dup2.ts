@@ -1,6 +1,6 @@
 import { double } from '../../data-types/double'
 import { long } from '../../data-types/long'
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { OpCodes } from '../opcodes'
 
@@ -9,16 +9,16 @@ export class dup2 extends Instruction {
 	length: number = 1
 
 	public override execute(): void {
-		const value = Runtime.pop()
+		const value = Runtime.it().pop()
 		if (value instanceof long || value instanceof double) {
-			Runtime.push(value)
-			Runtime.push(value)
+			Runtime.it().push(value)
+			Runtime.it().push(value)
 		} else {
-			const value2 = Runtime.pop()
-			Runtime.push(value2)
-			Runtime.push(value)
-			Runtime.push(value2)
-			Runtime.push(value)
+			const value2 = Runtime.it().pop()
+			Runtime.it().push(value2)
+			Runtime.it().push(value)
+			Runtime.it().push(value2)
+			Runtime.it().push(value)
 		}
 	}
 

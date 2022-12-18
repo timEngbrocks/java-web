@@ -1,8 +1,9 @@
-import { ConstantClass } from '../../../class-loader/parser/types/constants/ConstantClass'
-import { ConstantUtf8 } from '../../../class-loader/parser/types/constants/ConstantUtf8'
-import { reference } from '../../data-types/references'
-import { Instruction } from '../../Instruction'
+import { ConstantClass } from '../../../parser/types/constants/ConstantClass'
+import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
+import { ReferenceType } from '../../data-types/data-type'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
+import { ClassObjectManager } from '../../class/ClassObjectManager'
 
 export class New extends Instruction {
 	length = 3
@@ -17,21 +18,23 @@ export class New extends Instruction {
 		const indexbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const index = (indexbyte1 << 8) | indexbyte2
-		const clazz = Runtime.getConstant(index)
-		if (!(clazz instanceof ConstantClass)) throw 'Tried new without ConstantClass'
-		const name = (Runtime.getConstant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-		const classObject = Runtime.getClass(name)
-		if (!classObject) throw `new: Could not find class: ${name}`
-		const address = Runtime.allocate(classObject)
-		const ref = new reference()
-		ref.set(address)
-		Runtime.push(ref)
+		const clazz = Runtime.it().constant(index)
+		if (!(clazz instanceof ConstantClass)) throw new Error('Tried new without ConstantClass')
+		const name = (Runtime.it().constant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const classObject = ClassObjectManager.newInstance(name)
+		if (!classObject) throw new Error(`new: Could not find class: ${name}`)
+		classObject.getClass().initializeIfUninitialized()
+		const address = Runtime.it().allocate(classObject)
+		Runtime.it().push(new ReferenceType(address, name))
 	}
 
 	public override toString(): string {
 		const indexbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const index = (indexbyte1 << 8) | indexbyte2
-		return `new @ ${index}`
+		const clazz = Runtime.it().constant(index)
+		if (!(clazz instanceof ConstantClass)) throw new Error('Tried new without ConstantClass')
+		const name = (Runtime.it().constant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		return `new ${name}`
 	}
 }

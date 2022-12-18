@@ -1,10 +1,10 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { OpCodes } from '../opcodes'
 import { aastore, bastore, castore, dastore, fastore, iastore, lastore, sastore } from './xastore'
 import { astore, dstore, fstore, istore, lstore } from './xstore'
 import { astore_0, astore_1, astore_2, astore_3, dstore_0, dstore_1, dstore_2, dstore_3, fstore_0, fstore_1, fstore_2, fstore_3, istore_0, istore_1, istore_2, istore_3, lstore_0, lstore_1, lstore_2, lstore_3 } from './xstore_n'
 
-export const getStoreInstructionByCode = (code: string): Instruction => {
+export const getStoreInstructionByCode = (code: string, address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

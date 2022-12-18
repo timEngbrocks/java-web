@@ -1,16 +1,20 @@
-import { Instruction } from '../../Instruction'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 export class lookupswitch extends Instruction {
 	length = -1
 	args = ''
+	constructor(private readonly address: number) {
+		super()
+	}
+
 	public override setArgs(args: string): void {
 		this.args = args
 		this.calculateLength()
 	}
 
 	public override execute(): void {
-		const key = Runtime.pop().get()
+		const key = Runtime.it().pop().get()
 		const padding = this.calculatePadding()
 		const { defaultValue, npairs } = this.calculateDefaultValueNpairs()
 
@@ -45,17 +49,17 @@ export class lookupswitch extends Instruction {
 		}
 		if (offset == 0) offset = defaultValue
 
-		Runtime.jumpByOffset(offset)
+		Runtime.it().jumpByOffset(offset)
 	}
 
 	public override toString(): string {
-		return 'lookupswitch'
+		return `lookupswitch ${this.calculateLength()}`
 	}
 
 	public calculateLength(): void {
 		const padding = this.calculatePadding()
 		const { npairs } = this.calculateDefaultValueNpairs()
-		this.length = 9 + padding + (npairs * 8)
+		this.length = 9 + padding / 2 + (npairs * 8)
 	}
 
 	private constructValue(byte1: number, byte2: number, byte3: number, byte4: number): number {
@@ -78,7 +82,7 @@ export class lookupswitch extends Instruction {
 	}
 
 	private calculatePadding(): number {
-		const pc = Runtime.getPC()
-		return (pc + 1) % 4 == 0 ? 0 : 4 - ((pc + 1) % 4)
+		const start = (this.address + 2) / 2
+		return 2 * ((start) % 4 == 0 ? 0 : 4 - (start % 4))
 	}
 }

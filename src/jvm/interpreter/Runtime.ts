@@ -1,118 +1,172 @@
-import { cloneDeep } from 'lodash'
-import { AttributeBootstrapMethodsBootstrapMethod } from '../class-loader/parser/types/attributes/AttributeBootstrapMethods'
-import { ConstantData } from '../class-loader/parser/types/constants/ConstantData'
-import { CPInfo } from '../class-loader/parser/types/CPInfo'
-import { ClassObject } from './ClassObject'
-import { DataType } from './data-types/data-type'
+import { CPInfo } from '../parser/types/CPInfo'
+import { ClassInterface } from './class/ClassInterface'
+import { ClassObjectManager } from './class/ClassObjectManager'
+import { DataType, DescriptorType } from './data-types/data-type'
+import { Instruction } from './instructions/Instruction'
+import { InstructionStream } from './instructions/InstructionStream'
 import { Heap, HeapAddress, HeapData } from './memory/heap'
-import { LocalVariable } from './memory/local-variable'
+import { LocalVariables } from './memory/LocalVariables'
+import { OperandStack } from './memory/operand-stack'
+import { ExecutionContext } from './util/ExecutionContext'
+import { Stack } from './util/Stack'
 
 export class Runtime {
-	public static classObject: ClassObject
-	public static classes: ClassObject[] = []
-	public static classStack: ClassObject[] = []
+	private static _instance: Runtime
 
-	public static heap: Heap = new Heap()
+	private readonly heap: Heap = new Heap()
+	private readonly executeCallback: () => void = (): void => {}
 
-	public static reset(): void {
-		this.classObject = new ClassObject()
-		this.classes = []
-		this.classStack = []
+	private classStack = new Stack<ClassInterface>()
+	private readonly classStackHistory = new Stack<Stack<ClassInterface>>()
+
+	private debug_lastExecutionContext = {
+		instructionStream: new InstructionStream(''),
+		operandStack: new OperandStack(0, false),
+		localVariables: new LocalVariables(0, false),
+		methodObject: {
+			name: '',
+			descriptor: '',
+			className: '',
+			accessFlags: 0,
+			types: {
+				parameters: [] as DescriptorType<any>[],
+				returnType: undefined as (DescriptorType<any> | undefined)
+			},
+			maxLocals: 0,
+			maxStack: 0,
+			instructionStream: new InstructionStream('')
+		}
 	}
 
-	public static set(classObject: ClassObject, classes: ClassObject[]): void {
-		this.classObject = classObject
-		this.classes = classes
+	private debug_lastClassNameAndId = ''
+
+	constructor(executeCallback: () => void) {
+		this.executeCallback = executeCallback
+		Runtime._instance = this
 	}
 
-	public static getConstant(index: number): CPInfo<ConstantData> {
-		return this.classObject.getConstant(index)
+	public static it(): Runtime {
+		return Runtime._instance
 	}
 
-	public static allocate(value: any): HeapAddress {
+	public current(): ClassInterface {
+		return this.classStack.current()
+	}
+
+	public constant(index: number): CPInfo<any> {
+		return this.current().constant(index)
+	}
+
+	public push(value: DataType<any>): void {
+		this.current().push(value)
+	}
+
+	public pop(): DataType<any> {
+		return this.current().pop()
+	}
+
+	public setLocal(value: DataType<any>, index: number): void {
+		this.current().setLocal(value, index)
+	}
+
+	public getLocal(index: number): DataType<any> {
+		return this.current().getLocal(index)
+	}
+
+	public allCurrentLocals(): LocalVariables {
+		return this.classStack.current().allCurrentLocals()
+	}
+
+	public setupExecuteOutOfOrder(): void {
+		this.classStackHistory.push(this.classStack)
+		this.classStack = new Stack<ClassInterface>()
+	}
+
+	public callExecuteOutOfOrder(): void {
+		this.executeCallback()
+		this.classStack = this.classStackHistory.pop()
+	}
+
+	public allocate(value: HeapData): HeapAddress {
 		return this.heap.allocate(value)
 	}
 
-	public static load(address: HeapAddress): HeapData {
+	public load(address: HeapAddress): HeapData {
 		return this.heap.load(address)
 	}
 
-	public static push(value: DataType<any>): void {
-		this.classObject.push(value)
+	public setupFunctionCall(classObject: ClassInterface, name: string, descriptor: string): void {
+		classObject.setupFunctionCall(name, descriptor)
 	}
 
-	public static pop(): DataType<any> {
-		return this.classObject.pop()
+	public executeFunctionCall(classObject: ClassInterface): void {
+		this.classStack.push(classObject)
+		classObject.executeFunctionCall()
 	}
 
-	public static peek(): DataType<any> {
-		return this.classObject.peek()
-	}
-
-	public static setLocalVariable(variable: LocalVariable, index: number): void {
-		this.classObject.setLocalVariable(variable, index)
-	}
-
-	public static getLocalVariable(index: number): LocalVariable {
-		return this.classObject.getLocalVariable(index)
-	}
-
-	public static jumpByOffset(offset: number): void {
-		this.classObject.jumpByOffset(offset)
-	}
-
-	public static getPC(): number {
-		return this.classObject.currentMethod.activeInstructionStream.getPC()
-	}
-
-	public static setPC(pc: number): void {
-		this.classObject.currentMethod.activeInstructionStream.setPC(pc)
-	}
-
-	public static callFunction(className: string, functionName: string): void {
-		this.classStack.push(this.classObject)
-		if (className == this.classObject.name) {
-			this.classObject.callFunction(functionName)
+	public setReturnValue(value: DataType<any>): void {
+		const clazz = this.classStack.pop()
+		if (clazz.getId() === this.classStack.current().getId()) {
+			this.classStack.current().setReturnValueOnSelf(value)
 		} else {
-			const newClassObject = cloneDeep(this.classes.find(clazz => clazz.name == className))
-			if (!newClassObject) throw `Could not find class: ${className}`
-			this.classObject = newClassObject
-			this.classObject.callFunction(functionName)
+			this.classStack.current().push(value)
 		}
+		this.classStack.push(clazz)
 	}
 
-	public static callFunctionOnObject(classObject: ClassObject, functionName: string): void {
-		this.classStack.push(this.classObject)
-		this.classObject = classObject
-		this.classObject.callFunction(functionName)
+	public returnFromFunction(): void {
+		this.current().returnFromFunction()
+		const previousClass = this.classStack.pop()
+		this.debug_lastClassNameAndId = `${previousClass.getName()}(${previousClass.getId()})`
 	}
 
-	public static setReturnValue(value: DataType<any>): void {
-		this.classStack[this.classStack.length - 1].setReturnValue(value)
+	public currentMethodHasNext(): boolean {
+		if (this.classStack.isEmpty()) return false
+		return this.current().currentMethodHasNext()
 	}
 
-	public static returnFromFunction(): void {
-		this.classObject.returnFromFunction()
-		if (this.classObject.lengthOfCallStack() == 0) {
-			const newClassObject = this.classStack.pop()
-			if (!newClassObject) return
-			this.classObject = newClassObject
-		}
+	public currentMethodNext(): Instruction {
+		this.debug_lastExecutionContext = this.current().currentMethod()
+		return this.current().currentMethodNext()
 	}
 
-	public static getStaticField(className: string, fieldName: string): DataType<any> | undefined {
-		return this.classes.find(clazz => clazz.name == className)?.getStaticField(fieldName)
+	public currentMethod(): ExecutionContext {
+		return this.current().currentMethod()
 	}
 
-	public static putStaticField(className: string, fieldName: string, value: DataType<any>): void {
-		return this.classes.find(clazz => clazz.name == className)?.putStaticField(fieldName, value)
+	public currentName(): string {
+		return this.current().getName()
 	}
 
-	public static getBootstrapMethod(index: number): AttributeBootstrapMethodsBootstrapMethod {
-		return this.classObject.getBootstrapMethod(index)
+	public currentId(): string {
+		return this.current().getId()
 	}
 
-	public static getClass(name: string): ClassObject | undefined {
-		return this.classes.find(clazz => clazz.name === name)
+	public currentPC(): number {
+		return this.current().currentPC()
+	}
+
+	public jumpByOffset(offset: number): void {
+		this.current().jumpByOffset(offset)
+	}
+
+	public setPC(pc: number): void {
+		this.current().setPC(pc)
+	}
+
+	public getStatic(className: string, fieldName: string): DataType<any> {
+		return ClassObjectManager.getClass(className).getStaticField(fieldName)
+	}
+
+	public putStatic(className: string, fieldName: string, value: DataType<any>): void {
+		ClassObjectManager.getClass(className).putStaticField(fieldName, value)
+	}
+
+	public get_debug_lastClassNameAndId(): string {
+		return this.debug_lastClassNameAndId
+	}
+
+	public get_debug_lastExecutionContext(): ExecutionContext {
+		return this.debug_lastExecutionContext
 	}
 }

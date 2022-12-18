@@ -1,4 +1,5 @@
-import { Instruction } from '../../Instruction'
+import { ReferenceType } from '../../data-types/data-type'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { IfOps } from './ifop'
 
@@ -14,16 +15,16 @@ class if_acmpop extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.pop().get()
-		const value1 = Runtime.pop().get()
+		const value2 = (Runtime.it().pop() as ReferenceType).get()?.get()
+		const value1 = (Runtime.it().pop() as ReferenceType).get()?.get()
 		let success = false
 		switch (this.op) {
 			case IfOps.eq: {
-				success = value1 == value2
+				success = value1 === value2
 				break
 			}
 			case IfOps.ne: {
-				success = value1 != value2
+				success = value1 !== value2
 				break
 			}
 		}
@@ -31,7 +32,7 @@ class if_acmpop extends Instruction {
 			const branchbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 			const branchbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 			const offset = (branchbyte1 << 8) | branchbyte2
-			Runtime.jumpByOffset(offset)
+			Runtime.it().jumpByOffset(offset)
 		}
 	}
 

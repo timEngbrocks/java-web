@@ -1,13 +1,11 @@
-import { reference } from '../../data-types/references'
-import { Instruction } from '../../Instruction'
+import { ReferenceType } from '../../data-types/data-type'
+import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
 export class aconst_null extends Instruction {
 	length: number = 1
 	public override execute(): void {
-		const a = new reference()
-		a.set(null)
-		Runtime.push(a)
+		Runtime.it().push(new ReferenceType(null))
 	}
 
 	public override toString(): string {
