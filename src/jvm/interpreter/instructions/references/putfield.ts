@@ -1,12 +1,11 @@
 import { ConstantFieldRef } from '../../../parser/types/constants/ConstantFieldRef'
 import { ConstantNameAndType } from '../../../parser/types/constants/ConstantNameAndType'
 import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
-import { ClassObject } from '../../class/ClassObject'
 import { ReferenceType } from '../../data-types/data-type'
 import { Instruction } from '../Instruction'
-import { HEAP_TYPES } from '../../memory/heap'
 import { Runtime } from '../../Runtime'
 import { ConstantClass } from '../../../parser/types/constants/ConstantClass'
+import { ClassInstance } from '../../class/ClassInstance'
 
 export class putfield extends Instruction {
 	length = 3
@@ -26,11 +25,8 @@ export class putfield extends Instruction {
 
 		const value = Runtime.it().pop()
 
-		const objectref = Runtime.it().pop()
-		if (!(objectref instanceof ReferenceType) || objectref.get()?.getType() != HEAP_TYPES.CLASS) throw new Error('Tried getfield without objectref')
-		const address = objectref.get()
-		if (!address) throw new Error('getfield null dereference')
-		const classObject = Runtime.it().load(address) as ClassObject
+		const objectref = Runtime.it().pop() as ReferenceType
+		const classObject = Runtime.it().load(objectref) as ClassInstance
 		classObject.putField(fieldName, value)
 	}
 

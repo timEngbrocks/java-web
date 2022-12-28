@@ -14,7 +14,8 @@ class xor<T extends DataType<any>> extends Instruction {
 		const value2 = Runtime.it().pop().get()
 		const value1 = Runtime.it().pop().get()
 		const result = this.newConstant()
-		result.set(value1 | value2)
+		if (this.newConstant() instanceof long) result.set((value1 as bigint) | (value2 as bigint))
+		else result.set(value1 | value2)
 		Runtime.it().push(result)
 	}
 

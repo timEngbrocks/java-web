@@ -1,6 +1,5 @@
 import { ConstantClass } from '../../../parser/types/constants/ConstantClass'
 import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
-import { ReferenceType } from '../../data-types/data-type'
 import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { ClassObjectManager } from '../../class/ClassObjectManager'
@@ -24,8 +23,7 @@ export class New extends Instruction {
 		const classObject = ClassObjectManager.newInstance(name)
 		if (!classObject) throw new Error(`new: Could not find class: ${name}`)
 		classObject.getClass().initializeIfUninitialized()
-		const address = Runtime.it().allocate(classObject)
-		Runtime.it().push(new ReferenceType(address, name))
+		Runtime.it().push(Runtime.it().allocate(classObject))
 	}
 
 	public override toString(): string {

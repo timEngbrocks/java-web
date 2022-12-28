@@ -1,4 +1,5 @@
 import { NativeClassObject } from '../../NativeClassObject'
+import { getNativeJdkInternalMiscClassByName } from './misc/native-jdk-internal-misc'
 import { getNativeJdkInternalUtilClassByName } from './util/native-jdk-internal-util'
 
 export const getNativeJdkInternalClassByName = (name: string): NativeClassObject => {
@@ -6,6 +7,7 @@ export const getNativeJdkInternalClassByName = (name: string): NativeClassObject
 	const subName = name.substring(name.indexOf('/') + 1)
 	switch (packageName) {
 		case 'util': return getNativeJdkInternalUtilClassByName(subName)
-		default: throw Error(`Could not find native jdk/internal/${subName}`)
+		case 'misc': return getNativeJdkInternalMiscClassByName(subName)
+		default: throw Error(`Could not find native jdk/internal/${packageName}/${subName}`)
 	}
 }

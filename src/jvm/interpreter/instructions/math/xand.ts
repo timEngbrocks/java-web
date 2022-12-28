@@ -1,31 +1,34 @@
-import { DataType } from '../../data-types/data-type'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
 import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
-class xand<T extends DataType<any>> extends Instruction {
+export class iand extends Instruction {
 	length = 1
-	constructor(private readonly type: new () => T) {
-		super()
-	}
-
 	public override execute(): void {
-		const value2 = Runtime.it().pop().get()
-		const value1 = Runtime.it().pop().get()
-		const result = this.newConstant()
-		result.set(value1 & value2)
+		const value2 = Runtime.it().pop() as int
+		const value1 = Runtime.it().pop() as int
+		const result = new int()
+		result.set((value1.get() as number) & (value2.get() as number))
 		Runtime.it().push(result)
 	}
 
 	public override toString(): string {
-		return `${this.newConstant().toString()} and`
-	}
-
-	private newConstant(): T {
-		return new this.type()
+		return 'iand'
 	}
 }
 
-export const iand = new xand<int>(int)
-export const land = new xand<long>(long)
+export class land extends Instruction {
+	length = 1
+	public override execute(): void {
+		const value2 = Runtime.it().pop() as long
+		const value1 = Runtime.it().pop() as long
+		const result = new long()
+		result.set(BigInt(value1.get()) & BigInt(value2.get()))
+		Runtime.it().push(result)
+	}
+
+	public override toString(): string {
+		return 'land'
+	}
+}

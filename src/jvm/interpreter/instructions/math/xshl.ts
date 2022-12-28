@@ -14,8 +14,12 @@ class xshl<T extends DataType<any>> extends Instruction {
 		const value2 = Runtime.it().pop().get()
 		const value1 = Runtime.it().pop().get()
 		const result = this.newConstant()
-		const s = value2 | 0x11111
-		result.set(value1 << s)
+		if (result instanceof long) {
+			result.set(BigInt(value1 * Math.pow(2, value2 & 0x111111)))
+		} else {
+			const s = value2 & 0x11111
+			result.set(value1 << s)
+		}
 		Runtime.it().push(result)
 	}
 

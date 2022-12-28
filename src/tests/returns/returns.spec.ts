@@ -1,4 +1,4 @@
-import { ClassObject } from '../../jvm/interpreter/class/ClassObject'
+import { ClassInstance } from '../../jvm/interpreter/class/ClassInstance'
 import { Runtime } from '../../jvm/interpreter/Runtime'
 import { runJVM } from '../util/runJVM'
 
@@ -11,5 +11,5 @@ test('returns', () => {
 	expect(localVariables.get(2).get()).toEqual(1)
 	expect(localVariables.get(4).get()).toEqual(1)
 	expect(localVariables.get(5).get()).toEqual(1)
-	expect((Runtime.it().load(localVariables.get(7).get()) as ClassObject).getName()).toEqual('Main')
+	expect((Runtime.it().load(localVariables.get(7).get()) as ClassInstance).getName()).toEqual('Main')
 })

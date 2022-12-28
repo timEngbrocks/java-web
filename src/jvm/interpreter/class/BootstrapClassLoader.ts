@@ -3,43 +3,87 @@ import { MethodAccessFlags } from '../../parser/MethodInfoParser'
 import { Parser } from '../../parser/Parser'
 import { AttributeCode } from '../../parser/types/attributes/AttributeCode'
 import { AttributeConstantValue } from '../../parser/types/attributes/AttributeConstantValue'
-import { ClassFile } from '../../parser/types/ClassFile'
+import { ClassAccessFlag, ClassFile } from '../../parser/types/ClassFile'
 import { ConstantClass } from '../../parser/types/constants/ConstantClass'
 import { ConstantUtf8 } from '../../parser/types/constants/ConstantUtf8'
 import { ConstantValueData } from '../../parser/types/constants/ConstantValueData'
 import { ReferenceType, PrimitiveType, ClassType, DataType } from '../data-types/data-type'
 import { InstructionStream } from '../instructions/InstructionStream'
 import { ConstantPool } from '../memory/constant-pool'
-import { Runtime } from '../Runtime'
 import { MethodObject } from '../util/MethodObject'
 import { getTypeFromFieldDescriptor, getTypesFromMethodDescriptor } from '../util/util'
 import { ClassLoader } from './ClassLoader'
 import { ClassObject } from './ClassObject'
-import { ClassObjectManager } from './ClassObjectManager'
+import { ClassObjectManager, IsClassOrInterface } from './ClassObjectManager'
+import { InterfaceObject } from './InterfaceObject'
 
 export class BootstrapClassLoader extends ClassLoader {
-	public load(name: string): ClassObject {
-		const className = name.substring(0, name.length - 6)
-		if (ClassObjectManager.doesClassExist(className)) {
-			return ClassObjectManager.getClass(className)
+	public loadClassOrInterface(nameWithExtension: string): ClassObject | InterfaceObject {
+		const name = nameWithExtension.substring(0, nameWithExtension.length - 6)
+		if (ClassObjectManager.doesClassExist(name)) {
+			return ClassObjectManager.getClass(name)
+		}
+		if (ClassObjectManager.doesInterfaceExist(name)) {
+			return ClassObjectManager.getInterface(name)
 		}
 
-		const classPath = this.isJDKClass(name) ? `jdk/${name}` : name
-		const classFile = new Parser(classPath).getClass()
+		const filePath = this.isJDKClass(nameWithExtension) ? `jdk/${nameWithExtension}` : nameWithExtension
+		const classFile = new Parser(filePath).getClass()
 
-		const classObject = this.initialize(classFile)
-
-		ClassObjectManager.addClass(classObject)
-		this.resolveUnresolvedClasses()
-
-		return classObject
+		if (classFile.data.header.accessFlags & ClassAccessFlag.ACC_INTERFACE) {
+			const interfaceObject = this.initializeInterface(classFile)
+			ClassObjectManager.addInterface(interfaceObject)
+			this.resolveUnresolvedClasses()
+			return interfaceObject
+		} else {
+			const classObject = this.initializeClass(classFile)
+			ClassObjectManager.addClass(classObject)
+			this.resolveUnresolvedClasses()
+			return classObject
+		}
 	}
 
-	private initialize(classFile: ClassFile): ClassObject {
+	private initializeInterface(classFile: ClassFile): InterfaceObject {
+		const constantPool = new ConstantPool(classFile.data.header.constantPool)
+		const thisClass = constantPool.get(classFile.data.thisClass) as ConstantClass
+		const interfaceName = (constantPool.get(thisClass.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		ClassObjectManager.addIsClassOrInterface(interfaceName, IsClassOrInterface.INTERFACE)
+		const superClass = this.getSuperClass(classFile)
+		const superInterfaceNames = this.getSuperInterfaceNames(classFile)
+		const { staticFields } = this.getFields(classFile, interfaceName)
+		const methods = this.getMethods(classFile, interfaceName)
+		return new InterfaceObject(
+			interfaceName,
+			constantPool,
+			staticFields,
+			methods,
+			superClass,
+			superInterfaceNames
+		)
+	}
+
+	private initializeClass(classFile: ClassFile): ClassObject {
 		const constantPool = new ConstantPool(classFile.data.header.constantPool)
 		const thisClass = constantPool.get(classFile.data.thisClass) as ConstantClass
 		const className = (constantPool.get(thisClass.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		ClassObjectManager.addIsClassOrInterface(className, IsClassOrInterface.CLASS)
+		const superClass = this.getSuperClass(classFile)
+		const superInterfaceNames = this.getSuperInterfaceNames(classFile)
+		const { staticFields, fields } = this.getFields(classFile, className)
+		const methods = this.getMethods(classFile, className)
 
+		return new ClassObject(
+			className,
+			constantPool,
+			staticFields,
+			fields,
+			methods,
+			superClass,
+			superInterfaceNames
+		)
+	}
+
+	private getSuperClass(classFile: ClassFile): string | undefined {
 		let superClass
 		if (classFile.data.superClass !== 0) {
 			const superClassConstant = this.resolveConstant(classFile, classFile.data.superClass) as ConstantClass
@@ -47,36 +91,44 @@ export class BootstrapClassLoader extends ClassLoader {
 			superClass = superClassName
 			this.addUnresolvedClass(superClassName + '.class')
 		}
+		return superClass
+	}
 
-		const superInterfaces = new Set<string>()
+	private getSuperInterfaceNames(classFile: ClassFile): Set<string> {
+		const superInterfaceNames = new Set<string>()
 		for (let i = 0; i < classFile.data.interfacesCount; i++) {
 			const superInterfaceConstant = this.resolveConstant(classFile, classFile.data.interfaces[i]) as ConstantClass
 			const superInterfaceName = this.resolveName(classFile, superInterfaceConstant.data.nameIndex)
-			superInterfaces.add(superInterfaceName)
+			superInterfaceNames.add(superInterfaceName)
 			this.addUnresolvedClass(superInterfaceName + '.class')
 		}
+		return superInterfaceNames
+	}
 
+	private getFields(classFile: ClassFile, className: string): {
+		staticFields: Map<string, DataType<any>>
+		fields: Map<string, DataType<any>>
+	} {
 		const staticFields = new Map<string, DataType<any>>()
 		const fields = new Map<string, DataType<any>>()
 		classFile.data.fields.forEach(field => {
-			const name = (constantPool.get(field.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-			const descriptor = (constantPool.get(field.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const name = (this.resolveConstant(classFile, field.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const descriptor = (this.resolveConstant(classFile, field.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 			const value = getTypeFromFieldDescriptor(descriptor)
 			if (!value) throw new Error(`Could not read field descriptor for: ${className} -> ${name}, ${descriptor}`)
-			if (value instanceof ReferenceType) {
-				if (!ClassObjectManager.doesClassExist(className)) {
-					this.addUnresolvedClass(className + '.class')
-					const address = Runtime.it().allocate(className)
-					value.set(address)
-				} else {
-					const fieldObject = ClassObjectManager.newInstance(className)
-					const address = Runtime.it().allocate(fieldObject)
-					value.set(address)
+			if (value instanceof ReferenceType && value.get().name.startsWith('L')) {
+				if (!ClassObjectManager.doesClassExist(value.get().name)) {
+					this.addUnresolvedClass(value.get().name + '.class')
+				}
+			} else if (value instanceof ReferenceType && value.get().name.startsWith('[')) {
+				const typeName = value.get().name.replace('[', '')
+				if (typeName.startsWith('L')) {
+					if (!ClassObjectManager.doesClassExist(typeName.substring(1))) this.addUnresolvedClass(typeName.substring(1) + '.class')
 				}
 			} else if (field.data.attributesCount > 0 && value instanceof PrimitiveType) {
 				const attribute = field.data.attributes.find(attribute => attribute instanceof AttributeConstantValue)
 				if (attribute) {
-					const constant = constantPool.get(attribute.data.constantValueIndex).data as ConstantValueData
+					const constant = this.resolveConstant(classFile, attribute.data.constantValueIndex).data as ConstantValueData
 					value.set(constant.value)
 				}
 			}
@@ -86,11 +138,14 @@ export class BootstrapClassLoader extends ClassLoader {
 				fields.set(name, value)
 			}
 		})
+		return { staticFields, fields }
+	}
 
+	private getMethods(classFile: ClassFile, className: string): Map<string, MethodObject> {
 		const methods = new Map<string, MethodObject>()
 		classFile.data.methods.forEach(method => {
-			const name = (constantPool.get(method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-			const descriptor = (constantPool.get(method.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const name = (this.resolveConstant(classFile, method.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+			const descriptor = (this.resolveConstant(classFile, method.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 			const methodIdentifier = name + ' ' + descriptor
 			const types = getTypesFromMethodDescriptor(descriptor)
 			if (types.returnType instanceof ClassType && !ClassObjectManager.doesClassExist(types.returnType.get().getName())) {
@@ -142,15 +197,6 @@ export class BootstrapClassLoader extends ClassLoader {
 				})
 			}
 		})
-
-		return new ClassObject(
-			className,
-			constantPool,
-			staticFields,
-			fields,
-			methods,
-			superClass,
-			superInterfaces
-		)
+		return methods
 	}
 }

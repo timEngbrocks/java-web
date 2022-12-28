@@ -5,6 +5,7 @@ import { MethodAccessFlags } from '../../parser/MethodInfoParser'
 import { CPInfo } from '../../parser/types/CPInfo'
 import { DataType, ReferenceType } from '../data-types/data-type'
 import { Instruction } from '../instructions/Instruction'
+import { InstructionStream } from '../instructions/InstructionStream'
 import { ConstantPool } from '../memory/constant-pool'
 import { HEAP_TYPES } from '../memory/heap'
 import { LocalVariables } from '../memory/LocalVariables'
@@ -16,11 +17,12 @@ import { Stack } from '../util/Stack'
 import { ClassInstance } from './ClassInstance'
 import { ClassInterface } from './ClassInterface'
 import { ClassObjectManager, ClassObjectState } from './ClassObjectManager'
+import { InterfaceObject } from './InterfaceObject'
 
 export class ClassObject implements ClassInterface {
 	private readonly executionContexts = new Stack<ExecutionContext>()
 	private superClassInstance: ClassInstance | undefined
-	private readonly superInterfacesInstances = new Set<ClassInstance>()
+	private readonly superInterfaces = new Set<InterfaceObject>()
 
 	public static constructEmptyClass(): ClassObject {
 		return new ClassObject(
@@ -34,6 +36,32 @@ export class ClassObject implements ClassInterface {
 		)
 	}
 
+	public static constructEmptyClassForReturn(): ClassObject {
+		const emptyClass = new ClassObject(
+			'empty',
+			new ConstantPool([]),
+			new Map<string, DataType<any>>(),
+			new Map<string, DataType<any>>(),
+			new Map<string, MethodObject>(),
+			undefined,
+			new Set<string>()
+		)
+		emptyClass.executionContexts.push(emptyClass.newExecutionContext({
+			name: 'return',
+			descriptor: '()V',
+			className: 'empty',
+			accessFlags: 0,
+			types: {
+				parameters: [],
+				returnType: undefined
+			},
+			maxLocals: 0,
+			maxStack: 1,
+			instructionStream: new InstructionStream('')
+		}, false))
+		return emptyClass
+	}
+
 	constructor(
 		private readonly name: string,
 		private readonly runtimeConstantPool: ConstantPool,
@@ -41,7 +69,7 @@ export class ClassObject implements ClassInterface {
 		private readonly fields: Map<string, DataType<any>>,
 		private readonly methods: Map<string, MethodObject>,
 		private readonly superClass: string | undefined,
-		private readonly superInterfaces: Set<string>,
+		private readonly superInterfaceNames: Set<string>,
 		private readonly id = randomUUID()
 	) {}
 
@@ -68,23 +96,20 @@ export class ClassObject implements ClassInterface {
 	public getStaticField(name: string): DataType<any> {
 		this.initializeIfUninitialized()
 		const value = this.staticFields.get(name)
-		if (!value) throw new Error(`Could not find static field ${name} on ${this.name}`)
-		if (value instanceof ReferenceType && value.get()?.getType() === HEAP_TYPES.UNRESOLVED_CLASS) {
-			const actualValue = Runtime.it().load(value.get()!) as DataType<any>
-			this.putStaticField(name, actualValue)
-			return actualValue
+		if (!value && !this.getSuperClass()) throw new Error(`Could not find static field ${name} on ${this.name}`)
+		else if (!value) return this.superClassInstance!.getStaticField(name)
+		else if (value instanceof ReferenceType && value.get().address?.getType() === HEAP_TYPES.UNRESOLVED_CLASS_OR_INTERFACE) {
+			Runtime.it().load(value)
+			return value
 		}
 		return value
 	}
 
 	public putStaticField(name: string, value: DataType<any>): void {
 		this.initializeIfUninitialized()
-		if (!this.staticFields.has(name)) throw new Error(`Static field ${name} does not exist on ${this.name}`)
+		if (!this.staticFields.has(name) && !this.superClassInstance) throw new Error(`Static field ${name} does not exist on ${this.name}`)
+		else if (!this.staticFields.has(name)) this.superClassInstance!.putStaticField(name, value)
 		this.staticFields.set(name, value)
-	}
-
-	public getFields(): Map<string, DataType<any>> {
-		return this.fields
 	}
 
 	public getMethod(name: string, descriptor: string): MethodObject {
@@ -136,7 +161,8 @@ export class ClassObject implements ClassInterface {
 			instructionStream: cloneDeep(method.instructionStream),
 			operandStack: new OperandStack(method.maxStack, isNative),
 			localVariables: new LocalVariables(method.maxLocals, isNative),
-			methodObject: method
+			methodObject: method,
+			class: this
 		}
 	}
 
@@ -180,21 +206,51 @@ export class ClassObject implements ClassInterface {
 	}
 
 	public getSuperClass(): ClassInstance | undefined {
-		if (!this.superClass) return undefined
-		if (!this.superClassInstance) {
+		if (this.superClass && !this.superClassInstance) {
 			this.superClassInstance = ClassObjectManager.newInstance(this.superClass)
 		}
 		return this.superClassInstance
 	}
 
-	public getSuperInterfaces(): Set<ClassInstance> {
-		if (this.superInterfacesInstances.size === 0) {
-			for (const superInterface of this.superInterfaces.values()) {
-				const superInterfaceInstance = ClassObjectManager.newInstance(superInterface)
-				this.superInterfacesInstances.add(superInterfaceInstance)
+	public getSuperInterfaces(): Set<InterfaceObject> {
+		if (this.superInterfaces.size === 0) {
+			for (const superInterfaceName of this.superInterfaceNames.values()) {
+				const superInterface = ClassObjectManager.getInterface(superInterfaceName)
+				this.superInterfaces.add(superInterface)
 			}
 		}
-		return this.superInterfacesInstances
+		return this.superInterfaces
+	}
+
+	public hasSuperInterface(superInterface: InterfaceObject): boolean {
+		for (const superInterfaceName of this.superInterfaceNames.values()) {
+			if (superInterfaceName === superInterface.getName()) return true
+		}
+		return false
+	}
+
+	public getFields(): Map<string, DataType<any>> {
+		return this.fields
+	}
+
+	public getStaticFields(): Map<string, DataType<any>> {
+		return this.staticFields
+	}
+
+	public findMethod(methodIdentifier: string): MethodObject {
+		let method = this.methods.get(methodIdentifier)
+		if (!method && this.superClass) {
+			const superClass = ClassObjectManager.getClass(this.superClass)
+			method = superClass.findMethod(methodIdentifier)
+		}
+		if (!method) {
+			for (const superInterface of this.superInterfaces.keys()) {
+				method = superInterface.findMethod(methodIdentifier)
+				if (method) return method
+			}
+		}
+		if (!method) throw new Error(`Could not find method: ${methodIdentifier} on ${this.name}`)
+		return method
 	}
 
 	public getField(name: string): DataType<any> {
@@ -219,23 +275,6 @@ export class ClassObject implements ClassInterface {
 		Runtime.it().returnFromFunction()
 	}
 
-	private findMethod(methodIdentifier: string): MethodObject {
-		let method = this.methods.get(methodIdentifier)
-		if (!method && this.superClass) {
-			const superClass = ClassObjectManager.getClass(this.superClass)
-			method = superClass.findMethod(methodIdentifier)
-		}
-		if (!method) {
-			for (const superInterfaceName of this.superInterfaces.keys()) {
-				const superInterface = ClassObjectManager.getClass(superInterfaceName)
-				method = superInterface.findMethod(methodIdentifier)
-				if (method) return method
-			}
-		}
-		if (!method) throw new Error(`Could not find method: ${methodIdentifier} on ${this.name}`)
-		return method
-	}
-
 	private constructMethodIdentifier(name: string, descriptor: string): string {
 		return name + ' ' + descriptor
 	}
@@ -249,12 +288,8 @@ export class ClassObject implements ClassInterface {
 			Runtime.it().callExecuteOutOfOrder()
 		}
 		ClassObjectManager.updateClassState(this, ClassObjectState.INITIALIZED)
-		const superClassObject = this.getSuperClass()
-		if (superClassObject) {
-			superClassObject.getClass().initializeIfUninitialized()
-		}
-		for (const superInterface of this.getSuperInterfaces()) {
-			superInterface.getClass().initializeIfUninitialized()
+		if (this.superClassInstance) {
+			this.superClassInstance.getClass().initializeIfUninitialized()
 		}
 	}
 }

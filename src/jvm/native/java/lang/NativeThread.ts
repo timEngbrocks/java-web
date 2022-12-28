@@ -1,5 +1,4 @@
 import { ClassObjectManager } from '../../../interpreter/class/ClassObjectManager'
-import { ReferenceType } from '../../../interpreter/data-types/data-type'
 import { Runtime } from '../../../interpreter/Runtime'
 import { ExecutionContext } from '../../../interpreter/util/ExecutionContext'
 import { MethodObject } from '../../../interpreter/util/MethodObject'
@@ -18,8 +17,7 @@ export class NativeThread extends NativeClassObject {
 
 	private nativeCurrentThread(executionContext: ExecutionContext): void {
 		const threadObject = ClassObjectManager.newInstance('java/lang/Thread')
-		const address = Runtime.it().allocate(threadObject)
-		executionContext.operandStack.push(new ReferenceType(address))
+		executionContext.operandStack.push(Runtime.it().allocate(threadObject))
 	}
 
 	public toString(): string {

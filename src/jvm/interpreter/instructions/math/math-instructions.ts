@@ -19,67 +19,67 @@ export const getMathInstructionByCode = (code: string, address: number): Instruc
 	let instruction = new Instruction()
 	switch (opcode) {
 		case OpCodes.iadd: {
-			instruction = iadd
+			instruction = new iadd()
 			break
 		}
 		case OpCodes.ladd: {
-			instruction = ladd
+			instruction = new ladd()
 			break
 		}
 		case OpCodes.fadd: {
-			instruction = fadd
+			instruction = new fadd()
 			break
 		}
 		case OpCodes.dadd: {
-			instruction = dadd
+			instruction = new dadd()
 			break
 		}
 		case OpCodes.isub: {
-			instruction = isub
+			instruction = new isub()
 			break
 		}
 		case OpCodes.lsub: {
-			instruction = lsub
+			instruction = new lsub()
 			break
 		}
 		case OpCodes.fsub: {
-			instruction = fsub
+			instruction = new fsub()
 			break
 		}
 		case OpCodes.dsub: {
-			instruction = dsub
+			instruction = new dsub()
 			break
 		}
 		case OpCodes.imul: {
-			instruction = imul
+			instruction = new imul()
 			break
 		}
 		case OpCodes.lmul: {
-			instruction = lmul
+			instruction = new lmul()
 			break
 		}
 		case OpCodes.fmul: {
-			instruction = fmul
+			instruction = new fmul()
 			break
 		}
 		case OpCodes.dmul: {
-			instruction = dmul
+			instruction = new dmul()
 			break
 		}
 		case OpCodes.idiv: {
-			instruction = idiv
+			instruction = new idiv()
 			break
 		}
 		case OpCodes.ldiv: {
-			instruction = ldiv
+			instruction = new ldiv()
 			break
 		}
 		case OpCodes.fdiv: {
-			instruction = fdiv
+			instruction = new fdiv()
 			break
 		}
 		case OpCodes.ddiv: {
-			instruction = ddiv
+			instruction = new ddiv()
 			break
 		}
 		case OpCodes.irem: {
@@ -139,11 +139,11 @@ export const getMathInstructionByCode = (code: string, address: number): Instruc
 			break
 		}
 		case OpCodes.iand: {
-			instruction = iand
+			instruction = new iand()
 			break
 		}
 		case OpCodes.land: {
-			instruction = land
+			instruction = new land()
 			break
 		}
 		case OpCodes.ior: {

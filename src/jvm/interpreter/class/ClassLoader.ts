@@ -5,12 +5,13 @@ import { CPInfo } from '../../parser/types/CPInfo'
 import { BootstrapClassLoader } from './BootstrapClassLoader'
 import { ClassObject } from './ClassObject'
 import { ClassObjectManager } from './ClassObjectManager'
+import { InterfaceObject } from './InterfaceObject'
 
 export abstract class ClassLoader {
 	private readonly unresolvedClassesOrdered: string[] = []
 	private readonly unresolvedClasses = new Set<string>()
 
-	public abstract load(name: string): ClassObject
+	public abstract loadClassOrInterface(name: string): ClassObject | InterfaceObject
 
 	public static canBeLoaded(name: string): boolean {
 		return existsSync('jdk/' + name + '.class')
@@ -32,7 +33,7 @@ export abstract class ClassLoader {
 	protected resolveUnresolvedClasses(): void {
 		for (const name of this.unresolvedClassesOrdered) {
 			const loader = new BootstrapClassLoader()
-			loader.load(name)
+			loader.loadClassOrInterface(name)
 		}
 	}
 

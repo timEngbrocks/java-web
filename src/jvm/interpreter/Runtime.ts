@@ -1,10 +1,12 @@
 import { CPInfo } from '../parser/types/CPInfo'
-import { ClassInterface } from './class/ClassInterface'
+import { ClassObject } from './class/ClassObject'
 import { ClassObjectManager } from './class/ClassObjectManager'
-import { DataType, DescriptorType } from './data-types/data-type'
+import { ExecutableInterface } from './class/ExecutableInterface'
+import { DataType, DescriptorType, ReferenceType } from './data-types/data-type'
 import { Instruction } from './instructions/Instruction'
 import { InstructionStream } from './instructions/InstructionStream'
-import { Heap, HeapAddress, HeapData } from './memory/heap'
+import { Interpreter } from './Interpreter'
+import { Heap, HeapData } from './memory/heap'
 import { LocalVariables } from './memory/LocalVariables'
 import { OperandStack } from './memory/operand-stack'
 import { ExecutionContext } from './util/ExecutionContext'
@@ -16,8 +18,8 @@ export class Runtime {
 	private readonly heap: Heap = new Heap()
 	private readonly executeCallback: () => void = (): void => {}
 
-	private classStack = new Stack<ClassInterface>()
-	private readonly classStackHistory = new Stack<Stack<ClassInterface>>()
+	private executionStack = new Stack<ExecutableInterface>()
+	private readonly executionStackHistory = new Stack<Stack<ExecutableInterface>>()
 
 	private debug_lastExecutionContext = {
 		instructionStream: new InstructionStream(''),
@@ -35,7 +37,8 @@ export class Runtime {
 			maxLocals: 0,
 			maxStack: 0,
 			instructionStream: new InstructionStream('')
-		}
+		},
+		class: ClassObject.constructEmptyClass() as ExecutableInterface
 	}
 
 	private debug_lastClassNameAndId = ''
@@ -49,12 +52,20 @@ export class Runtime {
 		return Runtime._instance
 	}
 
-	public current(): ClassInterface {
-		return this.classStack.current()
+	public current(): ExecutableInterface {
+		return this.executionStack.current()
 	}
 
 	public constant(index: number): CPInfo<any> {
-		return this.current().constant(index)
+		const currentMethod = this.current().currentMethod()
+		const currentMethodClassName = currentMethod.methodObject.className
+		if (ClassObjectManager.isClass(currentMethodClassName)) {
+			const currentMethodClass = ClassObjectManager.getClass(currentMethodClassName)
+			return currentMethodClass.constant(index)
+		} else {
+			const currentMethodInterface = ClassObjectManager.getInterface(currentMethodClassName)
+			return currentMethodInterface.constant(index)
+		}
 	}
 
 	public push(value: DataType<any>): void {
@@ -74,54 +85,61 @@ export class Runtime {
 	}
 
 	public allCurrentLocals(): LocalVariables {
-		return this.classStack.current().allCurrentLocals()
+		return this.executionStack.current().allCurrentLocals()
 	}
 
 	public setupExecuteOutOfOrder(): void {
-		this.classStackHistory.push(this.classStack)
-		this.classStack = new Stack<ClassInterface>()
+		this.executionStackHistory.push(this.executionStack)
+		this.executionStack = new Stack<ExecutableInterface>()
 	}
 
-	public callExecuteOutOfOrder(): void {
+	public setupExecuteOutOfOrderWithReturn(): void {
+		this.setupExecuteOutOfOrder()
+		this.executionStack.push(ClassObject.constructEmptyClassForReturn())
+	}
+
+	public callExecuteOutOfOrder(): Stack<ExecutableInterface> {
 		this.executeCallback()
-		this.classStack = this.classStackHistory.pop()
+		const outOfOrderClassStack = this.executionStack
+		this.executionStack = this.executionStackHistory.pop()
+		return outOfOrderClassStack
 	}
 
-	public allocate(value: HeapData): HeapAddress {
+	public allocate(value: HeapData): ReferenceType {
 		return this.heap.allocate(value)
 	}
 
-	public load(address: HeapAddress): HeapData {
-		return this.heap.load(address)
+	public load(reference: ReferenceType): HeapData {
+		return this.heap.load(reference)
 	}
 
-	public setupFunctionCall(classObject: ClassInterface, name: string, descriptor: string): void {
+	public setupFunctionCall(classObject: ExecutableInterface, name: string, descriptor: string): void {
 		classObject.setupFunctionCall(name, descriptor)
 	}
 
-	public executeFunctionCall(classObject: ClassInterface): void {
-		this.classStack.push(classObject)
+	public executeFunctionCall(classObject: ExecutableInterface): void {
+		this.executionStack.push(classObject)
 		classObject.executeFunctionCall()
 	}
 
 	public setReturnValue(value: DataType<any>): void {
-		const clazz = this.classStack.pop()
-		if (clazz.getId() === this.classStack.current().getId()) {
-			this.classStack.current().setReturnValueOnSelf(value)
+		const clazz = this.executionStack.pop()
+		if (clazz.getId() === this.executionStack.current().getId()) {
+			this.executionStack.current().setReturnValueOnSelf(value)
 		} else {
-			this.classStack.current().push(value)
+			this.executionStack.current().push(value)
 		}
-		this.classStack.push(clazz)
+		this.executionStack.push(clazz)
 	}
 
 	public returnFromFunction(): void {
 		this.current().returnFromFunction()
-		const previousClass = this.classStack.pop()
+		const previousClass = this.executionStack.pop()
 		this.debug_lastClassNameAndId = `${previousClass.getName()}(${previousClass.getId()})`
 	}
 
 	public currentMethodHasNext(): boolean {
-		if (this.classStack.isEmpty()) return false
+		if (this.executionStack.isEmpty()) return false
 		return this.current().currentMethodHasNext()
 	}
 
@@ -168,5 +186,18 @@ export class Runtime {
 
 	public get_debug_lastExecutionContext(): ExecutionContext {
 		return this.debug_lastExecutionContext
+	}
+
+	public debugValue(className: string, methodName: string, ...args: any[]): void {
+		if (Runtime.it().current().getName() === className && Runtime.it().currentMethod().methodObject.name === methodName) console.log(Interpreter.globalPC, ...args)
+	}
+
+	public debugExpression(className: string, methodName: string, expression: (...args: any[]) => void, ...args: any[]): void {
+		if (Runtime.it().current().getName() === className && Runtime.it().currentMethod().methodObject.name === methodName) {
+			const originalLog = console.log
+			console.log = (...args: any[]) => originalLog(Interpreter.globalPC, ...args)
+			expression(...args)
+			console.log = originalLog
+		}
 	}
 }

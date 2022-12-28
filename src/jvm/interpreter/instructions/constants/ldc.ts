@@ -4,7 +4,7 @@ import { ConstantInteger } from '../../../parser/types/constants/ConstantInteger
 import { ConstantString } from '../../../parser/types/constants/ConstantString'
 import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
 import { byte } from '../../data-types/byte'
-import { ArrayType, ReferenceType } from '../../data-types/data-type'
+import { ArrayType } from '../../data-types/data-type'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { Instruction } from '../Instruction'
@@ -44,13 +44,10 @@ export class ldc extends Instruction {
 			if (!stringClass) throw new Error('ldc could not find java/lang/String')
 			const stringValue = new ArrayType(new byte())
 			for (let i = 0; i < stringData.length; i++) {
-				const address = Runtime.it().allocate(new byte(stringData.charCodeAt(i)))
-				stringValue.get().push(new ReferenceType(address))
+				stringValue.get().push(Runtime.it().allocate(new byte(stringData.charCodeAt(i))))
 			}
-			const stringAddress = Runtime.it().allocate(stringValue)
-			stringClass.putField('value', new ReferenceType(stringAddress))
-			const address = Runtime.it().allocate(stringClass)
-			Runtime.it().push(new ReferenceType(address, stringClass.getName()))
+			stringClass.putField('value', Runtime.it().allocate(stringValue))
+			Runtime.it().push(Runtime.it().allocate(stringClass))
 			return
 		}
 		if (value instanceof ConstantClass) {

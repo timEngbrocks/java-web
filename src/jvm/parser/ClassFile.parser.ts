@@ -1,10 +1,9 @@
 import { AttributeInfoParser } from './AttributeInfoParser'
-import { ByteStream } from './byte-stream'
 import { CPInfoParser } from './CPInfo.parser'
 import { FieldInfoParser } from './FieldInfoParser'
 import { Lexer } from './Lexer'
 import { MethodInfoParser } from './MethodInfoParser'
-import { ClassFileHeaderData, ClassFile, ClassAccessFlag } from './types/ClassFile'
+import { ClassFileHeaderData, ClassFile } from './types/ClassFile'
 import { CPInfo } from './types/CPInfo'
 
 export class ClassFileParser {
@@ -14,7 +13,7 @@ export class ClassFileParser {
 		const majorVersion = lexer.read(2).toNumber()
 		const constantPoolCount = lexer.read(2).toNumber()
 		const constantPool = CPInfoParser.parseMany(lexer, constantPoolCount - 1)
-		const accessFlags = ClassFileParser.parseClassAccessFlags(lexer.read(2))
+		const accessFlags = lexer.read(2).toNumber()
 
 		return {
 			magic,
@@ -64,19 +63,5 @@ export class ClassFileParser {
 			attributesCount,
 			attributes
 		})
-	}
-
-	public static parseClassAccessFlags(bytes: ByteStream): ClassAccessFlag[] {
-		const mask = bytes.toNumber()
-		const flags = []
-		if (mask & ClassAccessFlag.ACC_PUBLIC) flags.push(ClassAccessFlag.ACC_PUBLIC)
-		if (mask & ClassAccessFlag.ACC_FINAL) flags.push(ClassAccessFlag.ACC_FINAL)
-		if (mask & ClassAccessFlag.ACC_SUPER) flags.push(ClassAccessFlag.ACC_SUPER)
-		if (mask & ClassAccessFlag.ACC_INTERFACE) flags.push(ClassAccessFlag.ACC_INTERFACE)
-		if (mask & ClassAccessFlag.ACC_ABSTRACT) flags.push(ClassAccessFlag.ACC_ABSTRACT)
-		if (mask & ClassAccessFlag.ACC_SYNTHETIC) flags.push(ClassAccessFlag.ACC_SYNTHETIC)
-		if (mask & ClassAccessFlag.ACC_ANNOTATION) flags.push(ClassAccessFlag.ACC_ANNOTATION)
-		if (mask & ClassAccessFlag.ACC_ENUM) flags.push(ClassAccessFlag.ACC_ENUM)
-		return flags
 	}
 }

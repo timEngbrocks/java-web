@@ -15,8 +15,10 @@ class PrintVMProperties {
 		print("java.vm.vendor");
 		print("sun.nio.MaxDirectMemorySize");
 		print("sun.management.compiler");
+		print("sun.nio.PageAlignDirectMemory");
+		print("java.class.version");
 	}
 	public static void print(String id) {
-		System.out.println(id + ": '" +System.getProperty(id) + "',");
+		System.out.println("\"" + id + "\": \"" +System.getProperty(id) + "\",");
 	}
 }

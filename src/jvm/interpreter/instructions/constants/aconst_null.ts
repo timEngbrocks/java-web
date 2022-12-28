@@ -5,7 +5,7 @@ import { Runtime } from '../../Runtime'
 export class aconst_null extends Instruction {
 	length: number = 1
 	public override execute(): void {
-		Runtime.it().push(new ReferenceType(null))
+		Runtime.it().push(new ReferenceType({ address: null, name: 'aconst_null' }))
 	}
 
 	public override toString(): string {

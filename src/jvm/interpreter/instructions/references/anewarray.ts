@@ -1,6 +1,5 @@
 import { ConstantClass } from '../../../parser/types/constants/ConstantClass'
 import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
-import { ReferenceType } from '../../data-types/data-type'
 import { int } from '../../data-types/int'
 import { Runtime } from '../../Runtime'
 import { constructArrayFromArrayClassName } from '../../util/util'
@@ -21,8 +20,7 @@ export class anewarray extends Instruction {
 		const componentType = Runtime.it().constant(index) as ConstantClass
 		const className = (Runtime.it().constant(componentType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const array = constructArrayFromArrayClassName(className, count.get() as number)
-		const address = Runtime.it().allocate(array)
-		Runtime.it().push(new ReferenceType(address))
+		Runtime.it().push(Runtime.it().allocate(array))
 	}
 
 	public override toString(): string {

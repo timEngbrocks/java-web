@@ -30,8 +30,7 @@ const getInstructionByCode = (code: string, address: number): Instruction => {
 		const instruction = cloneDeep(instructionType(code, address))
 		if (!isNaN(instruction.length)) return instruction
 	}
-	console.log(`Unimplemented opcode: 0x${code.substring(0, 2)}`)
-	return new Instruction()
+	throw new Error(`Error decoding instruction stream. Got opcode: 0x${code.substring(0, 2)}`)
 }
 
 export class InstructionStream {

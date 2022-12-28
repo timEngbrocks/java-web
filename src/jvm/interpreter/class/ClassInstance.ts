@@ -14,6 +14,7 @@ import { MethodObject } from '../util/MethodObject'
 import { Stack } from '../util/Stack'
 import { ClassInterface } from './ClassInterface'
 import { ClassObject } from './ClassObject'
+import { InterfaceObject } from './InterfaceObject'
 
 export class ClassInstance implements ClassInterface {
 	private readonly fields: Map<string, DataType<any>>
@@ -49,17 +50,18 @@ export class ClassInstance implements ClassInterface {
 
 	public getField(name: string): DataType<any> {
 		const value = this.fields.get(name)
-		if (!value) throw new Error(`Could not find field ${name} on ${this.classObject.getName()}`)
-		if (value instanceof ReferenceType && value.get()?.getType() === HEAP_TYPES.UNRESOLVED_CLASS) {
-			const actualValue = Runtime.it().load(value.get()!) as DataType<any>
-			this.putField(name, actualValue)
-			return actualValue
+		if (!value && !this.getSuperClass()) throw new Error(`Could not find field ${name} on ${this.classObject.getName()}`)
+		else if (!value) return this.getSuperClass()!.getField(name)
+		else if (value instanceof ReferenceType && value.get().address?.getType() === HEAP_TYPES.UNRESOLVED_CLASS_OR_INTERFACE) {
+			Runtime.it().load(value)
+			return value
 		}
 		return value
 	}
 
 	public putField(name: string, value: DataType<any>): void {
-		if (!this.fields.has(name)) throw new Error(`No field named ${name} on ${this.classObject.getName()}`)
+		if (!this.fields.has(name) && !this.getSuperClass()) throw new Error(`No field named ${name} on ${this.classObject.getName()}`)
+		else if (!this.fields.has(name)) this.getSuperClass()?.putField(name, value)
 		this.fields.set(name, value)
 	}
 
@@ -159,8 +161,20 @@ export class ClassInstance implements ClassInterface {
 		return this.classObject.getSuperClass()
 	}
 
-	public getSuperInterfaces(): Set<ClassInstance> {
+	public getSuperInterfaces(): Set<InterfaceObject> {
 		return this.classObject.getSuperInterfaces()
+	}
+
+	public hasSuperInterface(superInterface: InterfaceObject): boolean {
+		return this.classObject.hasSuperInterface(superInterface)
+	}
+
+	public getFields(): Map<string, DataType<any>> {
+		return this.fields
+	}
+
+	public getStaticFields(): Map<string, DataType<any>> {
+		return this.classObject.getStaticFields()
 	}
 
 	private newExecutionContext(method: MethodObject, isNative: boolean = false): ExecutionContext {
@@ -168,10 +182,10 @@ export class ClassInstance implements ClassInterface {
 			instructionStream: cloneDeep(method.instructionStream),
 			operandStack: new OperandStack(method.maxStack, isNative),
 			localVariables: new LocalVariables(method.maxLocals, isNative),
-			methodObject: method
+			methodObject: method,
+			class: this
 		}
-		const address = Runtime.it().allocate(this)
-		executionContext.localVariables.set(new ReferenceType(address, this.getName()), 0)
+		executionContext.localVariables.set(Runtime.it().allocate(this), 0)
 		return executionContext
 	}
 

@@ -19,11 +19,16 @@ class xreturn<T extends DataType<any>> extends Instruction {
 			Runtime.it().returnFromFunction()
 			return
 		}
-		const value = Runtime.it().pop()
-		const returnValue = this.newConstant()
-		returnValue.set(value.get())
-		Runtime.it().setReturnValue(returnValue)
-		Runtime.it().returnFromFunction()
+		if (this.newConstant() instanceof int) {
+			const value = Runtime.it().pop()
+			const returnValue = new int(value.get())
+			Runtime.it().setReturnValue(returnValue)
+			Runtime.it().returnFromFunction()
+		} else {
+			const value = Runtime.it().pop()
+			Runtime.it().setReturnValue(value)
+			Runtime.it().returnFromFunction()
+		}
 	}
 
 	public override toString(): string {

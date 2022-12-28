@@ -7,63 +7,63 @@ export const getConversionInstructionByCode = (code: string, address: number): I
 	let instruction = new Instruction()
 	switch (opcode) {
 		case OpCodes.i2l: {
-			instruction = i2l
+			instruction = new i2l()
 			break
 		}
 		case OpCodes.i2f: {
-			instruction = i2f
+			instruction = new i2f()
 			break
 		}
 		case OpCodes.i2d: {
-			instruction = i2d
+			instruction = new i2d()
 			break
 		}
 		case OpCodes.l2i: {
-			instruction = l2i
+			instruction = new l2i()
 			break
 		}
 		case OpCodes.l2f: {
-			instruction = l2f
+			instruction = new l2f()
 			break
 		}
 		case OpCodes.l2d: {
-			instruction = l2d
+			instruction = new l2d()
 			break
 		}
 		case OpCodes.f2i: {
-			instruction = f2i
+			instruction = new f2i()
 			break
 		}
 		case OpCodes.f2l: {
-			instruction = f2l
+			instruction = new f2l()
 			break
 		}
 		case OpCodes.f2d: {
-			instruction = f2d
+			instruction = new f2d()
 			break
 		}
 		case OpCodes.d2i: {
-			instruction = d2i
+			instruction = new d2i()
 			break
 		}
 		case OpCodes.d2l: {
-			instruction = d2l
+			instruction = new d2l()
 			break
 		}
 		case OpCodes.d2f: {
-			instruction = d2f
+			instruction = new d2f()
 			break
 		}
 		case OpCodes.i2b: {
-			instruction = i2b
+			instruction = new i2b()
 			break
 		}
 		case OpCodes.i2c: {
-			instruction = i2c
+			instruction = new i2c()
 			break
 		}
 		case OpCodes.i2s: {
-			instruction = i2s
+			instruction = new i2s()
 			break
 		}
 	}

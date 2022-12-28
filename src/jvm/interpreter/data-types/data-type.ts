@@ -1,5 +1,6 @@
 import { ClassInterface } from '../class/ClassInterface'
-import { InterfaceObject } from '../class/InterfaceObject'
+import { ExecutableInterface } from '../class/ExecutableInterface'
+import { Interpreter } from '../Interpreter'
 import { HeapAddress } from '../memory/heap'
 
 export class DataType<T> {
@@ -32,31 +33,37 @@ export class ClassType extends DataType<ClassInterface> {
 		super(value)
 	}
 
-	public override toString(): string { return `classType: ${this.value.getName()}` }
+	public override toString(): string { return `classType: ${this.value.getName ? this.value.getName() : 'unset'}` }
 }
 export class ArrayType extends DescriptorType<Array<ReferenceType>> {
 	constructor(public type: DataType<any>, protected length = 0) {
-		super(new Array<ReferenceType>(length).fill(new ReferenceType()))
+		super(new Array<ReferenceType>(length).fill(new ReferenceType({ address: null, name: `[${type.toString()}` })))
 	}
 
 	public override toString(): string { return `array ${this.type.toString()}` }
 }
 
-export class InterfaceType extends DataType<InterfaceObject> {
-	constructor(protected value = new InterfaceObject()) {
+export class InterfaceType extends DataType<ExecutableInterface> {
+	// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+	constructor(protected value = {} as ExecutableInterface) {
 		super(value)
 	}
 
-	public override toString(): string { return 'interfaceType' }
+	public override toString(): string { return `intefaceType: ${this.value.getName ? this.value.getName() : 'unset'}` }
 }
 
-export type reference = HeapAddress | null
-export class ReferenceType extends DescriptorType<reference> {
-	constructor(protected value: reference = null, public name: string = '') {
+export interface Reference {
+	address: HeapAddress | null
+	name: string
+}
+export class ReferenceType extends DescriptorType<Reference> {
+	public readonly creationTime
+	constructor(protected value: Reference = { address: null, name: 'uninitialized' }) {
 		super(value)
+		this.creationTime = Interpreter.globalPC
 	}
 
-	public override toString(): string { return `referenceType: ${this.value?.getType()} -> '${this.name}'` }
+	public override toString(): string { return `referenceType: ${this.value.address?.getType()} -> '${this.value.name}' {${this.creationTime}}` }
 }
 export class BlockType extends DataType<undefined> {
 	constructor(protected value = undefined) {

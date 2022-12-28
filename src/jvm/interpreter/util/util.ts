@@ -49,30 +49,46 @@ export const getTypeFromFieldDescriptor = (descriptor: string): DescriptorType<a
 		case 'Z': return new int()
 	}
 	if (descriptor.startsWith('[[')) {
-		const componentType = getTypeFromFieldDescriptor(descriptor.substring(1))
-		if (!componentType) return undefined
-		return new ArrayType(new ArrayType(componentType))
+		return new ReferenceType({ address: null, name: descriptor })
 	}
 	if (descriptor.startsWith('[')) {
 		switch (descriptor.substring(1, 2)) {
-			case 'B':
-			case 'C':
-			case 'D':
-			case 'F':
-			case 'I':
-			case 'J':
-			case 'S':
-			case 'Z':
-			case 'L': return new ReferenceType()
+			case 'B': {
+				return new ReferenceType({ address: null, name: '[B' })
+			}
+			case 'C': {
+				return new ReferenceType({ address: null, name: '[C' })
+			}
+			case 'D': {
+				return new ReferenceType({ address: null, name: '[D' })
+			}
+			case 'F': {
+				return new ReferenceType({ address: null, name: '[F' })
+			}
+			case 'I': {
+				return new ReferenceType({ address: null, name: '[I' })
+			}
+			case 'J': {
+				return new ReferenceType({ address: null, name: '[J' })
+			}
+			case 'S': {
+				return new ReferenceType({ address: null, name: '[S' })
+			}
+			case 'Z': {
+				return new ReferenceType({ address: null, name: '[Z' })
+			}
+		}
+		if (descriptor.substring(1).startsWith('L') && descriptor.endsWith(';')) {
+			return new ReferenceType({ address: null, name: descriptor.substring(0, descriptor.length - 1) })
 		}
 	}
 	if (descriptor.startsWith('L') && descriptor.endsWith(';')) {
-		return new ReferenceType(null, descriptor.substring(1, descriptor.length - 1))
+		return new ReferenceType({ address: null, name: descriptor.substring(1, descriptor.length - 1) })
 	}
 	return undefined
 }
 
-export const constructArrayFromArrayClassName = (className: String, count = 0): DescriptorType<any> => {
+export const constructArrayFromArrayClassName = (className: String, count = 0): ArrayType => {
 	const typeName = className.substring(1)
 	if (typeName.startsWith('[')) {
 		const subType = constructArrayFromArrayClassName(typeName.substring(1), count)

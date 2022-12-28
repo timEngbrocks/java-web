@@ -6,6 +6,6 @@ export const getNativeJdkClassByName = (name: string): NativeClassObject => {
 	const subName = name.substring(name.indexOf('/') + 1)
 	switch (packageName) {
 		case 'internal': return getNativeJdkInternalClassByName(subName)
-		default: throw Error(`Could not find native java/${subName}`)
+		default: throw Error(`Could not find native java/${packageName}/${subName}`)
 	}
 }

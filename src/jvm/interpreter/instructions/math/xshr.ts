@@ -11,11 +11,15 @@ class xshr<T extends DataType<any>> extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.it().pop().get()
-		const value1 = Runtime.it().pop().get()
+		const value2 = Runtime.it().pop().get() as number
+		const value1 = Runtime.it().pop().get() as number
 		const result = this.newConstant()
-		const s = value2 | 0x11111
-		result.set(value1 >> s)
+		if (result instanceof long) {
+			result.set(BigInt(BigInt(value1) / BigInt(Math.pow(2, value2 & 0x3f))))
+		} else {
+			const s = value2 & 0x11111
+			result.set(value1 >> s)
+		}
 		Runtime.it().push(result)
 	}
 

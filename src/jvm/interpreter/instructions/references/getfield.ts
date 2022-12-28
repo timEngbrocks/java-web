@@ -3,10 +3,9 @@ import { ConstantNameAndType } from '../../../parser/types/constants/ConstantNam
 import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
 import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
-import { HEAP_TYPES } from '../../memory/heap'
-import { ClassObject } from '../../class/ClassObject'
 import { ReferenceType } from '../../data-types/data-type'
 import { ConstantClass } from '../../../parser/types/constants/ConstantClass'
+import { ClassInstance } from '../../class/ClassInstance'
 
 export class getfield extends Instruction {
 	length = 3
@@ -24,12 +23,8 @@ export class getfield extends Instruction {
 		const nameAndType = Runtime.it().constant(fieldRef.data.nameAndTypeIndex) as ConstantNameAndType
 		const fieldName = (Runtime.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 
-		const objectref = Runtime.it().pop()
-		if (!(objectref instanceof ReferenceType) || objectref.get()?.getType() != HEAP_TYPES.CLASS) throw new Error('Tried getfield without objectref')
-		const address = objectref.get()
-		if (!address) throw new Error('getfield null dereference')
-		const classObject = Runtime.it().load(address) as ClassObject
-
+		const objectref = Runtime.it().pop() as ReferenceType
+		const classObject = Runtime.it().load(objectref) as ClassInstance
 		const value = classObject.getField(fieldName)
 		if (!value) throw new Error(`getfield could not find field: ${classObject.getName()} -> ${fieldName}`)
 		Runtime.it().push(value)

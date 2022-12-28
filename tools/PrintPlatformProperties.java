@@ -41,6 +41,6 @@ class PrintPlatformProperties {
 		print("_user_name_NDX", "user.name");
 	}
 	public static void print(String jdkId, String id) {
-		System.out.println(jdkId + ": '" +System.getProperty(id) + "',");
+		System.out.println("\"" + jdkId + "\": \"" +System.getProperty(id) + "\",");
 	}
 }

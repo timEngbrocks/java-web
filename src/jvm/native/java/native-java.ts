@@ -6,6 +6,6 @@ export const getNativeJavaClassByName = (name: string): NativeClassObject => {
 	const subName = name.substring(name.indexOf('/') + 1)
 	switch (packageName) {
 		case 'lang': return getNativeJavaLangClassByName(subName)
-		default: throw Error(`Could not find native java/${subName}`)
+		default: throw Error(`Could not find native java/${packageName}/${subName}`)
 	}
 }

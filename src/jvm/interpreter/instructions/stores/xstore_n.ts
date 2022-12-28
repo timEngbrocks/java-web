@@ -1,4 +1,4 @@
-import { DataType, reference, ReferenceType, ReturnAddressType } from '../../data-types/data-type'
+import { DataType, Reference, ReferenceType, ReturnAddressType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
@@ -6,7 +6,7 @@ import { long } from '../../data-types/long'
 import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 
-class xstore_n<T extends DataType<number | bigint | reference>> extends Instruction {
+class xstore_n<T extends DataType<number | bigint | Reference>> extends Instruction {
 	length = 1
 	private readonly i: number
 	constructor(i: number, private readonly type: new () => T) {

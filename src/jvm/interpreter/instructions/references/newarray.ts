@@ -1,6 +1,7 @@
+import { cloneDeep } from 'lodash'
 import { byte } from '../../data-types/byte'
 import { char } from '../../data-types/char'
-import { ArrayType, ReferenceType } from '../../data-types/data-type'
+import { ArrayType, PrimitiveType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
@@ -31,8 +32,11 @@ export class newarray extends Instruction {
 		const atype = Number.parseInt(this.args.substring(0, 2), 16)
 		const count = Runtime.it().pop() as int
 		const newArray = this.getNewArrayOfTypeAndLength(atype, count.get() as number)
-		const arrayAddress = Runtime.it().allocate(newArray)
-		Runtime.it().push(new ReferenceType(arrayAddress))
+		for (let i = 0; i < count.get(); i++) {
+			const value = cloneDeep(newArray.type) as PrimitiveType
+			newArray.get()[i] = Runtime.it().allocate(value)
+		}
+		Runtime.it().push(Runtime.it().allocate(newArray))
 	}
 
 	public override toString(): string {

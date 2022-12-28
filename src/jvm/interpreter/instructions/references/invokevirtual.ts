@@ -3,10 +3,10 @@ import { ConstantNameAndType } from '../../../parser/types/constants/ConstantNam
 import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
 import { ReferenceType } from '../../data-types/data-type'
 import { Instruction } from '../Instruction'
-import { HEAP_TYPES } from '../../memory/heap'
 import { Runtime } from '../../Runtime'
 import { getTypesFromMethodDescriptor } from '../../util/util'
 import { ClassInstance } from '../../class/ClassInstance'
+import { ConstantClass } from '../../../parser/types/constants/ConstantClass'
 
 export class invokevirtual extends Instruction {
 	length = 3
@@ -17,7 +17,6 @@ export class invokevirtual extends Instruction {
 
 	// FIXME: Signature polymorphic methods
 	// FIXME: synchronized methods
-	// FIXME: Native methods
 	public override execute(): void {
 		const indexbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
@@ -31,14 +30,15 @@ export class invokevirtual extends Instruction {
 		let parameters = []
 		for (let i = 0; i < types.parameters.length; i++) parameters.push(Runtime.it().pop())
 		parameters = parameters.reverse()
-		const objectref = Runtime.it().pop()
-		if (!(objectref instanceof ReferenceType) || objectref.get()?.getType() != HEAP_TYPES.CLASS) throw new Error('Tried invokevirtual without objectref')
-		const address = objectref.get()
-		if (!address) throw new Error('invokevirtual null dereference')
-		const classInstance = Runtime.it().load(address) as ClassInstance
+		const objectref = Runtime.it().pop() as ReferenceType
+		const classInstance = Runtime.it().load(objectref) as ClassInstance
 		Runtime.it().setupFunctionCall(classInstance, methodName, descriptor)
 		classInstance.setLocal(objectref, 0)
-		for (let i = 1; i <= parameters.length; i++) classInstance.setLocal(parameters[i - 1], i)
+		let offset = 1
+		for (let i = 0; i < parameters.length; i++) {
+			classInstance.setLocal(parameters[i], i + offset)
+			if (parameters[i].isWide) offset++
+		}
 		Runtime.it().executeFunctionCall(classInstance)
 	}
 
@@ -48,9 +48,11 @@ export class invokevirtual extends Instruction {
 		const index = (indexbyte1 << 8) | indexbyte2
 		const methodRef = Runtime.it().constant(index)
 		if (!(methodRef instanceof ConstantMethodRef)) throw new Error('Tried invokevirtual without constant method ref')
+		const clazz = Runtime.it().constant(methodRef.data.classIndex) as ConstantClass
+		const className = (Runtime.it().constant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const nameAndType = Runtime.it().constant(methodRef.data.nameAndTypeIndex) as ConstantNameAndType
 		const methodName = (Runtime.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const descriptor = (Runtime.it().constant(nameAndType.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-		return `invokevirtual @ '${methodName} ${descriptor}'`
+		return `invokevirtual @ '${className}.${methodName} ${descriptor}'`
 	}
 }

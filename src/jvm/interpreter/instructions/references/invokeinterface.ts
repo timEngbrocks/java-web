@@ -3,7 +3,6 @@ import { ConstantNameAndType } from '../../../parser/types/constants/ConstantNam
 import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
 import { ReferenceType } from '../../data-types/data-type'
 import { Instruction } from '../Instruction'
-import { HEAP_TYPES } from '../../memory/heap'
 import { Runtime } from '../../Runtime'
 import { getTypesFromMethodDescriptor } from '../../util/util'
 import { ClassInstance } from '../../class/ClassInstance'
@@ -30,14 +29,15 @@ export class invokeinterface extends Instruction {
 		let parameters = []
 		for (let i = 0; i < types.parameters.length; i++) parameters.push(Runtime.it().pop())
 		parameters = parameters.reverse()
-		const objectref = Runtime.it().pop()
-		if (!(objectref instanceof ReferenceType) || objectref.get()?.getType() != HEAP_TYPES.CLASS) throw new Error('Tried invokeinterface without objectref')
-		const address = objectref.get()
-		if (!address) throw new Error('invokeinterface null dereference')
-		const classInstance = Runtime.it().load(address) as ClassInstance
+		const objectref = Runtime.it().pop() as ReferenceType
+		const classInstance = Runtime.it().load(objectref) as ClassInstance
 		Runtime.it().setupFunctionCall(classInstance, methodName, descriptor)
 		classInstance.setLocal(objectref, 0)
-		for (let i = 1; i <= parameters.length; i++) classInstance.setLocal(parameters[i - 1], i)
+		let offset = 1
+		for (let i = 0; i < parameters.length; i++) {
+			classInstance.setLocal(parameters[i], i + offset)
+			if (parameters[i].isWide) offset++
+		}
 		Runtime.it().executeFunctionCall(classInstance)
 	}
 

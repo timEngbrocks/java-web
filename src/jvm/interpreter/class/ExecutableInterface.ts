@@ -5,26 +5,19 @@ import { LocalVariables } from '../memory/LocalVariables'
 import { ExecutionContext } from '../util/ExecutionContext'
 import { MethodObject } from '../util/MethodObject'
 import { ClassInstance } from './ClassInstance'
-import { ClassObject } from './ClassObject'
-import { ExecutableInterface } from './ExecutableInterface'
 import { InterfaceObject } from './InterfaceObject'
 
-export interface ClassInterface extends ExecutableInterface {
+export interface ExecutableInterface {
 	getName: () => string
 	getId: () => string
 	constant: (index: number) => CPInfo<any>
-	hasMain: () => boolean
 	getStaticField: (name: string) => DataType<any>
-	putStaticField: (name: string, value: DataType<any>) => void
-	getField: (name: string) => DataType<any>
-	putField: (name: string, value: DataType<any>) => void
 	getMethod: (name: string, descriptor: string) => MethodObject
 	jumpByOffset: (offset: number) => void
 	setupFunctionCall: (name: string, descriptor: string) => void
 	executeFunctionCall: () => void
 	returnFromFunction: () => void
 	setReturnValueOnSelf: (value: DataType<any>) => void
-	getClass: () => ClassObject
 	push: (value: DataType<any>) => void
 	pop: () => DataType<any>
 	setLocal: (value: DataType<any>, index: number) => void
@@ -40,6 +33,5 @@ export interface ClassInterface extends ExecutableInterface {
 	getSuperClass: () => ClassInstance | undefined
 	getSuperInterfaces: () => Set<InterfaceObject>
 	hasSuperInterface: (superInterface: InterfaceObject) => boolean
-	getFields: () => Map<string, DataType<any>>
 	getStaticFields: () => Map<string, DataType<any>>
 }

@@ -7,6 +7,7 @@ import { Instruction } from '../Instruction'
 import { Runtime } from '../../Runtime'
 import { getTypesFromMethodDescriptor } from '../../util/util'
 import { ClassObjectManager } from '../../class/ClassObjectManager'
+import { ExecutableInterface } from '../../class/ExecutableInterface'
 
 export class invokestatic extends Instruction {
 	length = 3
@@ -32,11 +33,22 @@ export class invokestatic extends Instruction {
 		let parameters = []
 		for (let i = 0; i < types.parameters.length; i++) parameters.push(Runtime.it().pop())
 		parameters = parameters.reverse()
-		const classObject = ClassObjectManager.getClass(className)
-		classObject.initializeIfUninitialized()
-		Runtime.it().setupFunctionCall(classObject, methodName, descriptor)
-		for (let i = 0; i < parameters.length; i++) classObject.setLocal(parameters[i], i)
-		Runtime.it().executeFunctionCall(classObject)
+		let executableObject: ExecutableInterface | undefined
+		if (ClassObjectManager.isClass(className)) {
+			const classObject = ClassObjectManager.getClass(className)
+			classObject.initializeIfUninitialized()
+			executableObject = classObject
+		} else if (ClassObjectManager.isInterface(className)) {
+			executableObject = ClassObjectManager.getInterface(className)
+		}
+		if (!executableObject) throw new Error(`invokestatic: ${className} is neither class nor interface`)
+		Runtime.it().setupFunctionCall(executableObject, methodName, descriptor)
+		let offset = 0
+		for (let i = 0; i < parameters.length; i++) {
+			executableObject.setLocal(parameters[i], i + offset)
+			if (parameters[i].isWide) offset++
+		}
+		Runtime.it().executeFunctionCall(executableObject)
 	}
 
 	public override toString(): string {

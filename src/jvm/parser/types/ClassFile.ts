@@ -1,5 +1,4 @@
 import dedent from 'dedent'
-import { map } from 'lodash'
 import { AttributeInfo } from './AttributeInfo'
 import { CPInfo } from './CPInfo'
 import { FieldInfo } from './FieldInfo'
@@ -23,7 +22,7 @@ export interface ClassFileHeaderData {
 	majorVersion: number
 	constantPoolCount: number
 	constantPool: CPInfo<any>[]
-	accessFlags: ClassAccessFlag[]
+	accessFlags: number
 }
 
 export interface ClassFileData extends JTypeData {
@@ -44,7 +43,7 @@ export class ClassFile extends JType<ClassFileData> {
 	public override toString(): string {
 		return dedent`magic: ${this.data.header.magic}
             version: ${this.data.header.majorVersion}.${this.data.header.minorVersion}
-            access flags: ${map(this.data.header.accessFlags, flag => ClassAccessFlag[flag]).join(', ')}
+            access flags: ${this.data.header.accessFlags}
             this: ${this.data.thisClass}
             super: ${this.data.superClass}
             #constants: ${this.data.header.constantPoolCount}

@@ -46,16 +46,26 @@ class if_icmpop extends Instruction {
 		if (success) {
 			const branchbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 			const branchbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
-			const offset = (branchbyte1 << 8) | branchbyte2
-			Runtime.it().jumpByOffset(offset)
+			const sign = branchbyte1 & (1 << 7)
+			const x = (((branchbyte1 & 0xFF) << 8) | (branchbyte2 & 0xFF))
+			let branchoffset = (((branchbyte1 & 0xFF) << 8) | (branchbyte2 & 0xFF))
+			if (sign) {
+				branchoffset = 0xFFFF0000 | x
+			}
+			Runtime.it().jumpByOffset(branchoffset)
 		}
 	}
 
 	public override toString(): string {
 		const branchbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const branchbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
-		const offset = (branchbyte1 << 8) | branchbyte2
-		return `if_icmp${IfOps[this.op]} @ ${offset}`
+		const sign = branchbyte1 & (1 << 7)
+		const x = (((branchbyte1 & 0xFF) << 8) | (branchbyte2 & 0xFF))
+		let branchoffset = (((branchbyte1 & 0xFF) << 8) | (branchbyte2 & 0xFF))
+		if (sign) {
+			branchoffset = 0xFFFF0000 | x
+		}
+		return `if_icmp${IfOps[this.op]} @ ${branchoffset}`
 	}
 }
 

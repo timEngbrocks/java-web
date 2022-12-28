@@ -14,11 +14,16 @@ class xushr<T extends DataType<any>> extends Instruction {
 		const value2 = Runtime.it().pop().get()
 		const value1 = Runtime.it().pop().get()
 		const result = this.newConstant()
-		const s = value2 | 0x11111
-		if (value1 >= 0 && s == (value2 & 0x1f)) {
-			result.set(value1 >> s)
+		if (result instanceof long) {
+			const s = BigInt(value2) & 0x11111n
+			if (BigInt(value1) >= 0n && s === (BigInt(value2) & 0x3fn)) {
+				result.set(BigInt(value1) >> s)
+			} else {
+				result.set((BigInt(value1) >> s) + (2n << ~s))
+			}
 		} else {
-			result.set((value1 >> s) + (2 << ~s))
+			const s = value2 & 0x11111
+			result.set(value1 >>> s)
 		}
 		Runtime.it().push(result)
 	}

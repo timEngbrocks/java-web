@@ -72,10 +72,9 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 		for (const prop of platformProps) {
 			references.push(this.constructStringClass(prop))
 		}
-		const stringArray = new ArrayType(new ReferenceType(), FIXED_LENGTH)
+		const stringArray = new ArrayType(new ReferenceType({ address: null, name: 'platformProps' }), FIXED_LENGTH)
 		stringArray.set(references)
-		const arrayAddress = Runtime.it().allocate(stringArray)
-		executionContext.operandStack.push(new ReferenceType(arrayAddress))
+		executionContext.operandStack.push(Runtime.it().allocate(stringArray))
 	}
 
 	private nativeVmProperties(executionContext: ExecutionContext): void {
@@ -85,14 +84,15 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 			references.push(this.constructStringClass(key))
 			references.push(this.constructStringClass(value as string))
 		}
-		const stringArray = new ArrayType(new ReferenceType(), references.length)
+		references.push(new ReferenceType({ address: null, name: 'vmPropsKey' }))
+		references.push(new ReferenceType({ address: null, name: 'vmPropsValue' }))
+		const stringArray = new ArrayType(new ReferenceType({ address: null, name: 'vmProps' }), references.length)
 		stringArray.set(references)
-		const arrayAddress = Runtime.it().allocate(stringArray)
-		executionContext.operandStack.push(new ReferenceType(arrayAddress))
+		executionContext.operandStack.push(Runtime.it().allocate(stringArray))
 	}
 
 	public toString(): string {
-		return 'native java/lang/SystemProps$Raw'
+		return 'native jdk/internal/util/SystemProps$Raw'
 	}
 
 	private constructStringClass(text: string): ReferenceType {
@@ -101,12 +101,9 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 		if (!stringClass) throw new Error('ldc could not find java/lang/String')
 		const stringValue = new ArrayType(new byte())
 		for (let i = 0; i < text.length; i++) {
-			const address = Runtime.it().allocate(new byte(text.charCodeAt(i)))
-			stringValue.get().push(new ReferenceType(address))
+			stringValue.get().push(Runtime.it().allocate(new byte(text.charCodeAt(i))))
 		}
-		const stringAddress = Runtime.it().allocate(stringValue)
-		stringClass.putField('value', new ReferenceType(stringAddress))
-		const address = Runtime.it().allocate(stringClass)
-		return new ReferenceType(address, stringClass.getName())
+		stringClass.putField('value', Runtime.it().allocate(stringValue))
+		return Runtime.it().allocate(stringClass)
 	}
 }

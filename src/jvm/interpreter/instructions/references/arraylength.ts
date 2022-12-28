@@ -7,7 +7,7 @@ export class arraylength extends Instruction {
 	length = 1
 	public override execute(): void {
 		const arrayRef = Runtime.it().pop() as ReferenceType
-		const array = Runtime.it().load(arrayRef.get()!) as ArrayType
+		const array = Runtime.it().load(arrayRef) as ArrayType
 		Runtime.it().push(new int(array.get().length))
 	}
 

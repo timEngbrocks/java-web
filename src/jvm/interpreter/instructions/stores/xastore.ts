@@ -1,6 +1,6 @@
 import { byte } from '../../data-types/byte'
 import { char } from '../../data-types/char'
-import { ArrayType, DataType, ReferenceType } from '../../data-types/data-type'
+import { ArrayType, ReferenceType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
@@ -9,7 +9,7 @@ import { short } from '../../data-types/short'
 import { Runtime } from '../../Runtime'
 import { Instruction } from '../Instruction'
 
-class xastore<T extends DataType<any>> extends Instruction {
+class xastore<T extends (int | long | float | double | ReferenceType | byte | char | short)> extends Instruction {
 	length = 1
 	constructor(private readonly type: new () => T) {
 		super()
@@ -18,13 +18,16 @@ class xastore<T extends DataType<any>> extends Instruction {
 	public override execute(): void {
 		const value = Runtime.it().pop() as T
 		const index = Runtime.it().pop() as int
-		const arrayRef = (Runtime.it().pop() as ReferenceType).get()
-		if (!arrayRef) throw new Error('Null dereference in xastore')
+		const arrayRef = (Runtime.it().pop() as ReferenceType)
 		const array = Runtime.it().load(arrayRef) as ArrayType
 		const values = array.get()
-		const valueAddress = Runtime.it().allocate(value)
-		values[index.get() as number] = new ReferenceType(valueAddress)
-		array.set(values)
+		if (this.newConstant() instanceof ReferenceType && value instanceof ReferenceType) {
+			values[index.get() as number] = value
+			array.set(values)
+		} else if (!(value instanceof ReferenceType)) {
+			values[index.get() as number] = Runtime.it().allocate(value)
+			array.set(values)
+		}
 	}
 
 	public override toString(): string {

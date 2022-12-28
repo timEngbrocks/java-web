@@ -17,6 +17,7 @@ export class JVM {
 		JVM.runtime = new Runtime(this.interpreter.execute)
 		this.interpreter.loadClasses(classes)
 		this.interpreter.execute()
+		Interpreter.dumpInstructionLog(10)
 		console.log('Exiting JVM')
 	}
 }

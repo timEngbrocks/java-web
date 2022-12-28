@@ -1,4 +1,5 @@
 
+import { ExecutableInterface } from '../class/ExecutableInterface'
 import { InstructionStream } from '../instructions/InstructionStream'
 import { LocalVariables } from '../memory/LocalVariables'
 import { OperandStack } from '../memory/operand-stack'
@@ -9,4 +10,5 @@ export interface ExecutionContext {
 	operandStack: OperandStack
 	localVariables: LocalVariables
 	methodObject: MethodObject
+	class: ExecutableInterface
 }
