@@ -1,17 +1,9 @@
-import { DataType, ReferenceType } from '../../data-types/data-type'
-import { double } from '../../data-types/double'
-import { float } from '../../data-types/float'
-import { int } from '../../data-types/int'
-import { long } from '../../data-types/long'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
-class xstore<T extends DataType<any>> extends Instruction {
-	length = 2
-	args: string = ''
-	constructor(private readonly type: new () => T) {
-		super()
-	}
+export class istore extends Instruction {
+	override length = 2
+	override args: string = ''
 
 	public override setArgs(args: string): void {
 		this.args = args
@@ -19,23 +11,92 @@ class xstore<T extends DataType<any>> extends Instruction {
 
 	public override execute(): void {
 		const index = Number.parseInt(this.args.substring(0, 2), 16)
-		const value = Runtime.it().pop()
-		if (!(value instanceof this.type)) throw new Error('Tried to store incompatible type using xstore')
-		Runtime.it().setLocal(value, index)
+		const value = RuntimeManager.it().pop()
+		RuntimeManager.it().setLocal(value, index)
 	}
 
 	public override toString(): string {
 		const index = Number.parseInt(this.args.substring(0, 2), 16)
-		return `${this.newConstant().toString()} : store @ ${index}}`
-	}
-
-	private newConstant(): T {
-		return new this.type()
+		return `istore @ ${index}`
 	}
 }
 
-export const istore = new xstore<int>(int)
-export const lstore = new xstore<long>(long)
-export const fstore = new xstore<float>(float)
-export const dstore = new xstore<double>(double)
-export const astore = new xstore<ReferenceType>(ReferenceType)
+export class lstore extends Instruction {
+	override length = 2
+	override args: string = ''
+
+	public override setArgs(args: string): void {
+		this.args = args
+	}
+
+	public override execute(): void {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		const value = RuntimeManager.it().pop()
+		RuntimeManager.it().setLocal(value, index)
+	}
+
+	public override toString(): string {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		return `lstore @ ${index}`
+	}
+}
+
+export class fstore extends Instruction {
+	override length = 2
+	override args: string = ''
+
+	public override setArgs(args: string): void {
+		this.args = args
+	}
+
+	public override execute(): void {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		const value = RuntimeManager.it().pop()
+		RuntimeManager.it().setLocal(value, index)
+	}
+
+	public override toString(): string {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		return `fstore @ ${index}`
+	}
+}
+
+export class dstore extends Instruction {
+	override length = 2
+	override args: string = ''
+
+	public override setArgs(args: string): void {
+		this.args = args
+	}
+
+	public override execute(): void {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		const value = RuntimeManager.it().pop()
+		RuntimeManager.it().setLocal(value, index)
+	}
+
+	public override toString(): string {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		return `dstore @ ${index}`
+	}
+}
+
+export class astore extends Instruction {
+	override length = 2
+	override args: string = ''
+
+	public override setArgs(args: string): void {
+		this.args = args
+	}
+
+	public override execute(): void {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		const value = RuntimeManager.it().pop()
+		RuntimeManager.it().setLocal(value, index)
+	}
+
+	public override toString(): string {
+		const index = Number.parseInt(this.args.substring(0, 2), 16)
+		return `astore @ ${index}`
+	}
+}

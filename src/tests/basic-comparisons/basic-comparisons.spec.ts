@@ -1,10 +1,10 @@
-import { Runtime } from '../../jvm/interpreter/Runtime'
+import { DebugManager } from '../../jvm/interpreter/manager/DebugManager'
 import { runJVM } from '../util/runJVM'
 
 test('basic-comparisons', () => {
 	runJVM(['src/tests/basic-comparisons/Main.class'])
 
-	const localVariables = Runtime.it().get_debug_lastExecutionContext().localVariables
+	const localVariables = DebugManager.it().getLastExecutionContext()!.localVariables
 
 	expect(localVariables.get(1).get()).toEqual(1)
 	expect(localVariables.get(2).get()).toEqual(1)

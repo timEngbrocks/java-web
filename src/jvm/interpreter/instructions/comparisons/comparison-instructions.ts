@@ -5,7 +5,7 @@ import { if_acmpeq, if_acmpne } from './if_acmpop'
 import { if_icmpeq, if_icmpne, if_icmplt, if_icmpge, if_icmpgt, if_icmple } from './if_icmpop'
 import { dcmpg, dcmpl, fcmpg, fcmpl, lcmp } from './xcmp'
 
-export const getComparisonInstructionByCode = (code: string, address: number): Instruction => {
+export const getComparisonInstructionByCode = (code: string, _address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

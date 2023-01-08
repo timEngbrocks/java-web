@@ -1,15 +1,16 @@
 import { ConstantInterfaceMethodRef } from '../../../parser/types/constants/ConstantInterfaceMethodRef'
-import { ConstantNameAndType } from '../../../parser/types/constants/ConstantNameAndType'
-import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
-import { ReferenceType } from '../../data-types/data-type'
+import type { ConstantNameAndType } from '../../../parser/types/constants/ConstantNameAndType'
+import type { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
+import type { ReferenceType } from '../../data-types/ReferenceType'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 import { getTypesFromMethodDescriptor } from '../../util/util'
-import { ClassInstance } from '../../class/ClassInstance'
+import type { ClassInstance } from '../../class/ClassInstance'
+import { RuntimeManager } from '../../manager/RuntimeManager'
+import { ExecutionManager } from '../../manager/ExecutionManager'
 
 export class invokeinterface extends Instruction {
-	length = 5
-	args = ''
+	override length = 5
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
@@ -20,25 +21,25 @@ export class invokeinterface extends Instruction {
 		const indexbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const index = (indexbyte1 << 8) | indexbyte2
-		const methodRef = Runtime.it().constant(index)
+		const methodRef = RuntimeManager.it().constant(index)
 		if (!(methodRef instanceof ConstantInterfaceMethodRef)) throw new Error('Tried invokeinterface without constant interface method ref')
-		const nameAndType = Runtime.it().constant(methodRef.data.nameAndTypeIndex) as ConstantNameAndType
-		const methodName = (Runtime.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-		const descriptor = (Runtime.it().constant(nameAndType.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const nameAndType = RuntimeManager.it().constant(methodRef.data.nameAndTypeIndex) as ConstantNameAndType
+		const methodName = (RuntimeManager.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const descriptor = (RuntimeManager.it().constant(nameAndType.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		const types = getTypesFromMethodDescriptor(descriptor)
 		let parameters = []
-		for (let i = 0; i < types.parameters.length; i++) parameters.push(Runtime.it().pop())
+		for (let i = 0; i < types.parameters.length; i++) parameters.push(RuntimeManager.it().pop())
 		parameters = parameters.reverse()
-		const objectref = Runtime.it().pop() as ReferenceType
-		const classInstance = Runtime.it().load(objectref) as ClassInstance
-		Runtime.it().setupFunctionCall(classInstance, methodName, descriptor)
+		const objectref = RuntimeManager.it().pop() as ReferenceType
+		const classInstance = RuntimeManager.it().load(objectref) as ClassInstance
+		ExecutionManager.it().setupFunctionCall(classInstance, methodName, descriptor)
 		classInstance.setLocal(objectref, 0)
 		let offset = 1
 		for (let i = 0; i < parameters.length; i++) {
 			classInstance.setLocal(parameters[i], i + offset)
 			if (parameters[i].isWide) offset++
 		}
-		Runtime.it().executeFunctionCall(classInstance)
+		ExecutionManager.it().executeFunctionCall(classInstance)
 	}
 
 	public override toString(): string {
@@ -46,11 +47,11 @@ export class invokeinterface extends Instruction {
 		const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const index = (indexbyte1 << 8) | indexbyte2
 		const count = Number.parseInt(this.args.substring(4, 6), 16)
-		const methodRef = Runtime.it().constant(index)
+		const methodRef = RuntimeManager.it().constant(index)
 		if (!(methodRef instanceof ConstantInterfaceMethodRef)) throw new Error('Tried invokeinterface without constant interface method ref')
-		const nameAndType = Runtime.it().constant(methodRef.data.nameAndTypeIndex) as ConstantNameAndType
-		const methodName = (Runtime.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-		const descriptor = (Runtime.it().constant(nameAndType.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const nameAndType = RuntimeManager.it().constant(methodRef.data.nameAndTypeIndex) as ConstantNameAndType
+		const methodName = (RuntimeManager.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const descriptor = (RuntimeManager.it().constant(nameAndType.data.descriptorIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		return `invokeinterface @ '${methodName} ${descriptor}', ${count}`
 	}
 }

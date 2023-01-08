@@ -1,10 +1,10 @@
-import { DataType } from '../../data-types/data-type'
+import type { DataType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 enum XCmpOps {
 	none = '' as any,
@@ -13,14 +13,14 @@ enum XCmpOps {
 }
 
 class xcmp<T extends DataType<any>> extends Instruction {
-	length = 1
+	override length = 1
 	constructor(private readonly op: XCmpOps, private readonly type: new () => T) {
 		super()
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.it().pop()
-		const value1 = Runtime.it().pop()
+		const value2 = RuntimeManager.it().pop()
+		const value1 = RuntimeManager.it().pop()
 		const result = new int()
 
 		if (this.op === XCmpOps.l && (isNaN(value1.get()) || isNaN(value2.get()))) result.set(-1)
@@ -28,11 +28,11 @@ class xcmp<T extends DataType<any>> extends Instruction {
 		else if (value1.get() > value2.get()) result.set(1)
 		else if (value1.get() == value2.get()) result.set(0)
 		else if (value1.get() < value2.get()) result.set(-1)
-		Runtime.it().push(result)
+		RuntimeManager.it().push(result)
 	}
 
 	public override toString(): string {
-		return `${this.newConstant().toString()} cmp ${XCmpOps[this.op]}`
+		return `${this.newConstant().toPrintableString()}cmp${XCmpOps[this.op]}`
 	}
 
 	private newConstant(): T {

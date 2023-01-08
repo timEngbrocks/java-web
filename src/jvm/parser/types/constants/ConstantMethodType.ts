@@ -1,6 +1,6 @@
 import dedent from 'dedent'
 import { CPInfo } from '../CPInfo'
-import { ConstantData } from './ConstantData'
+import type { ConstantData } from './ConstantData'
 
 export interface ConstantMethodTypeData extends ConstantData {
 	tag: number

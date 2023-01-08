@@ -1,5 +1,5 @@
 import dedent from 'dedent'
-import { AttributeInfoHeader } from '../AttributeInfo'
+import type { AttributeInfoHeader } from '../AttributeInfo'
 import { JType, JTypeData } from '../JType'
 
 export enum AttributeConstantValueTypes {

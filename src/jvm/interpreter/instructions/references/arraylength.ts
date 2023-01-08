@@ -1,14 +1,15 @@
-import { ArrayType, ReferenceType } from '../../data-types/data-type'
+import type { ArrayType } from '../../data-types/ArrayType'
 import { int } from '../../data-types/int'
-import { Runtime } from '../../Runtime'
+import type { ReferenceType } from '../../data-types/ReferenceType'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
 
 export class arraylength extends Instruction {
-	length = 1
+	override length = 1
 	public override execute(): void {
-		const arrayRef = Runtime.it().pop() as ReferenceType
-		const array = Runtime.it().load(arrayRef) as ArrayType
-		Runtime.it().push(new int(array.get().length))
+		const arrayRef = RuntimeManager.it().pop() as ReferenceType
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		RuntimeManager.it().push(new int(array.get().length))
 	}
 
 	public override toString(): string {

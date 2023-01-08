@@ -2,20 +2,20 @@ import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class idiv extends Instruction {
-	length = 1
+	override length = 1
 	public override execute(): void {
-		const value2 = Runtime.it().pop()
-		const value1 = Runtime.it().pop()
+		const value2 = RuntimeManager.it().pop()
+		const value1 = RuntimeManager.it().pop()
 		if (!(value1 instanceof int && value2 instanceof int)) throw new Error('Tried using idiv with wrong types')
 		if (value2.get() === 0) throw new Error('Division by zero in idiv')
 		const result = new int()
 		const resultValue = (value1.get() as number) / (value2.get() as number)
 		result.set(resultValue & 0xffffffff)
-		Runtime.it().push(result)
+		RuntimeManager.it().push(result)
 	}
 
 	public override toString(): string {
@@ -24,16 +24,16 @@ export class idiv extends Instruction {
 }
 
 export class ldiv extends Instruction {
-	length = 1
+	override length = 1
 	public override execute(): void {
-		const value2 = Runtime.it().pop()
-		const value1 = Runtime.it().pop()
+		const value2 = RuntimeManager.it().pop()
+		const value1 = RuntimeManager.it().pop()
 		if (!(value1 instanceof long && value2 instanceof long)) throw new Error('Tried using ldiv with wrong types')
 		if (value2.get() === 0) throw new Error('Division by zero in ldiv')
 		const result = new long()
 		const resultValue = BigInt(value1.get()) / BigInt(value2.get())
-		result.set(resultValue & 0xffffffffffffffffn)
-		Runtime.it().push(result)
+		result.set(resultValue)
+		RuntimeManager.it().push(result)
 	}
 
 	public override toString(): string {
@@ -42,10 +42,10 @@ export class ldiv extends Instruction {
 }
 
 export class fdiv extends Instruction {
-	length = 1
+	override length = 1
 	public override execute(): void {
-		const value2 = Runtime.it().pop()
-		const value1 = Runtime.it().pop()
+		const value2 = RuntimeManager.it().pop()
+		const value1 = RuntimeManager.it().pop()
 		if (!(value1 instanceof float && value2 instanceof float)) throw new Error('Tried using fdiv with wrong types')
 		if (value2.get() === 0) throw new Error('Division by zero in fdiv')
 		const result = new float()
@@ -63,7 +63,7 @@ export class fdiv extends Instruction {
 			else if (value1.get() === 0 && value2.get() === 0) result.set(float.NaN)
 			else result.set((value1.get() as number) / (value2.get() as number))
 		}
-		Runtime.it().push(result)
+		RuntimeManager.it().push(result)
 	}
 
 	public override toString(): string {
@@ -72,10 +72,10 @@ export class fdiv extends Instruction {
 }
 
 export class ddiv extends Instruction {
-	length = 1
+	override length = 1
 	public override execute(): void {
-		const value2 = Runtime.it().pop()
-		const value1 = Runtime.it().pop()
+		const value2 = RuntimeManager.it().pop()
+		const value1 = RuntimeManager.it().pop()
 		if (!(value1 instanceof double && value2 instanceof double)) throw new Error('Tried using ddiv with wrong types')
 		if (value2.get() === 0) throw new Error('Division by zero in ddiv')
 		const result = new double()
@@ -93,7 +93,7 @@ export class ddiv extends Instruction {
 			else if (value1.get() === 0 && value2.get() === 0) result.set(double.NaN)
 			else result.set((value1.get() as number) / (value2.get() as number))
 		}
-		Runtime.it().push(result)
+		RuntimeManager.it().push(result)
 	}
 
 	public override toString(): string {

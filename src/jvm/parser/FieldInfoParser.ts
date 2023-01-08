@@ -1,6 +1,6 @@
 import { AttributeInfoParser } from './AttributeInfoParser'
-import { Lexer } from './Lexer'
-import { ConstantResolver } from './Parser'
+import type { ConstantResolver } from './ConstantResolver'
+import type { Lexer } from './Lexer'
 import { FieldInfo } from './types/FieldInfo'
 
 export enum FieldAccessFlags {

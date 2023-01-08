@@ -1,12 +1,10 @@
 import { int } from '../../data-types/int'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
-import { OpCodes } from '../opcodes'
 
 export class sipush extends Instruction {
-	opcode: number = OpCodes.sipush
-	length: number = 3
-	args: string = ''
+	override length: number = 3
+	override args: string = ''
 
 	public override setArgs(args: string): void {
 		this.args = args
@@ -18,7 +16,7 @@ export class sipush extends Instruction {
 		const byte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const value = new int()
 		value.set((byte1 << 8) | byte2)
-		Runtime.it().push(value)
+		RuntimeManager.it().push(value)
 	}
 
 	public override toString(): string {

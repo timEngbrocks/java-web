@@ -19,7 +19,7 @@ import { newarray } from './newarray'
 import { putfield } from './putfield'
 import { putstatic } from './putstatic'
 
-export const getReferenceInstructionByCode = (code: string, address: number): Instruction => {
+export const getReferenceInstructionByCode = (code: string, _address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

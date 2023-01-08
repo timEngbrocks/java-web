@@ -1,16 +1,14 @@
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
-import { OpCodes } from '../opcodes'
 
 export class swap extends Instruction {
-	opcode: number = OpCodes.swap
-	length: number = 1
+	override length: number = 1
 
 	public override execute(): void {
-		const value2 = Runtime.it().pop()
-		const value1 = Runtime.it().pop()
-		Runtime.it().push(value2)
-		Runtime.it().push(value1)
+		const value2 = RuntimeManager.it().pop()
+		const value1 = RuntimeManager.it().pop()
+		RuntimeManager.it().push(value2)
+		RuntimeManager.it().push(value1)
 	}
 
 	public override toString(): string {

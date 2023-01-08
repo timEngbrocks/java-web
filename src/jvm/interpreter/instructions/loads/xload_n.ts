@@ -1,63 +1,259 @@
-import { DataType, Reference, ReferenceType } from '../../data-types/data-type'
-import { double } from '../../data-types/double'
-import { float } from '../../data-types/float'
-import { int } from '../../data-types/int'
-import { long } from '../../data-types/long'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
-class xload_n<T extends DataType<number | bigint | Reference>> extends Instruction {
-	length = 1
-	private readonly i: number
-	constructor(i: number, private readonly type: new () => T) {
-		super()
-		this.i = i
-	}
+export class iload_0 extends Instruction {
+	override length = 1
 
 	public override execute(): void {
-		const localVariable = Runtime.it().getLocal(this.i)
-		Runtime.it().push(localVariable)
+		const localVariable = RuntimeManager.it().getLocal(0)
+		RuntimeManager.it().push(localVariable)
 	}
 
 	public override toString(): string {
-		return `${this.getPrintableType()}load_${this.i}`
-	}
-
-	private newConstant(): T {
-		return new this.type()
-	}
-
-	private getPrintableType(): string {
-		const constant = this.newConstant()
-		if (constant instanceof int) return 'i'
-		if (constant instanceof long) return 'l'
-		if (constant instanceof float) return 'f'
-		if (constant instanceof double) return 'd'
-		return 'a'
+		return 'iload_0'
 	}
 }
 
-export const iload_0 = new xload_n<int>(0, int)
-export const iload_1 = new xload_n<int>(1, int)
-export const iload_2 = new xload_n<int>(2, int)
-export const iload_3 = new xload_n<int>(3, int)
+export class iload_1 extends Instruction {
+	override length = 1
 
-export const lload_0 = new xload_n<long>(0, long)
-export const lload_1 = new xload_n<long>(1, long)
-export const lload_2 = new xload_n<long>(2, long)
-export const lload_3 = new xload_n<long>(3, long)
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(1)
+		RuntimeManager.it().push(localVariable)
+	}
 
-export const fload_0 = new xload_n<float>(0, float)
-export const fload_1 = new xload_n<float>(1, float)
-export const fload_2 = new xload_n<float>(2, float)
-export const fload_3 = new xload_n<float>(3, float)
+	public override toString(): string {
+		return 'iload_1'
+	}
+}
 
-export const dload_0 = new xload_n<double>(0, double)
-export const dload_1 = new xload_n<double>(1, double)
-export const dload_2 = new xload_n<double>(2, double)
-export const dload_3 = new xload_n<double>(3, double)
+export class iload_2 extends Instruction {
+	override length = 1
 
-export const aload_0 = new xload_n<ReferenceType>(0, ReferenceType)
-export const aload_1 = new xload_n<ReferenceType>(1, ReferenceType)
-export const aload_2 = new xload_n<ReferenceType>(2, ReferenceType)
-export const aload_3 = new xload_n<ReferenceType>(3, ReferenceType)
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(2)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'iload_2'
+	}
+}
+
+export class iload_3 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(3)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'iload_3'
+	}
+}
+
+export class lload_0 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(0)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'lload_0'
+	}
+}
+
+export class lload_1 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(1)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'lload_1'
+	}
+}
+
+export class lload_2 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(2)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'lload_2'
+	}
+}
+
+export class lload_3 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(3)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'lload_3'
+	}
+}
+export class fload_0 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(0)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'fload_0'
+	}
+}
+
+export class fload_1 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(1)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'fload_1'
+	}
+}
+
+export class fload_2 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(2)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'fload_2'
+	}
+}
+
+export class fload_3 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(3)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'fload_3'
+	}
+}
+export class dload_0 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(0)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'dload_0'
+	}
+}
+
+export class dload_1 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(1)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'dload_1'
+	}
+}
+
+export class dload_2 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(2)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'dload_2'
+	}
+}
+
+export class dload_3 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(3)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'dload_3'
+	}
+}
+export class aload_0 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(0)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'aload_0'
+	}
+}
+
+export class aload_1 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(1)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'aload_1'
+	}
+}
+
+export class aload_2 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(2)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'aload_2'
+	}
+}
+
+export class aload_3 extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const localVariable = RuntimeManager.it().getLocal(3)
+		RuntimeManager.it().push(localVariable)
+	}
+
+	public override toString(): string {
+		return 'aload_3'
+	}
+}

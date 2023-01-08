@@ -1,5 +1,6 @@
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export enum IfOps {
 	eq = 'eq' as any,
@@ -11,8 +12,8 @@ export enum IfOps {
 }
 
 class ifop extends Instruction {
-	length = 3
-	args: string = ''
+	override length = 3
+	override args: string = ''
 	constructor(private readonly op: IfOps) {
 		super()
 	}
@@ -22,7 +23,7 @@ class ifop extends Instruction {
 	}
 
 	public override execute(): void {
-		const value = Runtime.it().pop().get()
+		const value = RuntimeManager.it().pop().get()
 		let success = false
 		switch (this.op) {
 			case IfOps.eq: {
@@ -59,7 +60,7 @@ class ifop extends Instruction {
 			if (sign) {
 				branchoffset = 0xFFFF0000 | x
 			}
-			Runtime.it().jumpByOffset(branchoffset)
+			ExecutionManager.it().jumpByOffset(branchoffset)
 		}
 	}
 

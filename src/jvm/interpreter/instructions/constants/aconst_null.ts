@@ -1,11 +1,11 @@
-import { ReferenceType } from '../../data-types/data-type'
+import { ReferenceType } from '../../data-types/ReferenceType'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 
 export class aconst_null extends Instruction {
-	length: number = 1
+	override length: number = 1
 	public override execute(): void {
-		Runtime.it().push(new ReferenceType({ address: null, name: 'aconst_null' }))
+		RuntimeManager.it().push(new ReferenceType({ address: null, name: 'aconst_null' }))
 	}
 
 	public override toString(): string {

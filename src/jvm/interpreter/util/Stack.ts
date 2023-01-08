@@ -1,5 +1,5 @@
 export class Stack<T> {
-	private readonly stack: T[] = []
+	private stack: T[] = []
 
 	public push(value: T): void {
 		this.stack.push(value)
@@ -21,5 +21,13 @@ export class Stack<T> {
 
 	public length(): number {
 		return this.stack.length
+	}
+
+	public all(): T[] {
+		return this.stack
+	}
+
+	public clear(): void {
+		this.stack = []
 	}
 }

@@ -1,49 +1,93 @@
-import { Block } from '../../data-types/block'
-import { DataType, ReferenceType } from '../../data-types/data-type'
-import { double } from '../../data-types/double'
-import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
-import { long } from '../../data-types/long'
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
-class xreturn<T extends DataType<any>> extends Instruction {
-	length = 1
-	constructor(private readonly type: new () => T) {
-		super()
-	}
+export class ireturn extends Instruction {
+	override length = 1
 
 	// FIXME: synchronized method return
 	public override execute(): void {
-		if (this.newConstant() instanceof Block) {
-			Runtime.it().returnFromFunction()
-			return
-		}
-		if (this.newConstant() instanceof int) {
-			const value = Runtime.it().pop()
-			const returnValue = new int(value.get())
-			Runtime.it().setReturnValue(returnValue)
-			Runtime.it().returnFromFunction()
-		} else {
-			const value = Runtime.it().pop()
-			Runtime.it().setReturnValue(value)
-			Runtime.it().returnFromFunction()
-		}
+		const value = RuntimeManager.it().pop()
+		const returnValue = new int(value.get())
+		ExecutionManager.it().setReturnValue(returnValue)
+		ExecutionManager.it().returnFromFunction()
 	}
 
 	public override toString(): string {
-		if (this.newConstant() instanceof Block) return 'return'
-		return `${this.newConstant().toString()} return`
-	}
-
-	private newConstant(): T {
-		return new this.type()
+		return 'ireturn'
 	}
 }
 
-export const ireturn = new xreturn<int>(int)
-export const lreturn = new xreturn<long>(long)
-export const freturn = new xreturn<float>(float)
-export const dreturn = new xreturn<double>(double)
-export const areturn = new xreturn<ReferenceType>(ReferenceType)
-export const Return = new xreturn<Block>(Block)
+export class lreturn extends Instruction {
+	override length = 1
+
+	// FIXME: synchronized method return
+	public override execute(): void {
+		const value = RuntimeManager.it().pop()
+		ExecutionManager.it().setReturnValue(value)
+		ExecutionManager.it().returnFromFunction()
+	}
+
+	public override toString(): string {
+		return 'lreturn'
+	}
+}
+
+export class freturn extends Instruction {
+	override length = 1
+
+	// FIXME: synchronized method return
+	public override execute(): void {
+		const value = RuntimeManager.it().pop()
+		ExecutionManager.it().setReturnValue(value)
+		ExecutionManager.it().returnFromFunction()
+	}
+
+	public override toString(): string {
+		return 'freturn'
+	}
+}
+
+export class dreturn extends Instruction {
+	override length = 1
+
+	// FIXME: synchronized method return
+	public override execute(): void {
+		const value = RuntimeManager.it().pop()
+		ExecutionManager.it().setReturnValue(value)
+		ExecutionManager.it().returnFromFunction()
+	}
+
+	public override toString(): string {
+		return 'dreturn'
+	}
+}
+
+export class areturn extends Instruction {
+	override length = 1
+
+	// FIXME: synchronized method return
+	public override execute(): void {
+		const value = RuntimeManager.it().pop()
+		ExecutionManager.it().setReturnValue(value)
+		ExecutionManager.it().returnFromFunction()
+	}
+
+	public override toString(): string {
+		return 'areturn'
+	}
+}
+
+export class Return extends Instruction {
+	override length = 1
+
+	// FIXME: synchronized method return
+	public override execute(): void {
+		ExecutionManager.it().returnFromFunction()
+	}
+
+	public override toString(): string {
+		return 'return'
+	}
+}

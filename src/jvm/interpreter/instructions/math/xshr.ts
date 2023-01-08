@@ -1,30 +1,30 @@
-import { DataType } from '../../data-types/data-type'
+import type { DataType } from '../../data-types/data-type'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 class xshr<T extends DataType<any>> extends Instruction {
-	length = 1
+	override length = 1
 	constructor(private readonly type: new () => T) {
 		super()
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.it().pop().get() as number
-		const value1 = Runtime.it().pop().get() as number
+		const value2 = RuntimeManager.it().pop().get() as number
+		const value1 = RuntimeManager.it().pop().get() as number
 		const result = this.newConstant()
 		if (result instanceof long) {
 			result.set(BigInt(BigInt(value1) / BigInt(Math.pow(2, value2 & 0x3f))))
 		} else {
-			const s = value2 & 0x11111
+			const s = value2 & 0b11111
 			result.set(value1 >> s)
 		}
-		Runtime.it().push(result)
+		RuntimeManager.it().push(result)
 	}
 
 	public override toString(): string {
-		return `${this.newConstant().toString()} shr`
+		return `${this.newConstant().toPrintableString()}shr`
 	}
 
 	private newConstant(): T {

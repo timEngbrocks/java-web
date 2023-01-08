@@ -1,37 +1,5 @@
-import { cloneDeep } from 'lodash'
-import { getComparisonInstructionByCode } from './comparisons/comparison-instructions'
-import { getConstantInstructionByCode } from './constants/constant-instructions'
-import { getControlInstructionByCode } from './control/control-instructions'
-import { getConversionInstructionByCode } from './conversions/conversion-instructions'
-import { getExtendedInstructionByCode } from './extended/extended-instructions'
 import { Instruction } from './Instruction'
-import { getLoadInstructionByCode } from './loads/load-instructions'
-import { getMathInstructionByCode } from './math/math-instructions'
-import { getReferenceInstructionByCode } from './references/reference-instructions'
-import { getReservedInstructionByCode } from './reserved/reserved-instructions'
-import { getStackInstructionByCode } from './stack/stack-instructions'
-import { getStoreInstructionByCode } from './stores/store-instructions'
-
-const instructionTypes = [
-	getConstantInstructionByCode,
-	getLoadInstructionByCode,
-	getStoreInstructionByCode,
-	getStackInstructionByCode,
-	getMathInstructionByCode,
-	getConversionInstructionByCode,
-	getComparisonInstructionByCode,
-	getReferenceInstructionByCode,
-	getControlInstructionByCode,
-	getExtendedInstructionByCode,
-	getReservedInstructionByCode
-]
-const getInstructionByCode = (code: string, address: number): Instruction => {
-	for (const instructionType of instructionTypes) {
-		const instruction = cloneDeep(instructionType(code, address))
-		if (!isNaN(instruction.length)) return instruction
-	}
-	throw new Error(`Error decoding instruction stream. Got opcode: 0x${code.substring(0, 2)}`)
-}
+import { InstructionResolver } from './InstructionResolver'
 
 export class InstructionStream {
 	public static create(name: string, stream: Instruction[]): InstructionStream {
@@ -88,7 +56,7 @@ export class InstructionStream {
 
 		let cursor = 0
 		while (cursor < code.length) {
-			const instruction = getInstructionByCode(code.substring(cursor), cursor)
+			const instruction = InstructionResolver.getInstructionByCode(code.substring(cursor), cursor)
 			instructions.push(instruction)
 			for (let i = 0; i < instruction.length - 1; i++) instructions.push(new Instruction())
 			cursor += instruction.length * 2

@@ -4,7 +4,7 @@ import { breakpoint } from './breakpoint'
 import { impdep1 } from './impdep1'
 import { impdep2 } from './impdep2'
 
-export const getReservedInstructionByCode = (code: string, address: number): Instruction => {
+export const getReservedInstructionByCode = (code: string, _address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

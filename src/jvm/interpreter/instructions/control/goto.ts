@@ -1,9 +1,9 @@
+import { ExecutionManager } from '../../manager/ExecutionManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class goto extends Instruction {
-	length = 3
-	args = ''
+	override length = 3
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
@@ -17,7 +17,7 @@ export class goto extends Instruction {
 		if (sign) {
 			branchoffset = 0xFFFF0000 | x
 		}
-		Runtime.it().jumpByOffset(branchoffset)
+		ExecutionManager.it().jumpByOffset(branchoffset)
 	}
 
 	public override toString(): string {

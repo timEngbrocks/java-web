@@ -1,10 +1,11 @@
-import { ReferenceType } from '../../data-types/data-type'
-import { Runtime } from '../../Runtime'
+import type { ReferenceType } from '../../data-types/ReferenceType'
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
 
 export class ifnull extends Instruction {
-	length = 3
-	args = ''
+	override length = 3
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
@@ -18,9 +19,9 @@ export class ifnull extends Instruction {
 		if (sign) {
 			branchoffset = 0xFFFF0000 | x
 		}
-		const value = Runtime.it().pop() as ReferenceType
+		const value = RuntimeManager.it().pop() as ReferenceType
 		if (!value.get().address) {
-			Runtime.it().jumpByOffset(branchoffset)
+			ExecutionManager.it().jumpByOffset(branchoffset)
 		}
 	}
 

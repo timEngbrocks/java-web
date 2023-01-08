@@ -1,10 +1,11 @@
 import { returnAddress } from '../../data-types/returnAddress'
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class jsr extends Instruction {
-	length = 3
-	args = ''
+	override length = 3
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
@@ -18,11 +19,11 @@ export class jsr extends Instruction {
 		if (sign) {
 			branchoffset = 0xFFFF0000 | x
 		}
-		const pc = Runtime.it().currentPC()
+		const pc = ExecutionManager.it().currentPC()
 		const address = new returnAddress()
 		address.set(pc + 1)
-		Runtime.it().push(address)
-		Runtime.it().jumpByOffset(branchoffset)
+		RuntimeManager.it().push(address)
+		ExecutionManager.it().jumpByOffset(branchoffset)
 	}
 
 	public override toString(): string {

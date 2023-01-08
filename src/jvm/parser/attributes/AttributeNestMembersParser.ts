@@ -1,6 +1,6 @@
 import { ConstantClassParser } from '../constants/ConstantClassParser'
-import { Lexer } from '../Lexer'
-import { AttributeInfoHeader } from '../types/AttributeInfo'
+import type { Lexer } from '../Lexer'
+import type { AttributeInfoHeader } from '../types/AttributeInfo'
 import { AttributeNestMembers } from '../types/attributes/AttributeNestMembers'
 
 export class AttributeNestMembersParser {

@@ -1,14 +1,13 @@
-
-import { ExecutableInterface } from '../class/ExecutableInterface'
-import { InstructionStream } from '../instructions/InstructionStream'
-import { LocalVariables } from '../memory/LocalVariables'
-import { OperandStack } from '../memory/operand-stack'
-import { MethodObject } from './MethodObject'
+import type { ReferenceType } from '../data-types/ReferenceType'
+import type { InstructionStream } from '../instructions/InstructionStream'
+import type { LocalVariables } from '../memory/LocalVariables'
+import type { OperandStack } from '../memory/operand-stack'
+import type { MethodObject } from './MethodObject'
 
 export interface ExecutionContext {
 	instructionStream: InstructionStream
 	operandStack: OperandStack
 	localVariables: LocalVariables
 	methodObject: MethodObject
-	class: ExecutableInterface
+	callerReference: ReferenceType
 }

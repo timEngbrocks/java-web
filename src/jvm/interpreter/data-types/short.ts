@@ -1,4 +1,4 @@
-import { IntegralType } from './data-type'
+import { IntegralType } from './IntegralType'
 
 export class short extends IntegralType {
 	static MAX = 32767
@@ -10,4 +10,5 @@ export class short extends IntegralType {
 	}
 
 	public override toString(): string { return `${this.value} (short)` }
+	public override toPrintableString(): string { return 's' }
 }

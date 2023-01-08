@@ -1,4 +1,4 @@
-import { IntegralType } from './data-type'
+import { IntegralType } from './IntegralType'
 
 export class byte extends IntegralType {
 	static MAX = 127
@@ -10,4 +10,5 @@ export class byte extends IntegralType {
 	}
 
 	public override toString(): string { return `${this.value} (byte)` }
+	public override toPrintableString(): string { return 'b' }
 }

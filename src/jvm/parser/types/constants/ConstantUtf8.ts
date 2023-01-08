@@ -1,7 +1,7 @@
 import dedent from 'dedent'
-import { ByteStream } from '../../byte-stream'
+import type { ByteStream } from '../../byte-stream'
 import { CPInfo } from '../CPInfo'
-import { ConstantData } from './ConstantData'
+import type { ConstantData } from './ConstantData'
 
 export interface ConstantUtf8Data extends ConstantData {
 	tag: number

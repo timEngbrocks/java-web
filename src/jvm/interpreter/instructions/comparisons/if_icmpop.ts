@@ -1,10 +1,12 @@
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 import { IfOps } from './ifop'
+import type { int } from '../../data-types/int'
+import { RuntimeManager } from '../../manager/RuntimeManager'
+import { ExecutionManager } from '../../manager/ExecutionManager'
 
 class if_icmpop extends Instruction {
-	length = 3
-	args = ''
+	override length = 3
+	override args = ''
 	constructor(private readonly op: IfOps) {
 		super()
 	}
@@ -14,8 +16,8 @@ class if_icmpop extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = Runtime.it().pop().get()
-		const value1 = Runtime.it().pop().get()
+		const value2 = (RuntimeManager.it().pop() as int).get()
+		const value1 = (RuntimeManager.it().pop() as int).get()
 		let success = false
 		switch (this.op) {
 			case IfOps.eq: {
@@ -52,7 +54,7 @@ class if_icmpop extends Instruction {
 			if (sign) {
 				branchoffset = 0xFFFF0000 | x
 			}
-			Runtime.it().jumpByOffset(branchoffset)
+			ExecutionManager.it().jumpByOffset(branchoffset)
 		}
 	}
 

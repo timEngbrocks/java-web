@@ -1,21 +1,14 @@
-import { existsSync } from 'fs'
-import { ClassFile } from '../../parser/types/ClassFile'
-import { ConstantUtf8 } from '../../parser/types/constants/ConstantUtf8'
-import { CPInfo } from '../../parser/types/CPInfo'
-import { BootstrapClassLoader } from './BootstrapClassLoader'
-import { ClassObject } from './ClassObject'
-import { ClassObjectManager } from './ClassObjectManager'
-import { InterfaceObject } from './InterfaceObject'
+import type { ClassFile } from '../../parser/types/ClassFile'
+import type { ConstantUtf8 } from '../../parser/types/constants/ConstantUtf8'
+import type { CPInfo } from '../../parser/types/CPInfo'
+import type { ClassObject } from './ClassObject'
+import type { InterfaceObject } from './InterfaceObject'
 
 export abstract class ClassLoader {
 	private readonly unresolvedClassesOrdered: string[] = []
 	private readonly unresolvedClasses = new Set<string>()
 
 	public abstract loadClassOrInterface(name: string): ClassObject | InterfaceObject
-
-	public static canBeLoaded(name: string): boolean {
-		return existsSync('jdk/' + name + '.class')
-	}
 
 	constructor() {
 		this.addUnresolvedClass('java/lang/Object.class')
@@ -24,15 +17,15 @@ export abstract class ClassLoader {
 	}
 
 	protected addUnresolvedClass(name: string): void {
-		if (!this.unresolvedClasses.has(name) && !ClassObjectManager.doesClassExist(name.replace('.class', ''))) {
+		if (!this.unresolvedClasses.has(name)) {
 			this.unresolvedClasses.add(name)
 			this.unresolvedClassesOrdered.push(name)
 		}
 	}
 
-	protected resolveUnresolvedClasses(): void {
+	protected resolveUnresolvedClasses(loaderType: new () => ClassLoader): void {
 		for (const name of this.unresolvedClassesOrdered) {
-			const loader = new BootstrapClassLoader()
+			const loader = new loaderType()
 			loader.loadClassOrInterface(name)
 		}
 	}

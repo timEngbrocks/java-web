@@ -1,4 +1,4 @@
 import { JVM } from './jvm/JVM'
 
-// eslint-disable-next-line no-new
-new JVM(['Main.class'])
+const jvm = JVM.construct()
+jvm.runClasses(['Main.class'])

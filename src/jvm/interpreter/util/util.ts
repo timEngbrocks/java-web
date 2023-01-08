@@ -1,12 +1,39 @@
+import { ArrayType } from '../data-types/ArrayType'
 import { byte } from '../data-types/byte'
 import { char } from '../data-types/char'
-import { ArrayType, ClassType, DescriptorType, ReferenceType } from '../data-types/data-type'
+import { ClassType } from '../data-types/ClassType'
+import type { DescriptorType } from '../data-types/DescriptorType'
 import { double } from '../data-types/double'
 import { float } from '../data-types/float'
 import { int } from '../data-types/int'
 import { long } from '../data-types/long'
+import { ReferenceType } from '../data-types/ReferenceType'
 import { short } from '../data-types/short'
-import { MethodTypes } from './MethodTypes'
+import type { MethodTypes } from './MethodTypes'
+
+export const getTypeNamesFromMethodDescriptor = (descriptor: string): { parameters: string[], returnType: string } => {
+	const descriptorParts = descriptor.split(')')
+	let parameterDescriptors = descriptorParts[0].substring(1)
+	const returnDescriptor = descriptorParts[1]
+
+	const parameters: string[] = []
+	let cursor = 1
+	while (parameterDescriptors != '' && cursor <= parameterDescriptors.length) {
+		const parameterDescriptor = parameterDescriptors.substring(0, cursor)
+		const type = getTypeFromFieldDescriptor(parameterDescriptor)
+		if (!type) {
+			cursor++
+			continue
+		}
+		parameterDescriptors = parameterDescriptors.substring(cursor)
+		cursor = 1
+		parameters.push(parameterDescriptor)
+	}
+
+	const returnType = getTypeNameFromFieldDescriptor(returnDescriptor)
+
+	return { parameters, returnType }
+}
 
 export const getTypesFromMethodDescriptor = (descriptor: string): MethodTypes => {
 	const descriptorParts = descriptor.split(')')
@@ -35,6 +62,57 @@ export const getTypesFromMethodDescriptor = (descriptor: string): MethodTypes =>
 		parameters,
 		returnType
 	}
+}
+
+export const getTypeNameFromFieldDescriptor = (descriptor: string): string => {
+	switch (descriptor) {
+		case 'B': return 'B'
+		case 'C': return 'C'
+		case 'D': return 'D'
+		case 'F': return 'F'
+		case 'I': return 'I'
+		case 'J': return 'J'
+		case 'S': return 'S'
+		case 'Z': return 'Z'
+	}
+	if (descriptor.startsWith('[[')) {
+		return '[' + getTypeNameFromFieldDescriptor(descriptor.substring(1))
+	}
+	if (descriptor.startsWith('[')) {
+		switch (descriptor.substring(1, 2)) {
+			case 'B': {
+				return '[B'
+			}
+			case 'C': {
+				return '[C'
+			}
+			case 'D': {
+				return '[D'
+			}
+			case 'F': {
+				return '[F'
+			}
+			case 'I': {
+				return '[I'
+			}
+			case 'J': {
+				return '[J'
+			}
+			case 'S': {
+				return '[S'
+			}
+			case 'Z': {
+				return '[Z'
+			}
+		}
+		if (descriptor.substring(1).startsWith('L') && descriptor.endsWith(';')) {
+			descriptor.substring(0, descriptor.length - 1)
+		}
+	}
+	if (descriptor.startsWith('L') && descriptor.endsWith(';')) {
+		return descriptor.substring(1, descriptor.length - 1)
+	}
+	return 'java/lang/Void'
 }
 
 export const getTypeFromFieldDescriptor = (descriptor: string): DescriptorType<any> | undefined => {

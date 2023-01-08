@@ -1,9 +1,10 @@
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class tableswitch extends Instruction {
-	length = -1
-	args = ''
+	override length = -1
+	override args = ''
 	constructor(private readonly address: number) {
 		super()
 	}
@@ -14,7 +15,7 @@ export class tableswitch extends Instruction {
 	}
 
 	public override execute(): void {
-		const index = Runtime.it().pop().get()
+		const index = RuntimeManager.it().pop().get()
 		const padding = this.calculatePadding()
 		const { defaultValue, lowValue, highValue } = this.calculateDefaultLowHighValues()
 
@@ -35,7 +36,7 @@ export class tableswitch extends Instruction {
 			offset = offsets[index - lowValue]
 		}
 
-		Runtime.it().jumpByOffset(offset)
+		ExecutionManager.it().jumpByOffset(offset)
 	}
 
 	public override toString(): string {

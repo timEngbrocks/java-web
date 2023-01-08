@@ -1,10 +1,10 @@
 import { AttributeInfoParser } from './AttributeInfoParser'
+import { ConstantResolver } from './ConstantResolver'
 import { CPInfoParser } from './CPInfo.parser'
 import { FieldInfoParser } from './FieldInfoParser'
-import { Lexer } from './Lexer'
+import type { Lexer } from './Lexer'
 import { MethodInfoParser } from './MethodInfoParser'
 import { ClassFileHeaderData, ClassFile } from './types/ClassFile'
-import { CPInfo } from './types/CPInfo'
 
 export class ClassFileParser {
 	public static preParse(lexer: Lexer): ClassFileHeaderData {
@@ -34,7 +34,7 @@ export class ClassFileParser {
 	}
 
 	public static parse(lexer: Lexer, header: ClassFileHeaderData): ClassFile {
-		const constantResolver = (index: number): CPInfo<any> => header.constantPool[index - 1]
+		const constantResolver = new ConstantResolver(header.constantPool)
 
 		const thisClass = lexer.read(2).toNumber()
 		const superClass = lexer.read(2).toNumber()

@@ -1,4 +1,4 @@
-import { ConstantData } from './ConstantData'
+import type { ConstantData } from './ConstantData'
 
 export interface ConstantValueData extends ConstantData {
 	tag: number

@@ -1,36 +1,47 @@
 import { randomUUID } from 'crypto'
 import { cloneDeep } from 'lodash'
-import { getNativeClassByName } from '../../native/native'
 import { MethodAccessFlags } from '../../parser/MethodInfoParser'
-import { CPInfo } from '../../parser/types/CPInfo'
-import { DataType, ReferenceType } from '../data-types/data-type'
-import { Instruction } from '../instructions/Instruction'
-import { ConstantPool } from '../memory/constant-pool'
-import { HEAP_TYPES } from '../memory/heap'
+import type { AttributeBootstrapMethods, AttributeBootstrapMethodsBootstrapMethod } from '../../parser/types/attributes/AttributeBootstrapMethods'
+import type { CPInfo } from '../../parser/types/CPInfo'
+import type { DataType } from '../data-types/data-type'
+import { ReferenceType } from '../data-types/ReferenceType'
+import type { Instruction } from '../instructions/Instruction'
+import type { ConstantPool } from '../memory/constant-pool'
+import { HEAP_TYPES } from '../memory/HeapTypes'
 import { LocalVariables } from '../memory/LocalVariables'
 import { OperandStack } from '../memory/operand-stack'
-import { Runtime } from '../Runtime'
-import { ExecutionContext } from '../util/ExecutionContext'
-import { MethodObject } from '../util/MethodObject'
+import type { ExecutionContext } from '../util/ExecutionContext'
+import type { MethodObject } from '../util/MethodObject'
 import { Stack } from '../util/Stack'
-import { ClassInstance } from './ClassInstance'
-import { ClassObjectManager } from './ClassObjectManager'
-import { ExecutableInterface } from './ExecutableInterface'
+import type { ClassInstance } from './ClassInstance'
+import { ClassManager, ClassState } from '../manager/ClassManager'
+import type { ExecutableInterface } from './ExecutableInterface'
+import { RuntimeManager } from '../manager/RuntimeManager'
+import { ExecutionManager } from '../manager/ExecutionManager'
 
 export class InterfaceObject implements ExecutableInterface {
 	private superClassInstance: ClassInstance | undefined
 	private readonly superInterfaces = new Set<InterfaceObject>()
 	private readonly executionContexts = new Stack<ExecutionContext>()
+	private readonly fieldIndices = new Map<string, number>()
 
 	constructor(
 		private readonly name: string,
 		private readonly runtimeConstantPool: ConstantPool,
+		private readonly accessFlags: number,
 		private readonly staticFields: Map<string, DataType<any>>,
+		private readonly staticFieldSignatures: Map<string, string>,
+		private readonly staticFieldModifiers: Map<string, number>,
 		private readonly methods: Map<string, MethodObject>,
 		private readonly superClass: string | undefined,
 		private readonly superInterfaceNames: Set<string>,
+		private readonly bootstrapMethods: AttributeBootstrapMethods | undefined,
+		private readonly version: { major: number, minor: number },
 		private readonly id = randomUUID()
-	) {}
+	) {
+		let fieldCounter = 0
+		for (const key of staticFields.keys()) this.fieldIndices.set(key, fieldCounter++)
+	}
 
 	public getName(): string {
 		return this.name
@@ -47,7 +58,7 @@ export class InterfaceObject implements ExecutableInterface {
 	public findMethod(methodIdentifier: string): MethodObject {
 		let method = this.methods.get(methodIdentifier)
 		if (!method && this.superClass) {
-			const superClass = ClassObjectManager.getClass(this.superClass)
+			const superClass = ClassManager.it().getClass(this.superClass)
 			method = superClass.findMethod(methodIdentifier)
 		}
 		if (!method) {
@@ -69,7 +80,7 @@ export class InterfaceObject implements ExecutableInterface {
 		if (!value && !this.getSuperClass()) throw new Error(`Could not find static field ${name} on ${this.name}`)
 		else if (!value) return this.superClassInstance!.getStaticField(name)
 		else if (value instanceof ReferenceType && value.get().address?.getType() === HEAP_TYPES.UNRESOLVED_CLASS_OR_INTERFACE) {
-			Runtime.it().load(value)
+			RuntimeManager.it().load(value)
 			return value
 		}
 		return value
@@ -82,7 +93,7 @@ export class InterfaceObject implements ExecutableInterface {
 	public getSuperClass(): ClassInstance | undefined {
 		if (!this.superClass) return undefined
 		else if (!this.superClassInstance) {
-			this.superClassInstance = ClassObjectManager.newInstance(this.superClass)
+			this.superClassInstance = ClassManager.it().newInstance(this.superClass)
 		}
 		return this.superClassInstance
 	}
@@ -90,7 +101,7 @@ export class InterfaceObject implements ExecutableInterface {
 	public getSuperInterfaces(): Set<InterfaceObject> {
 		if (this.superInterfaces.size === 0) {
 			for (const superInterfaceName of this.superInterfaceNames.values()) {
-				const superInterface = ClassObjectManager.getInterface(superInterfaceName)
+				const superInterface = ClassManager.it().getInterface(superInterfaceName)
 				this.superInterfaces.add(superInterface)
 			}
 		}
@@ -108,8 +119,9 @@ export class InterfaceObject implements ExecutableInterface {
 		this.executionContexts.current().instructionStream.setOffset(offset)
 	}
 
-	public setupFunctionCall(name: string, descriptor: string): void {
-		const method = this.getMethod(name, descriptor)
+	public setupFunctionCall(name: string, descriptor: string, callerName: string): void {
+		const method = cloneDeep(this.getMethod(name, descriptor))
+		method.callerName = callerName
 		if (method.accessFlags & MethodAccessFlags.ACC_NATIVE) this.setupNativeFunctionCall(method)
 		else if (method.accessFlags & MethodAccessFlags.ACC_STATIC) this.executionContexts.push(this.newExecutionContext(method))
 	}
@@ -177,6 +189,61 @@ export class InterfaceObject implements ExecutableInterface {
 		return this.executionContexts.current().operandStack.getStackOverview()
 	}
 
+	public getBootstrapMethod(index: number): AttributeBootstrapMethodsBootstrapMethod {
+		if (!this.bootstrapMethods) throw new Error(`Tried accessing non-existing bootstrap methods of ${this.getName()} @ ${index}`)
+		return this.bootstrapMethods.data.bootstrapMethods[index]
+	}
+
+	public getVersion(): { major: number, minor: number } {
+		return this.version
+	}
+
+	public getInternalStacktrace(): { class: string, method: string, pc: number }[] {
+		const stacktrace: { class: string, method: string, pc: number }[] = []
+		this.executionContexts.all().forEach(executionContext => {
+			if (executionContext.instructionStream.hasNext()) {
+				stacktrace.push({
+					class: executionContext.methodObject.className,
+					method: executionContext.methodObject.name,
+					pc: executionContext.instructionStream.getPC()
+				})
+			}
+		})
+		return stacktrace
+	}
+
+	public initializeIfUninitialized(): void {
+		if (ClassManager.it().getClassState(this.name) === ClassState.UNINITIALIZED) {
+			this.initialize()
+		}
+	}
+
+	public getAllFieldsInOrder(): [key: string, value: DataType<any>, isStatic: boolean, signature: string, modifiers: number][] {
+		const ordered: [key: string, value: DataType<any>, isStatic: boolean, signature: string, modifiers: number][] = []
+		for (const [key, value] of this.staticFields.entries()) {
+			ordered[this.fieldIndices.get('[' + key)!] = [key, value, true, this.staticFieldSignatures.get(key)!, this.staticFieldModifiers.get(key)!]
+		}
+		return ordered
+	}
+
+	public getFieldSignature(key: string): string {
+		return this.staticFieldSignatures.get(key)!
+	}
+
+	public getFieldModifiers(key: string): number {
+		return this.staticFieldModifiers.get(key)!
+	}
+
+	public getMethods(): MethodObject[] {
+		const methods = []
+		for (const method of this.methods.values()) methods.push(method)
+		return methods
+	}
+
+	public getAccessFlags(): number {
+		return this.accessFlags
+	}
+
 	private constructMethodIdentifier(name: string, descriptor: string): string {
 		return name + ' ' + descriptor
 	}
@@ -187,12 +254,12 @@ export class InterfaceObject implements ExecutableInterface {
 	}
 
 	private executeNativeFunctionCall(): void {
-		const nativeClass = getNativeClassByName(this.currentMethod().methodObject.className)
+		const nativeClass = ClassManager.it().getNativeClassByName(this.currentMethod().methodObject.className)
 		nativeClass.executeMethod(this.currentMethod().methodObject, this.currentMethod())
 		if (this.currentMethod().methodObject.types.returnType) {
-			Runtime.it().setReturnValue(this.currentMethod().operandStack.pop())
+			ExecutionManager.it().setReturnValue(this.currentMethod().operandStack.pop())
 		}
-		Runtime.it().returnFromFunction()
+		ExecutionManager.it().returnFromFunction()
 	}
 
 	private newExecutionContext(method: MethodObject, isNative: boolean = false): ExecutionContext {
@@ -201,7 +268,19 @@ export class InterfaceObject implements ExecutableInterface {
 			operandStack: new OperandStack(method.maxStack, isNative),
 			localVariables: new LocalVariables(method.maxLocals, isNative),
 			methodObject: method,
-			class: this
+			callerReference: new ReferenceType()
 		}
+	}
+
+	private initialize(): void {
+		if (this.methods.has(this.constructMethodIdentifier('<clinit>', '()V'))) {
+			ClassManager.it().updateClassState(this, ClassState.INITIALIZING)
+			ExecutionManager.it().setupExecuteOutOfOrder()
+			ExecutionManager.it().setupFunctionCall(this, '<clinit>', '()V')
+			ExecutionManager.it().executeFunctionCall(this)
+			ExecutionManager.it().callExecuteOutOfOrder()
+		}
+		ClassManager.it().updateClassState(this, ClassState.INITIALIZED)
+		this.getSuperClass()?.initializeIfUninitialized()
 	}
 }

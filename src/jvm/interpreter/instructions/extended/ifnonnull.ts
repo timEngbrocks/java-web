@@ -1,9 +1,10 @@
-import { ReferenceType } from '../../data-types/data-type'
+import { ReferenceType } from '../../data-types/ReferenceType'
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class ifnonnull extends Instruction {
-	length = 3
+	override length = 3
 	public override setArgs(args: string): void {
 		this.args = args
 	}
@@ -17,10 +18,10 @@ export class ifnonnull extends Instruction {
 		if (sign) {
 			branchoffset = 0xFFFF0000 | x
 		}
-		const value = Runtime.it().pop()
+		const value = RuntimeManager.it().pop()
 		if (!(value instanceof ReferenceType)) throw new Error('Tried ifnonnull without reference')
 		if (value.get().address) {
-			Runtime.it().jumpByOffset(branchoffset)
+			ExecutionManager.it().jumpByOffset(branchoffset)
 		}
 	}
 

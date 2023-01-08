@@ -1,4 +1,4 @@
-import { Runtime } from '../../jvm/interpreter/Runtime'
+import { DebugManager } from '../../jvm/interpreter/manager/DebugManager'
 import { runJVM } from '../util/runJVM'
 
 test('basic-instances', () => {
@@ -7,7 +7,7 @@ test('basic-instances', () => {
 		'src/tests/basic-instances/Container.class'
 	])
 
-	const localVariables = Runtime.it().get_debug_lastExecutionContext().localVariables
+	const localVariables = DebugManager.it().getLastExecutionContext()!.localVariables
 
 	expect(localVariables.get(2).get()).toEqual(1)
 })

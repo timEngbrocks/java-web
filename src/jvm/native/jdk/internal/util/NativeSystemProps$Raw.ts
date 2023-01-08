@@ -1,18 +1,25 @@
 import { readFileSync } from 'fs'
 import { get } from 'lodash'
-import { ClassObjectManager } from '../../../../interpreter/class/ClassObjectManager'
+import { ArrayType } from '../../../../interpreter/data-types/ArrayType'
 import { byte } from '../../../../interpreter/data-types/byte'
-import { ArrayType, ReferenceType } from '../../../../interpreter/data-types/data-type'
-import { Runtime } from '../../../../interpreter/Runtime'
-import { ExecutionContext } from '../../../../interpreter/util/ExecutionContext'
-import { MethodObject } from '../../../../interpreter/util/MethodObject'
+import { ReferenceType } from '../../../../interpreter/data-types/ReferenceType'
+import { ClassManager } from '../../../../interpreter/manager/ClassManager'
+import { RuntimeManager } from '../../../../interpreter/manager/RuntimeManager'
+import type { ExecutionContext } from '../../../../interpreter/util/ExecutionContext'
+import type { MethodObject } from '../../../../interpreter/util/MethodObject'
 import { NativeClassObject } from '../../../NativeClassObject'
 
 export class NativeSystemProps$Raw extends NativeClassObject {
 	public executeMethod(method: MethodObject, executionContext: ExecutionContext): void {
 		switch (method.name) {
-			case 'platformProperties': return this.nativePlatformProperties(executionContext)
-			case 'vmProperties': return this.nativeVmProperties(executionContext)
+			case 'platformProperties': {
+				this.nativePlatformProperties(executionContext)
+				break
+			}
+			case 'vmProperties': {
+				this.nativeVmProperties(executionContext)
+				break
+			}
 			default: throw new Error(`Could not find native method ${method.name} on ${this.toString()}`)
 		}
 	}
@@ -74,7 +81,7 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 		}
 		const stringArray = new ArrayType(new ReferenceType({ address: null, name: 'platformProps' }), FIXED_LENGTH)
 		stringArray.set(references)
-		executionContext.operandStack.push(Runtime.it().allocate(stringArray))
+		executionContext.operandStack.push(RuntimeManager.it().allocate(stringArray))
 	}
 
 	private nativeVmProperties(executionContext: ExecutionContext): void {
@@ -88,7 +95,7 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 		references.push(new ReferenceType({ address: null, name: 'vmPropsValue' }))
 		const stringArray = new ArrayType(new ReferenceType({ address: null, name: 'vmProps' }), references.length)
 		stringArray.set(references)
-		executionContext.operandStack.push(Runtime.it().allocate(stringArray))
+		executionContext.operandStack.push(RuntimeManager.it().allocate(stringArray))
 	}
 
 	public toString(): string {
@@ -96,14 +103,13 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 	}
 
 	private constructStringClass(text: string): ReferenceType {
-		// FIXME: this probably shouldn't use \0
-		const stringClass = ClassObjectManager.newInstance('java/lang/String')
-		if (!stringClass) throw new Error('ldc could not find java/lang/String')
+		const stringClass = ClassManager.it().newInstance('java/lang/String')
+		stringClass.initializeIfUninitialized()
 		const stringValue = new ArrayType(new byte())
 		for (let i = 0; i < text.length; i++) {
-			stringValue.get().push(Runtime.it().allocate(new byte(text.charCodeAt(i))))
+			stringValue.get().push(RuntimeManager.it().allocate(new byte(text.charCodeAt(i))))
 		}
-		stringClass.putField('value', Runtime.it().allocate(stringValue))
-		return Runtime.it().allocate(stringClass)
+		stringClass.putField('value', RuntimeManager.it().allocate(stringValue))
+		return RuntimeManager.it().allocate(stringClass)
 	}
 }

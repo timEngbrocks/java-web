@@ -1,4 +1,4 @@
-import { IntegralType } from './data-type'
+import { IntegralType } from './IntegralType'
 
 export class char extends IntegralType {
 	static MAX = 65535
@@ -10,4 +10,5 @@ export class char extends IntegralType {
 	}
 
 	public override toString(): string { return `${this.value} (char)` }
+	public override toPrintableString(): string { return 'c' }
 }

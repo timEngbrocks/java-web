@@ -1,7 +1,7 @@
 import { Instruction } from '../Instruction'
 
 export class goto_w extends Instruction {
-	length = 5
+	override length = 5
 	public override execute(): void {
 		throw new Error('TODO: implement goto_w')
 	}

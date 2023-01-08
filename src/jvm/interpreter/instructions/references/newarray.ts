@@ -1,13 +1,14 @@
 import { cloneDeep } from 'lodash'
+import { ArrayType } from '../../data-types/ArrayType'
 import { byte } from '../../data-types/byte'
 import { char } from '../../data-types/char'
-import { ArrayType, PrimitiveType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
+import type { PrimitiveType } from '../../data-types/PrimitiveType'
 import { short } from '../../data-types/short'
-import { Runtime } from '../../Runtime'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
 
 export enum NewArrayTypes {
@@ -22,21 +23,21 @@ export enum NewArrayTypes {
 }
 
 export class newarray extends Instruction {
-	length = 2
-	args = ''
+	override length = 2
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
 
 	public override execute(): void {
 		const atype = Number.parseInt(this.args.substring(0, 2), 16)
-		const count = Runtime.it().pop() as int
+		const count = RuntimeManager.it().pop() as int
 		const newArray = this.getNewArrayOfTypeAndLength(atype, count.get() as number)
 		for (let i = 0; i < count.get(); i++) {
 			const value = cloneDeep(newArray.type) as PrimitiveType
-			newArray.get()[i] = Runtime.it().allocate(value)
+			newArray.get()[i] = RuntimeManager.it().allocate(value)
 		}
-		Runtime.it().push(Runtime.it().allocate(newArray))
+		RuntimeManager.it().push(RuntimeManager.it().allocate(newArray))
 	}
 
 	public override toString(): string {

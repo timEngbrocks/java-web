@@ -7,7 +7,7 @@ import { jsr_w } from './jsr_w'
 import { multianewarray } from './multianewarray'
 import { wide } from './wide'
 
-export const getExtendedInstructionByCode = (code: string, address: number): Instruction => {
+export const getExtendedInstructionByCode = (code: string, _address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {
@@ -39,6 +39,8 @@ export const getExtendedInstructionByCode = (code: string, address: number): Ins
 
 	if (instruction.length > 1) {
 		instruction.setArgs(code.substring(2, instruction.length * 2))
+	} else if (instruction.length < 0) {
+		instruction.setArgs(code.substring(2))
 	}
 
 	return instruction

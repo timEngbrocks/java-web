@@ -14,7 +14,7 @@ import { isub, lsub, fsub, dsub } from './xsub'
 import { iushr, lushr } from './xushr'
 import { ixor, lxor } from './xxor'
 
-export const getMathInstructionByCode = (code: string, address: number): Instruction => {
+export const getMathInstructionByCode = (code: string, _address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

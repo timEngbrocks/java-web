@@ -9,7 +9,7 @@ import { aconst_null } from './aconst_null'
 import { ldc_w } from './ldc_w'
 import { ldc2_w } from './ldc2_w'
 
-export const getConstantInstructionByCode = (code: string, address: number): Instruction => {
+export const getConstantInstructionByCode = (code: string, _address: number): Instruction => {
 	const opcode = Number.parseInt(code.substring(0, 2), 16)
 	let instruction = new Instruction()
 	switch (opcode) {

@@ -1,5 +1,5 @@
 import dedent from 'dedent'
-import { ByteStream } from '../../byte-stream'
+import type { ByteStream } from '../../byte-stream'
 import { AttributeInfo, AttributeInfoData, AttributeInfoHeader } from '../AttributeInfo'
 
 export interface AttributeCodeExceptionTableData {

@@ -1,5 +1,5 @@
 import { Block } from '../data-types/block'
-import { DataType } from '../data-types/data-type'
+import type { DataType } from '../data-types/data-type'
 import { double } from '../data-types/double'
 import { long } from '../data-types/long'
 

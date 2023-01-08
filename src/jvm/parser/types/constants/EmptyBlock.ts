@@ -1,5 +1,5 @@
 import { CPInfo } from '../CPInfo'
-import { ConstantData } from './ConstantData'
+import type { ConstantData } from './ConstantData'
 
 export interface EmptyBlockData extends ConstantData {}
 

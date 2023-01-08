@@ -15,32 +15,12 @@ import { ConstantNameAndTypeParser } from './constants/ConstantNameAndTypeParser
 import { ConstantPackageParser } from './constants/ConstantPackageParser'
 import { ConstantStringParser } from './constants/ConstantStringParser'
 import { ConstantUtf8Parser } from './constants/ConstantUtf8Parser'
-import { Lexer } from './Lexer'
+import { CPInfoTypes } from './CPInfoTypes'
+import type { Lexer } from './Lexer'
 import { ConstantDouble } from './types/constants/ConstantDouble'
 import { ConstantLong } from './types/constants/ConstantLong'
 import { EmptyBlock } from './types/constants/EmptyBlock'
-import { CPInfo } from './types/CPInfo'
-
-export enum CPInfoTypes {
-	invalid = -1,
-	CONSTANT_Class = 7,
-	CONSTANT_Fieldref = 9,
-	CONSTANT_Methodref = 10,
-	CONSTANT_InterfaceMethodref = 11,
-	CONSTANT_String = 8,
-	CONSTANT_Integer = 3,
-	CONSTANT_Float = 4,
-	CONSTANT_Long = 5,
-	CONSTANT_Double = 6,
-	CONSTANT_NameAndType = 12,
-	CONSTANT_Utf8 = 1,
-	CONSTANT_MethodHandle = 15,
-	CONSTANT_MethodType = 16,
-	CONSTANT_Dynamic = 17,
-	CONSTANT_InvokeDynamic = 18,
-	CONSTANT_Module = 19,
-	CONSTANT_Package = 20
-}
+import type { CPInfo } from './types/CPInfo'
 
 export class CPInfoParser {
 	public static parseMany(lexer: Lexer, count: number): CPInfo<any>[] {

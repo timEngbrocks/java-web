@@ -1,5 +1,5 @@
 import dedent from 'dedent'
-import { AttributeInfo } from './AttributeInfo'
+import type { AttributeInfo } from './AttributeInfo'
 import { JType, JTypeData } from './JType'
 
 export interface FieldInfoData extends JTypeData {

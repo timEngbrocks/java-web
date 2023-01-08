@@ -1,17 +1,18 @@
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class ret extends Instruction {
-	length = 2
-	args = ''
+	override length = 2
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
 
 	public override execute(): void {
 		const index = Number.parseInt(this.args.substring(0, 2), 16)
-		const address = Runtime.it().getLocal(index)
-		Runtime.it().setPC(address.get())
+		const address = RuntimeManager.it().getLocal(index)
+		ExecutionManager.it().setPC(address.get())
 	}
 
 	public override toString(): string {

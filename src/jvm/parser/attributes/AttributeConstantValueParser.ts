@@ -1,5 +1,5 @@
-import { Lexer } from '../Lexer'
-import { AttributeInfoHeader } from '../types/AttributeInfo'
+import type { Lexer } from '../Lexer'
+import type { AttributeInfoHeader } from '../types/AttributeInfo'
 import { AttributeConstantValue } from '../types/attributes/AttributeConstantValue'
 
 export class AttributeConstantValueParser {

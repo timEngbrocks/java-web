@@ -1,4 +1,4 @@
-import { Runtime } from '../../jvm/interpreter/Runtime'
+import { DebugManager } from '../../jvm/interpreter/manager/DebugManager'
 import { runJVM } from '../util/runJVM'
 
 test('basic-math', () => {
@@ -33,7 +33,7 @@ test('basic-math', () => {
 	const floatDiv = e / f
 	const dobuleDiv = g / h
 
-	const localVariables = Runtime.it().get_debug_lastExecutionContext().localVariables
+	const localVariables = DebugManager.it().getLastExecutionContext()!.localVariables
 
 	expect(localVariables.get(13).get()).toEqual(intAdd)
 	expect(localVariables.get(14).get()).toEqual(longAdd)

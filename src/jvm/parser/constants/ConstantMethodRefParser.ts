@@ -1,5 +1,5 @@
-import { CPInfoTypes } from '../CPInfo.parser'
-import { Lexer } from '../Lexer'
+import { CPInfoTypes } from '../CPInfoTypes'
+import type { Lexer } from '../Lexer'
 import { ConstantMethodRef } from '../types/constants/ConstantMethodRef'
 
 export class ConstantMethodRefParser {

@@ -1,4 +1,4 @@
-import { IntegralType } from './data-type'
+import { IntegralType } from './IntegralType'
 
 export class long extends IntegralType {
 	public override isWide: boolean = true
@@ -6,7 +6,7 @@ export class long extends IntegralType {
 	static MAX = 9223372036854775807n
 	static MIN = -9223372036854775808n
 
-	constructor(protected value: bigint = 0n) {
+	constructor(protected override value: bigint = 0n) {
 		super(value)
 	}
 
@@ -16,4 +16,5 @@ export class long extends IntegralType {
 	}
 
 	public override toString(): string { return `${this.value} (long)` }
+	public override toPrintableString(): string { return 'l' }
 }

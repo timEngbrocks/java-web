@@ -1,15 +1,15 @@
 import { ConstantFieldRef } from '../../../parser/types/constants/ConstantFieldRef'
-import { ConstantNameAndType } from '../../../parser/types/constants/ConstantNameAndType'
-import { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
-import { ReferenceType } from '../../data-types/data-type'
+import type { ConstantNameAndType } from '../../../parser/types/constants/ConstantNameAndType'
+import type { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
+import type { ReferenceType } from '../../data-types/ReferenceType'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
-import { ConstantClass } from '../../../parser/types/constants/ConstantClass'
-import { ClassInstance } from '../../class/ClassInstance'
+import type { ConstantClass } from '../../../parser/types/constants/ConstantClass'
+import type { ClassInstance } from '../../class/ClassInstance'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 
 export class putfield extends Instruction {
-	length = 3
-	args = ''
+	override length = 3
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
@@ -18,15 +18,15 @@ export class putfield extends Instruction {
 		const indexbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const index = (indexbyte1 << 8) | indexbyte2
-		const fieldRef = Runtime.it().constant(index)
+		const fieldRef = RuntimeManager.it().constant(index)
 		if (!(fieldRef instanceof ConstantFieldRef)) throw new Error('Tried getfield without constant field ref')
-		const nameAndType = Runtime.it().constant(fieldRef.data.nameAndTypeIndex) as ConstantNameAndType
-		const fieldName = (Runtime.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const nameAndType = RuntimeManager.it().constant(fieldRef.data.nameAndTypeIndex) as ConstantNameAndType
+		const fieldName = (RuntimeManager.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 
-		const value = Runtime.it().pop()
+		const value = RuntimeManager.it().pop()
 
-		const objectref = Runtime.it().pop() as ReferenceType
-		const classObject = Runtime.it().load(objectref) as ClassInstance
+		const objectref = RuntimeManager.it().pop() as ReferenceType
+		const classObject = RuntimeManager.it().load(objectref) as ClassInstance
 		classObject.putField(fieldName, value)
 	}
 
@@ -34,12 +34,12 @@ export class putfield extends Instruction {
 		const indexbyte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const indexbyte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const index = (indexbyte1 << 8) | indexbyte2
-		const fieldRef = Runtime.it().constant(index)
+		const fieldRef = RuntimeManager.it().constant(index)
 		if (!(fieldRef instanceof ConstantFieldRef)) throw new Error('Tried getfield without constant field ref')
-		const clazz = Runtime.it().constant(fieldRef.data.classIndex) as ConstantClass
-		const className = (Runtime.it().constant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
-		const nameAndType = Runtime.it().constant(fieldRef.data.nameAndTypeIndex) as ConstantNameAndType
-		const fieldName = (Runtime.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const clazz = RuntimeManager.it().constant(fieldRef.data.classIndex) as ConstantClass
+		const className = (RuntimeManager.it().constant(clazz.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const nameAndType = RuntimeManager.it().constant(fieldRef.data.nameAndTypeIndex) as ConstantNameAndType
+		const fieldName = (RuntimeManager.it().constant(nameAndType.data.nameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		return `putfield ${className}.${fieldName}`
 	}
 }

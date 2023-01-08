@@ -1,49 +1,155 @@
-import { byte } from '../../data-types/byte'
-import { char } from '../../data-types/char'
-import { ArrayType, ReferenceType } from '../../data-types/data-type'
-import { double } from '../../data-types/double'
-import { float } from '../../data-types/float'
-import { int } from '../../data-types/int'
-import { long } from '../../data-types/long'
-import { short } from '../../data-types/short'
-import { Runtime } from '../../Runtime'
+import type { ArrayType } from '../../data-types/ArrayType'
+import type { byte } from '../../data-types/byte'
+import type { char } from '../../data-types/char'
+import type { double } from '../../data-types/double'
+import type { float } from '../../data-types/float'
+import type { int } from '../../data-types/int'
+import type { long } from '../../data-types/long'
+import type { ReferenceType } from '../../data-types/ReferenceType'
+import type { short } from '../../data-types/short'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
 
-class xastore<T extends (int | long | float | double | ReferenceType | byte | char | short)> extends Instruction {
-	length = 1
-	constructor(private readonly type: new () => T) {
-		super()
-	}
+export class iastore extends Instruction {
+	override length = 1
 
 	public override execute(): void {
-		const value = Runtime.it().pop() as T
-		const index = Runtime.it().pop() as int
-		const arrayRef = (Runtime.it().pop() as ReferenceType)
-		const array = Runtime.it().load(arrayRef) as ArrayType
+		const value = RuntimeManager.it().pop() as int
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
 		const values = array.get()
-		if (this.newConstant() instanceof ReferenceType && value instanceof ReferenceType) {
-			values[index.get() as number] = value
-			array.set(values)
-		} else if (!(value instanceof ReferenceType)) {
-			values[index.get() as number] = Runtime.it().allocate(value)
-			array.set(values)
-		}
+		values[index.get() as number] = RuntimeManager.it().allocate(value)
+		array.set(values)
 	}
 
 	public override toString(): string {
-		return `${this.newConstant().toString()} : astore`
-	}
-
-	private newConstant(): T {
-		return new this.type()
+		return 'iastore'
 	}
 }
 
-export const iastore = new xastore<int>(int)
-export const lastore = new xastore<long>(long)
-export const fastore = new xastore<float>(float)
-export const dastore = new xastore<double>(double)
-export const aastore = new xastore<ReferenceType>(ReferenceType)
-export const bastore = new xastore<byte>(byte)
-export const castore = new xastore<char>(char)
-export const sastore = new xastore<short>(short)
+export class lastore extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const value = RuntimeManager.it().pop() as long
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		const values = array.get()
+		values[index.get() as number] = RuntimeManager.it().allocate(value)
+		array.set(values)
+	}
+
+	public override toString(): string {
+		return 'lastore'
+	}
+}
+
+export class fastore extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const value = RuntimeManager.it().pop() as float
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		const values = array.get()
+		values[index.get() as number] = RuntimeManager.it().allocate(value)
+		array.set(values)
+	}
+
+	public override toString(): string {
+		return 'fastore'
+	}
+}
+
+export class dastore extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const value = RuntimeManager.it().pop() as double
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		const values = array.get()
+		values[index.get() as number] = RuntimeManager.it().allocate(value)
+		array.set(values)
+	}
+
+	public override toString(): string {
+		return 'dastore'
+	}
+}
+
+export class aastore extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const value = RuntimeManager.it().pop() as ReferenceType
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		const values = array.get()
+		values[index.get() as number] = value
+		array.set(values)
+	}
+
+	public override toString(): string {
+		return 'aastore'
+	}
+}
+
+export class bastore extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const value = RuntimeManager.it().pop() as byte
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		const values = array.get()
+		values[index.get() as number] = RuntimeManager.it().allocate(value)
+		array.set(values)
+	}
+
+	public override toString(): string {
+		return 'bastore'
+	}
+}
+
+export class castore extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const value = RuntimeManager.it().pop() as char
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		const values = array.get()
+		values[index.get() as number] = RuntimeManager.it().allocate(value)
+		array.set(values)
+	}
+
+	public override toString(): string {
+		return 'castore'
+	}
+}
+
+export class sastore extends Instruction {
+	override length = 1
+
+	public override execute(): void {
+		const value = RuntimeManager.it().pop() as short
+		const index = RuntimeManager.it().pop() as int
+		const arrayRef = (RuntimeManager.it().pop() as ReferenceType)
+		const array = RuntimeManager.it().load(arrayRef) as ArrayType
+		const values = array.get()
+		values[index.get() as number] = RuntimeManager.it().allocate(value)
+		array.set(values)
+	}
+
+	public override toString(): string {
+		return 'sastore'
+	}
+}

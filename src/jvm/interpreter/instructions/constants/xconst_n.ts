@@ -1,13 +1,13 @@
-import { DataType } from '../../data-types/data-type'
+import type { DataType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 class xconst_n<T extends DataType<number | bigint>> extends Instruction {
-	length: number = 1
+	override length: number = 1
 	private readonly i: number | bigint
 	constructor(i: number | bigint, private readonly type: new () => T) {
 		super()
@@ -17,11 +17,11 @@ class xconst_n<T extends DataType<number | bigint>> extends Instruction {
 	public override execute(): void {
 		const x = this.newConstant()
 		x.set(this.i)
-		Runtime.it().push(x)
+		RuntimeManager.it().push(x)
 	}
 
 	public override toString(): string {
-		return `${this.newConstant().toString()} : const_${this.i}`
+		return `${this.newConstant().toPrintableString()}const_${this.i}`
 	}
 
 	private newConstant(): T {

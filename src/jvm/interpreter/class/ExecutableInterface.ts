@@ -1,11 +1,12 @@
-import { CPInfo } from '../../parser/types/CPInfo'
-import { DataType } from '../data-types/data-type'
-import { Instruction } from '../instructions/Instruction'
-import { LocalVariables } from '../memory/LocalVariables'
-import { ExecutionContext } from '../util/ExecutionContext'
-import { MethodObject } from '../util/MethodObject'
-import { ClassInstance } from './ClassInstance'
-import { InterfaceObject } from './InterfaceObject'
+import type { AttributeBootstrapMethodsBootstrapMethod } from '../../parser/types/attributes/AttributeBootstrapMethods'
+import type { CPInfo } from '../../parser/types/CPInfo'
+import type { DataType } from '../data-types/data-type'
+import type { Instruction } from '../instructions/Instruction'
+import type { LocalVariables } from '../memory/LocalVariables'
+import type { ExecutionContext } from '../util/ExecutionContext'
+import type { MethodObject } from '../util/MethodObject'
+import type { ClassInstance } from './ClassInstance'
+import type { InterfaceObject } from './InterfaceObject'
 
 export interface ExecutableInterface {
 	getName: () => string
@@ -14,7 +15,7 @@ export interface ExecutableInterface {
 	getStaticField: (name: string) => DataType<any>
 	getMethod: (name: string, descriptor: string) => MethodObject
 	jumpByOffset: (offset: number) => void
-	setupFunctionCall: (name: string, descriptor: string) => void
+	setupFunctionCall: (name: string, descriptor: string, callerName: string) => void
 	executeFunctionCall: () => void
 	returnFromFunction: () => void
 	setReturnValueOnSelf: (value: DataType<any>) => void
@@ -34,4 +35,11 @@ export interface ExecutableInterface {
 	getSuperInterfaces: () => Set<InterfaceObject>
 	hasSuperInterface: (superInterface: InterfaceObject) => boolean
 	getStaticFields: () => Map<string, DataType<any>>
+	getBootstrapMethod: (index: number) => AttributeBootstrapMethodsBootstrapMethod
+	getVersion: () => { major: number, minor: number }
+	getInternalStacktrace: () => { class: string, method: string, pc: number }[]
+	initializeIfUninitialized: () => void
+	getAllFieldsInOrder: () => [key: string, value: DataType<any>, isStatic: boolean, signature: string, modifiers: number][]
+	getMethods: () => MethodObject[]
+	getAccessFlags: () => number
 }

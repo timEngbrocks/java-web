@@ -1,26 +1,26 @@
-import { DataType } from '../../data-types/data-type'
+import type { DataType } from '../../data-types/data-type'
 import { double } from '../../data-types/double'
 import { float } from '../../data-types/float'
 import { int } from '../../data-types/int'
 import { long } from '../../data-types/long'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 class xneg<T extends DataType<any>> extends Instruction {
-	length = 1
+	override length = 1
 	constructor(private readonly type: new () => T) {
 		super()
 	}
 
 	public override execute(): void {
-		const value = Runtime.it().pop().get()
+		const value = RuntimeManager.it().pop().get()
 		const result = this.newConstant()
 		result.set(-value)
-		Runtime.it().push(result)
+		RuntimeManager.it().push(result)
 	}
 
 	public override toString(): string {
-		return `${this.newConstant().toString()} neg`
+		return `${this.newConstant().toPrintableString()}neg`
 	}
 
 	private newConstant(): T {

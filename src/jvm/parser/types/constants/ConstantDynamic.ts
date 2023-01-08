@@ -1,6 +1,6 @@
 import dedent from 'dedent'
 import { JType } from '../JType'
-import { ConstantData } from './ConstantData'
+import type { ConstantData } from './ConstantData'
 
 export interface ConstantDynamicData extends ConstantData {
 	tag: number

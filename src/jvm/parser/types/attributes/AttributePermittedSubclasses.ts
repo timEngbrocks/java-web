@@ -1,6 +1,6 @@
 import dedent from 'dedent'
-import { AttributeInfoHeader } from '../AttributeInfo'
-import { ConstantClass } from '../constants/ConstantClass'
+import type { AttributeInfoHeader } from '../AttributeInfo'
+import type { ConstantClass } from '../constants/ConstantClass'
 import { JType, JTypeData } from '../JType'
 
 export interface AttributePermittedSubclassesData extends JTypeData {

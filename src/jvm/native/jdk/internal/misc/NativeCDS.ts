@@ -1,21 +1,37 @@
-import { ClassObjectManager } from '../../../../interpreter/class/ClassObjectManager'
 import { byte } from '../../../../interpreter/data-types/byte'
-import { ArrayType } from '../../../../interpreter/data-types/data-type'
+import { ArrayType } from '../../../../interpreter/data-types/ArrayType'
 import { int } from '../../../../interpreter/data-types/int'
 import { long } from '../../../../interpreter/data-types/long'
-import { Runtime } from '../../../../interpreter/Runtime'
-import { ExecutionContext } from '../../../../interpreter/util/ExecutionContext'
-import { MethodObject } from '../../../../interpreter/util/MethodObject'
+import type { ExecutionContext } from '../../../../interpreter/util/ExecutionContext'
+import type { MethodObject } from '../../../../interpreter/util/MethodObject'
 import { NativeClassObject } from '../../../NativeClassObject'
+import { ClassManager } from '../../../../interpreter/manager/ClassManager'
+import { RuntimeManager } from '../../../../interpreter/manager/RuntimeManager'
+import { ExecutionManager } from '../../../../interpreter/manager/ExecutionManager'
 
 export class NativeCDS extends NativeClassObject {
 	public executeMethod(method: MethodObject, executionContext: ExecutionContext): void {
 		switch (method.name) {
-			case 'isDumpingClassList0': return this.nativeIsDumpingClassList0(executionContext)
-			case 'isDumpingArchive0': return this.nativeIsDumpingArchive0(executionContext)
-			case 'isSharingEnabled0': return this.nativeIsSharingEnabled0(executionContext)
-			case 'getRandomSeedForDumping': return this.nativeGetRandomSeedForDumping(executionContext)
-			case 'initializeFromArchive': return this.nativeInitializeFromArchive()
+			case 'isDumpingClassList0': {
+				this.nativeIsDumpingClassList0(executionContext)
+				break
+			}
+			case 'isDumpingArchive0': {
+				this.nativeIsDumpingArchive0(executionContext)
+				break
+			}
+			case 'isSharingEnabled0': {
+				this.nativeIsSharingEnabled0(executionContext)
+				break
+			}
+			case 'getRandomSeedForDumping': {
+				this.nativeGetRandomSeedForDumping(executionContext)
+				break
+			}
+			case 'initializeFromArchive': {
+				this.nativeInitializeFromArchive()
+				break
+			}
 			default: throw new Error(`Could not find native method ${method.name} on ${this.toString()}`)
 		}
 	}
@@ -60,17 +76,18 @@ export class NativeCDS extends NativeClassObject {
 
 	private hashString(text: string): number {
 		// FIXME: this probably shouldn't use \0
-		const stringClass = ClassObjectManager.newInstance('java/lang/String')
+		const stringClass = ClassManager.it().newInstance('java/lang/String')
+		stringClass.initializeIfUninitialized()
 		if (!stringClass) throw new Error('ldc could not find java/lang/String')
 		const stringValue = new ArrayType(new byte())
 		for (let i = 0; i < text.length; i++) {
-			stringValue.get().push(Runtime.it().allocate(new byte(text.charCodeAt(i))))
+			stringValue.get().push(RuntimeManager.it().allocate(new byte(text.charCodeAt(i))))
 		}
-		stringClass.putField('value', Runtime.it().allocate(stringValue))
-		Runtime.it().setupExecuteOutOfOrderWithReturn()
-		Runtime.it().setupFunctionCall(stringClass, 'hashCode', '()I')
-		Runtime.it().executeFunctionCall(stringClass)
-		const classStack = Runtime.it().callExecuteOutOfOrder()
+		stringClass.putField('value', RuntimeManager.it().allocate(stringValue))
+		ExecutionManager.it().setupExecuteOutOfOrderWithReturn()
+		ExecutionManager.it().setupFunctionCall(stringClass, 'hashCode', '()I')
+		ExecutionManager.it().executeFunctionCall(stringClass)
+		const classStack = ExecutionManager.it().callExecuteOutOfOrder()
 		return (classStack.current().pop() as int).get() as number
 	}
 }

@@ -32,27 +32,27 @@ export const getControlInstructionByCode = (code: string, address: number): Inst
 			break
 		}
 		case OpCodes.ireturn: {
-			instruction = ireturn
+			instruction = new ireturn()
 			break
 		}
 		case OpCodes.lreturn: {
-			instruction = lreturn
+			instruction = new lreturn()
 			break
 		}
 		case OpCodes.freturn: {
-			instruction = freturn
+			instruction = new freturn()
 			break
 		}
 		case OpCodes.dreturn: {
-			instruction = dreturn
+			instruction = new dreturn()
 			break
 		}
 		case OpCodes.areturn: {
-			instruction = areturn
+			instruction = new areturn()
 			break
 		}
 		case OpCodes.return: {
-			instruction = Return
+			instruction = new Return()
 			break
 		}
 	}

@@ -4,10 +4,11 @@ import { AttributeConstantValueParser } from './attributes/AttributeConstantValu
 import { AttributeNestHostParser } from './attributes/AttributeNestHostParser'
 import { AttributeNestMembersParser } from './attributes/AttributeNestMembersParser'
 import { AttributePermittedSubclassesParser } from './attributes/AttributePermittedSubclassesParser'
-import { Lexer } from './Lexer'
-import { ConstantResolver } from './Parser'
+import type { ConstantResolver } from './ConstantResolver'
+import type { Lexer } from './Lexer'
 import { AttributeInfo } from './types/AttributeInfo'
-import { ConstantUtf8 } from './types/constants/ConstantUtf8'
+import { AttributeCode } from './types/attributes/AttributeCode'
+import type { ConstantUtf8 } from './types/constants/ConstantUtf8'
 
 export class AttributeInfoParser {
 	public static parseMany(lexer: Lexer, constantResolver: ConstantResolver, count: number): AttributeInfo<any>[] {
@@ -23,9 +24,13 @@ export class AttributeInfoParser {
 		const attributeLength = lexer.read(4).toNumber()
 		const header = { attributeNameIndex, attributeLength }
 
-		const attributeName = (constantResolver(attributeNameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
+		const attributeName = (constantResolver.resolve(attributeNameIndex) as ConstantUtf8).data.bytes.toString().split(',').join('')
 		switch (attributeName) {
-			case 'Code': return AttributeCodeParser.parse(lexer, constantResolver, header)
+			case 'Code': {
+				const attributeCodeData = AttributeCodeParser.parse(lexer, constantResolver, header)
+				const attributes = AttributeInfoParser.parseMany(lexer, constantResolver, attributeCodeData.attributesCount)
+				return new AttributeCode({ ...attributeCodeData, attributes })
+			}
 			case 'ConstantValue': return AttributeConstantValueParser.parse(lexer, header)
 			case 'BootstrapMethods': return AttributeBootstrapMethodsParser.parse(lexer, header)
 			case 'NestHost': return AttributeNestHostParser.parse(lexer, header)

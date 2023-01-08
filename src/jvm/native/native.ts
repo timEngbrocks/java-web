@@ -1,6 +1,6 @@
 import { getNativeJavaClassByName } from './java/native-java'
 import { getNativeJdkClassByName } from './jdk/native-jdk'
-import { NativeClassObject } from './NativeClassObject'
+import type { NativeClassObject } from './NativeClassObject'
 
 export const getNativeClassByName = (name: string): NativeClassObject => {
 	const packageName = name.substring(0, name.indexOf('/'))

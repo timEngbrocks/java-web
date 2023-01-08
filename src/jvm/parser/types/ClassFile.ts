@@ -1,9 +1,9 @@
 import dedent from 'dedent'
-import { AttributeInfo } from './AttributeInfo'
-import { CPInfo } from './CPInfo'
-import { FieldInfo } from './FieldInfo'
+import type { AttributeInfo } from './AttributeInfo'
+import type { CPInfo } from './CPInfo'
+import type { FieldInfo } from './FieldInfo'
 import { JType, JTypeData } from './JType'
-import { MethodInfo } from './MethodInfo'
+import type { MethodInfo } from './MethodInfo'
 
 export enum ClassAccessFlag {
 	ACC_PUBLIC = 0x0001,

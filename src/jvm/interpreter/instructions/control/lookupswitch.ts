@@ -1,9 +1,10 @@
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class lookupswitch extends Instruction {
-	length = -1
-	args = ''
+	override length = -1
+	override args = ''
 	constructor(private readonly address: number) {
 		super()
 	}
@@ -14,7 +15,7 @@ export class lookupswitch extends Instruction {
 	}
 
 	public override execute(): void {
-		const key = Runtime.it().pop().get()
+		const key = RuntimeManager.it().pop().get()
 		const padding = this.calculatePadding()
 		const { defaultValue, npairs } = this.calculateDefaultValueNpairs()
 
@@ -49,11 +50,12 @@ export class lookupswitch extends Instruction {
 		}
 		if (offset == 0) offset = defaultValue
 
-		Runtime.it().jumpByOffset(offset)
+		ExecutionManager.it().jumpByOffset(offset)
 	}
 
 	public override toString(): string {
-		return `lookupswitch ${this.calculateLength()}`
+		this.calculateLength()
+		return `lookupswitch ${this.length}`
 	}
 
 	public calculateLength(): void {

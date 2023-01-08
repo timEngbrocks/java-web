@@ -1,4 +1,4 @@
-import { NativeClassObject } from '../../../NativeClassObject'
+import type { NativeClassObject } from '../../../NativeClassObject'
 import { NativeSystemProps$Raw } from './NativeSystemProps$Raw'
 
 export const getNativeJdkInternalUtilClassByName = (name: string): NativeClassObject => {

@@ -1,4 +1,4 @@
-import { CPInfo } from '../../parser/types/CPInfo'
+import type { CPInfo } from '../../parser/types/CPInfo'
 
 export class ConstantPool {
 	public constants: CPInfo<any>[]

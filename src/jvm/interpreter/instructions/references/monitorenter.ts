@@ -1,10 +1,10 @@
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 
 export class monitorenter extends Instruction {
-	length = 1
+	override length = 1
 	public override execute(): void {
-		Runtime.it().pop()
+		RuntimeManager.it().pop()
 	}
 
 	public override toString(): string {

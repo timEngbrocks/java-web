@@ -1,11 +1,14 @@
-import { ExecutionContext } from '../../../../interpreter/util/ExecutionContext'
-import { MethodObject } from '../../../../interpreter/util/MethodObject'
+import type { ExecutionContext } from '../../../../interpreter/util/ExecutionContext'
+import type { MethodObject } from '../../../../interpreter/util/MethodObject'
 import { NativeClassObject } from '../../../NativeClassObject'
 
 export class NativeVM extends NativeClassObject {
-	public executeMethod(method: MethodObject, executionContext: ExecutionContext): void {
+	public executeMethod(method: MethodObject, _executionContext: ExecutionContext): void {
 		switch (method.name) {
-			case 'initialize': return this.nativeInitialize()
+			case 'initialize': {
+				this.nativeInitialize()
+				break
+			}
 			default: throw new Error(`Could not find native method ${method.name} on ${this.toString()}`)
 		}
 	}

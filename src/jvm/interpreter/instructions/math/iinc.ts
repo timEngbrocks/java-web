@@ -1,9 +1,10 @@
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
+import { int } from '../../data-types/int'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 
 export class iinc extends Instruction {
-	length = 3
-	args = ''
+	override length = 3
+	override args = ''
 	public override setArgs(args: string): void {
 		this.args = args
 	}
@@ -11,9 +12,8 @@ export class iinc extends Instruction {
 	public override execute(): void {
 		const index = Number.parseInt(this.args.substring(0, 2), 16)
 		const constant = Number.parseInt(this.args.substring(2, 4), 16)
-		const localVariable = Runtime.it().getLocal(index)
-		localVariable.set(localVariable.get() + constant)
-		Runtime.it().setLocal(localVariable, index)
+		const localVariable = RuntimeManager.it().getLocal(index)
+		RuntimeManager.it().setLocal(new int(localVariable.get() + constant), index)
 	}
 
 	public override toString(): string {

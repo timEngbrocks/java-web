@@ -1,23 +1,64 @@
-import { ArrayType, PrimitiveType, ReferenceType } from '../data-types/data-type'
 import { InterfaceObject } from '../class/InterfaceObject'
 import { ClassInstance } from '../class/ClassInstance'
 import { isString } from 'lodash'
-import { ClassObjectManager } from '../class/ClassObjectManager'
+import { ArrayType } from '../data-types/ArrayType'
+import { PrimitiveType } from '../data-types/PrimitiveType'
+import { ReferenceType } from '../data-types/ReferenceType'
+import { HeapAddress } from './HeapAddress'
+import type { HeapData } from './HeapData'
+import { HEAP_TYPES } from './HeapTypes'
+import { long } from '../data-types/long'
+import type { DataType } from '../data-types/data-type'
+import { RuntimeManager } from '../manager/RuntimeManager'
+import { int } from '../data-types/int'
 
-export type HeapData = ClassInstance | string | InterfaceObject | ArrayType | PrimitiveType
+export class DirectHeapAddress {
+	public static decode(encodedValue: long): { reference: ReferenceType, fieldOffset: number } {
+		const value = encodedValue.get() as bigint
+		const typeId = Number(value >> 128n)
+		const address = Number((value >> 64n) & 0xffffffffffffffffn)
+		const fieldOffset = Number(value & 0xffffffffffffffffn)
+		return {
+			reference: new ReferenceType({
+				address: new HeapAddress(address, typeId),
+				name: 'DHA decode'
+			}),
+			fieldOffset
+		}
+	}
 
-export enum HEAP_TYPES {
-	CLASS,
-	UNRESOLVED_CLASS_OR_INTERFACE,
-	INTERFACE,
-	ARRAY,
-	PRIMITIVE
-}
+	public static getValue(encodedValue: long): DataType<any> {
+		const { reference, fieldOffset } = DirectHeapAddress.decode(encodedValue)
+		const object = RuntimeManager.it().load(reference)
+		if (object instanceof ClassInstance) {
+			return object.getAllFieldsInOrder()[fieldOffset][1]
+		} else if (object instanceof ArrayType) {
+			return object.get()[fieldOffset]
+		} else throw new Error(`DHA: could not get value for: ${reference}, ${fieldOffset} -> ${JSON.stringify(object)} from ${encodedValue}`)
+	}
 
-export class HeapAddress {
-	constructor(private readonly value: number, private readonly type: HEAP_TYPES) {}
-	public get(): number { return this.value }
-	public getType(): HEAP_TYPES { return this.type }
+	public static getValueSmall(encodedValue: long): number {
+		return Number((encodedValue.get() as bigint) & 0xffffffffffffffffn)
+	}
+
+	private readonly value: long
+	private readonly valueSmall: int
+
+	constructor(reference: ReferenceType, offset: number) {
+		if (!reference.get().address) throw new Error(`Tried creating DHA with null ref: ${reference}, ${offset}`)
+		const typeComponent = BigInt(reference.get().address!.getType() & 0b111) << 128n
+		const addressComponent = BigInt(reference.get().address!.get()) << 64n
+		this.value = new long(typeComponent | addressComponent | BigInt(offset))
+		this.valueSmall = new int(offset)
+	}
+
+	public getEncodedValue(): long {
+		return this.value
+	}
+
+	public getEncodedValueSmall(): int {
+		return this.valueSmall
+	}
 }
 
 export class Heap {
@@ -78,20 +119,7 @@ export class Heap {
 						reference = new ReferenceType({ address: new HeapAddress(index, HEAP_TYPES.INTERFACE), name: interfaceObject.getName() })
 						return interfaceObject
 					}
-				}
-				if (ClassObjectManager.isClass(className)) {
-					const instance = ClassObjectManager.newInstance(className)
-					this.classHeap.set(index, instance)
-					this.unresolvedClassHeap.delete(index)
-					reference = new ReferenceType({ address: new HeapAddress(index, HEAP_TYPES.CLASS), name: instance.getName() })
-					return instance
-				} else if (ClassObjectManager.isInterface(className)) {
-					const interfaceObject = ClassObjectManager.getInterface(className)
-					this.interfaceHeap.set(index, interfaceObject)
-					this.unresolvedClassHeap.delete(index)
-					reference = new ReferenceType({ address: new HeapAddress(index, HEAP_TYPES.CLASS), name: interfaceObject.getName() })
-					return interfaceObject
-				} else throw new Error(`Could not resolve ${className}. Its neither a class nor an interface`)
+				} else return className
 			}
 			case HEAP_TYPES.INTERFACE: {
 				const value = this.interfaceHeap.get(index)
@@ -109,5 +137,15 @@ export class Heap {
 				return value
 			}
 		}
+	}
+
+	public markUnresolvedClassAsResolved(index: number, instance: ClassInstance): void {
+		this.classHeap.set(index, instance)
+		this.unresolvedClassHeap.delete(index)
+	}
+
+	public markUnresolvedInterfaceAsResolved(index: number, interfaceObject: InterfaceObject): void {
+		this.interfaceHeap.set(index, interfaceObject)
+		this.unresolvedClassHeap.delete(index)
 	}
 }

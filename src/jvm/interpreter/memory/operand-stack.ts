@@ -1,5 +1,5 @@
 import { Block } from '../data-types/block'
-import { DataType } from '../data-types/data-type'
+import type { DataType } from '../data-types/data-type'
 
 export class OperandStack {
 	public size: number

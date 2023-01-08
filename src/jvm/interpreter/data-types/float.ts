@@ -1,4 +1,4 @@
-import { FloatingPointType } from './data-type'
+import { FloatingPointType } from './FloatingPointType'
 
 export class float extends FloatingPointType {
 	static NaN = 5.104235503814077e+38
@@ -26,4 +26,5 @@ export class float extends FloatingPointType {
 	}
 
 	public override toString(): string { return `${this.value} (float)` }
+	public override toPrintableString(): string { return 'f' }
 }

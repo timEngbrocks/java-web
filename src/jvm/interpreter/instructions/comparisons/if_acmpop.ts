@@ -1,11 +1,12 @@
-import { ReferenceType } from '../../data-types/data-type'
+import type { ReferenceType } from '../../data-types/ReferenceType'
+import { ExecutionManager } from '../../manager/ExecutionManager'
+import { RuntimeManager } from '../../manager/RuntimeManager'
 import { Instruction } from '../Instruction'
-import { Runtime } from '../../Runtime'
 import { IfOps } from './ifop'
 
 class if_acmpop extends Instruction {
-	length = 3
-	args = ''
+	override length = 3
+	override args = ''
 	constructor(private readonly op: IfOps) {
 		super()
 	}
@@ -15,8 +16,10 @@ class if_acmpop extends Instruction {
 	}
 
 	public override execute(): void {
-		const value2 = (Runtime.it().pop() as ReferenceType).get().address?.get()
-		const value1 = (Runtime.it().pop() as ReferenceType).get().address?.get()
+		const reference2 = RuntimeManager.it().pop() as ReferenceType
+		const reference1 = RuntimeManager.it().pop() as ReferenceType
+		const value2 = reference2.get().address?.get()
+		const value1 = reference1.get().address?.get()
 		let success = false
 		switch (this.op) {
 			case IfOps.eq: {
@@ -37,7 +40,7 @@ class if_acmpop extends Instruction {
 			if (sign) {
 				branchoffset = 0xFFFF0000 | x
 			}
-			Runtime.it().jumpByOffset(branchoffset)
+			ExecutionManager.it().jumpByOffset(branchoffset)
 		}
 	}
 
