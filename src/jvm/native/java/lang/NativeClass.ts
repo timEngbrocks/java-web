@@ -54,6 +54,14 @@ export class NativeClass extends NativeClassObject {
 				this.nativeGetDeclaredFields0(executionContext)
 				break
 			}
+			case 'isArray': {
+				this.nativeIsArray(executionContext)
+				break
+			}
+			case 'initClassName': {
+				this.nativeInitClassName(executionContext)
+				break
+			}
 			default: throw new Error(`Could not find native method ${method.name} on ${this.toString()}`)
 		}
 	}
@@ -222,6 +230,22 @@ export class NativeClass extends NativeClassObject {
 		})
 		const fieldObjectArrayRef = RuntimeManager.it().allocate(fieldObjectArray)
 		executionContext.operandStack.push(fieldObjectArrayRef)
+	}
+
+	private nativeIsArray(executionContext: ExecutionContext): void {
+		const callerClass = RuntimeManager.it().load(executionContext.callerReference) as ClassInstance
+		const classDataReference = callerClass.getField('classData') as ReferenceType
+		const classObject = RuntimeManager.it().load(classDataReference) as ClassInstance
+		executionContext.operandStack.push(new int(classObject.getName().startsWith('[') ? 1 : 0))
+	}
+
+	private nativeInitClassName(executionContext: ExecutionContext): void {
+		const callerClass = RuntimeManager.it().load(executionContext.callerReference) as ClassInstance
+		const classDataReference = callerClass.getField('classData') as ReferenceType
+		const classObject = RuntimeManager.it().load(classDataReference) as ClassInstance
+		const name = this.constructStringClass(classObject.getName())
+		callerClass.putField('name', name)
+		executionContext.operandStack.push(name)
 	}
 
 	public toString(): string {

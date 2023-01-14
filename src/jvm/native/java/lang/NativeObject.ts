@@ -7,6 +7,7 @@ import { NativeClassObject } from '../../NativeClassObject'
 import { RuntimeManager } from '../../../interpreter/manager/RuntimeManager'
 import { ClassManager } from '../../../interpreter/manager/ClassManager'
 import { ThreadManager } from '../../../interpreter/manager/ThreadManager'
+import { cloneDeep } from 'lodash'
 
 export class NativeObject extends NativeClassObject {
 	public executeMethod(method: MethodObject, executionContext: ExecutionContext): void {
@@ -21,6 +22,10 @@ export class NativeObject extends NativeClassObject {
 			}
 			case 'notifyAll': {
 				this.nativeNotifyAll()
+				break
+			}
+			case 'clone': {
+				this.nativeClone(executionContext)
 				break
 			}
 			default: throw new Error(`Could not find native method ${method.name} on ${this.toString()}`)
@@ -44,6 +49,13 @@ export class NativeObject extends NativeClassObject {
 			hashedAddress |= 0
 		}
 		executionContext.operandStack.push(new int(hashedAddress))
+	}
+
+	private nativeClone(executionContext: ExecutionContext): void {
+		const callerRef = executionContext.localVariables.get(0) as ReferenceType
+		const caller = RuntimeManager.it().load(callerRef) as ClassInstance
+		const clone = cloneDeep(caller)
+		executionContext.operandStack.push(RuntimeManager.it().allocate(clone))
 	}
 
 	private nativeNotifyAll(): void {

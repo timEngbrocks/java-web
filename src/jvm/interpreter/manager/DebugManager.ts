@@ -78,9 +78,10 @@ export class DebugManager {
 			'\n-------- STACK TRACE --------',
 			`\n-------- ${Interpreter.globalPC} --------`
 		]
+		let index = 0
 		const internalStacktrace = this.getInternalStacktrace()
 		internalStacktrace.forEach(traceElement => {
-			stacktrace.push(`\n${traceElement.class}: ${traceElement.method} - ${traceElement.pc}`)
+			stacktrace.push(`\n[${index++}] ${traceElement.class}: ${traceElement.method} - ${traceElement.pc}`)
 		})
 		stacktrace.push('\n-------- END OF STACK TRACE --------\n')
 		return [...new Set(stacktrace)]

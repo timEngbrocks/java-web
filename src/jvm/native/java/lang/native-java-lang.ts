@@ -1,4 +1,5 @@
 import type { NativeClassObject } from '../../NativeClassObject'
+import { getNativeJavaLangInvokeClassByName } from './invoke/native-java-lang-invoke'
 import { NativeClass } from './NativeClass'
 import { NativeClassLoader } from './NativeClassLoader'
 import { NativeDouble } from './NativeDouble'
@@ -15,6 +16,7 @@ export const getNativeJavaLangClassByName = (name: string): NativeClassObject =>
 	const subName = name.substring(name.indexOf('/') + 1)
 	switch (packageName) {
 		case 'ref': return getNativeJavaLangRefClassByName(subName)
+		case 'invoke': return getNativeJavaLangInvokeClassByName(subName)
 	}
 	switch (subName) {
 		case 'Object': return new NativeObject()

@@ -109,12 +109,17 @@ export class baload extends Instruction {
 		if (!(heapObject instanceof ArrayType)) throw new Error('Tried to load array of incompatible type')
 		const valueRef = heapObject.get()[index.get() as number]
 		const value = RuntimeManager.it().load(valueRef) as byte
-		// FIXME: sign-extension?
-		RuntimeManager.it().push(new int(value.get() as number))
+		RuntimeManager.it().push(new int(this.signExtendToInt(value.get() as number)))
 	}
 
 	public override toString(): string {
 		return 'baload'
+	}
+
+	private signExtendToInt(value: number): number {
+		const binary = value.toString(2).padStart(8, '0')
+		const extended = binary.padStart(32, binary.charAt(0))
+		return Number.parseInt(extended, 2) >> 0
 	}
 }
 
@@ -147,11 +152,16 @@ export class saload extends Instruction {
 		if (!(heapObject instanceof ArrayType)) throw new Error('Tried to load array of incompatible type')
 		const valueRef = heapObject.get()[index.get() as number]
 		const value = RuntimeManager.it().load(valueRef) as short
-		// FIXME: sign-extension?
-		RuntimeManager.it().push(new int(value.get() as number))
+		RuntimeManager.it().push(new int(this.signExtendToInt(value.get() as number)))
 	}
 
 	public override toString(): string {
 		return 'saload'
+	}
+
+	private signExtendToInt(value: number): number {
+		const binary = value.toString(2).padStart(8, '0')
+		const extended = binary.padStart(32, binary.charAt(0))
+		return Number.parseInt(extended, 2) >> 0
 	}
 }

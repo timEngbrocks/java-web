@@ -71,19 +71,11 @@ export class ClassManager {
 			bootstrapLoader.loadClassOrInterface(name + '.class')
 		} else if (!this.doesClassExist(name) && name.startsWith('[')) {
 			const arrayClassObject = createArrayClass(name)
+			this.addIsClassOrInterface(name, IsClassOrInterface.CLASS)
 			this.addClass(arrayClassObject)
 		}
 		return true
 	}
-
-	// public tryGet(name: string): boolean {
-	// 	if (!this.doesClassExist(name) && name.startsWith('[')) {
-	// 		const classObject = createArrayClass(name)
-	// 		this.addClass(classObject)
-	// 		classObject.initializeIfUninitialized()
-	// 	}
-	// 	return this.classObjectManager.tryGet(name)
-	// }
 
 	public doesInterfaceExist(name: string): boolean {
 		return this.interfaces.has(name)
@@ -99,6 +91,11 @@ export class ClassManager {
 	public addInterface(interfaceObject: InterfaceObject): void {
 		this.interfaces.set(interfaceObject.getName(), interfaceObject)
 		this.state.set(interfaceObject.getName(), ClassState.UNINITIALIZED)
+		if (!this.classHasBeenAdded) {
+			this.associatedClassObjects.set(interfaceObject.getName(), new ReferenceType({ address: null, name: interfaceObject.getName() }))
+		} else {
+			this.associatedClassObjects.set(interfaceObject.getName(), this.constructAssociatedClassObject(interfaceObject.getName()))
+		}
 	}
 
 	public addClass(classObject: ClassObject): void {
@@ -132,7 +129,7 @@ export class ClassManager {
 	}
 
 	public getAssociatedClassObject(name: string): ReferenceType {
-		this.getClass(name)
+		if (!this.tryGet(name)) throw new Error(`Could not get associated class for ${name} because it does not exist`)
 		return this.associatedClassObjects.get(name)!
 	}
 
@@ -177,7 +174,11 @@ export class ClassManager {
 		// FIXME: Set module
 		// classInstance.putField('module')
 		classInstance.putField('classLoader', new ReferenceType({ address: null, name: 'classLoader' }))
-		classInstance.putField('classData', RuntimeManager.it().allocate(this.newInstance(name)))
+		if (this.isClass(name)) {
+			classInstance.putField('classData', RuntimeManager.it().allocate(this.newInstance(name)))
+		} else if (this.isInterface(name)) {
+			classInstance.putField('classData', RuntimeManager.it().allocate(this.getInterface(name)))
+		} else throw new Error(`Could not construct associated class object for ${name} because it is neither a class nor an interface`)
 		return RuntimeManager.it().allocate(classInstance)
 	}
 }

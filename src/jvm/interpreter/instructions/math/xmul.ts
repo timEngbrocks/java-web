@@ -30,7 +30,7 @@ export class lmul extends Instruction {
 		if (!(value1 instanceof long && value2 instanceof long)) throw new Error('Tried using lmul with wrong types')
 		const result = new long()
 		const resultValue = BigInt(value1.get()) * BigInt(value2.get())
-		result.set(resultValue & 0xffffffffffffffffn)
+		result.set(BigInt.asIntN(64, resultValue))
 		RuntimeManager.it().push(result)
 	}
 

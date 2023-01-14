@@ -15,11 +15,17 @@ export class sipush extends Instruction {
 		const byte1 = Number.parseInt(this.args.substring(0, 2), 16)
 		const byte2 = Number.parseInt(this.args.substring(2, 4), 16)
 		const value = new int()
-		value.set((byte1 << 8) | byte2)
+		value.set(this.signExtendToInt((byte1 << 8) | byte2))
 		RuntimeManager.it().push(value)
 	}
 
 	public override toString(): string {
 		return `sipush 0x${this.args.substring(0, 2)} 0x${this.args.substring(2, 4)}`
+	}
+
+	private signExtendToInt(value: number): number {
+		const binary = value.toString(2).padStart(16, '0')
+		const extended = binary.padStart(32, binary.charAt(0))
+		return Number.parseInt(extended, 2) >> 0
 	}
 }

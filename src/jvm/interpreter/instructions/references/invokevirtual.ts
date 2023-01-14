@@ -4,10 +4,12 @@ import type { ConstantUtf8 } from '../../../parser/types/constants/ConstantUtf8'
 import type { ReferenceType } from '../../data-types/ReferenceType'
 import { Instruction } from '../Instruction'
 import { getTypesFromMethodDescriptor } from '../../util/util'
-import type { ClassInstance } from '../../class/ClassInstance'
+import { ClassInstance } from '../../class/ClassInstance'
 import type { ConstantClass } from '../../../parser/types/constants/ConstantClass'
 import { RuntimeManager } from '../../manager/RuntimeManager'
 import { ExecutionManager } from '../../manager/ExecutionManager'
+import { ArrayType } from '../../data-types/ArrayType'
+import { ClassManager } from '../../manager/ClassManager'
 
 export class invokevirtual extends Instruction {
 	override length = 3
@@ -32,15 +34,27 @@ export class invokevirtual extends Instruction {
 		for (let i = 0; i < types.parameters.length; i++) parameters.push(RuntimeManager.it().pop())
 		parameters = parameters.reverse()
 		const objectref = RuntimeManager.it().pop() as ReferenceType
-		const classInstance = RuntimeManager.it().load(objectref) as ClassInstance
-		ExecutionManager.it().setupFunctionCall(classInstance, methodName, descriptor)
-		classInstance.setLocal(objectref, 0)
-		let offset = 1
-		for (let i = 0; i < parameters.length; i++) {
-			classInstance.setLocal(parameters[i], i + offset)
-			if (parameters[i].isWide) offset++
-		}
-		ExecutionManager.it().executeFunctionCall(classInstance)
+		const object = RuntimeManager.it().load(objectref)
+		if (object instanceof ArrayType) {
+			const objectInstance = ClassManager.it().newInstance('java/lang/Object')
+			ExecutionManager.it().setupFunctionCall(objectInstance, methodName, descriptor)
+			objectInstance.setLocal(objectref, 0)
+			let offset = 1
+			for (let i = 0; i < parameters.length; i++) {
+				objectInstance.setLocal(parameters[i], i + offset)
+				if (parameters[i].isWide) offset++
+			}
+			ExecutionManager.it().executeFunctionCall(objectInstance)
+		} else if (object instanceof ClassInstance) {
+			ExecutionManager.it().setupFunctionCall(object, methodName, descriptor)
+			object.setLocal(objectref, 0)
+			let offset = 1
+			for (let i = 0; i < parameters.length; i++) {
+				object.setLocal(parameters[i], i + offset)
+				if (parameters[i].isWide) offset++
+			}
+			ExecutionManager.it().executeFunctionCall(object)
+		} else throw new Error(`invokevirtual: object is neither array nor instance ${JSON.stringify(object)}`)
 	}
 
 	public override toString(): string {

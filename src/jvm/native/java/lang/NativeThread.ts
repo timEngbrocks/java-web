@@ -35,6 +35,10 @@ export class NativeThread extends NativeClassObject {
 				this.nativeStart0()
 				break
 			}
+			case 'currentCarrierThread': {
+				this.nativeCurrentCarrierThread(executionContext)
+				break
+			}
 			default: throw new Error(`Could not find native method ${method.name} on ${this.toString()}`)
 		}
 	}
@@ -66,6 +70,12 @@ export class NativeThread extends NativeClassObject {
 
 	private nativeStart0(): void {
 		ExecutionManager.it().getThread().start()
+	}
+
+	// FIXME:
+	private nativeCurrentCarrierThread(executionContext: ExecutionContext): void {
+		const thread = ThreadManager.it().getPrimoridalThread()
+		executionContext.operandStack.push(thread.getThreadReference())
 	}
 
 	public toString(): string {
