@@ -9,6 +9,7 @@ import type { ExecutionContext } from '../util/ExecutionContext'
 import type { Stack } from '../util/Stack'
 import { ExecutionManager } from './ExecutionManager'
 import { RuntimeManager } from './RuntimeManager'
+import { ThreadManager } from './ThreadManager'
 
 export class DebugManager {
 	private static instance: DebugManager | undefined = undefined
@@ -41,7 +42,7 @@ export class DebugManager {
 	}
 
 	public debugValue(className: string, methodName: string, ...args: any[]): void {
-		if (ExecutionManager.it().getExecutionStack().isEmpty()) return
+		if (ThreadManager.it().current().getExecutionStack().isEmpty()) return
 		if (ExecutionManager.it().current().getName() === className && ExecutionManager.it().currentMethod().methodObject.name === methodName) console.log(Interpreter.globalPC, ...args)
 	}
 
@@ -89,10 +90,10 @@ export class DebugManager {
 
 	public getInternalStacktrace(): { class: string, method: string, pc: number }[] {
 		let stacktrace: { class: string, method: string, pc: number }[] = []
-		ExecutionManager.it().getExecutionStackHistory().all().forEach(stack => {
+		ThreadManager.it().current().getExecutionStackHistory().all().forEach(stack => {
 			stacktrace = stacktrace.concat(this.getInternalStacktraceFromExecutionStack(stack))
 		})
-		stacktrace = stacktrace.concat(this.getInternalStacktraceFromExecutionStack(ExecutionManager.it().getExecutionStack()))
+		stacktrace = stacktrace.concat(this.getInternalStacktraceFromExecutionStack(ThreadManager.it().current().getExecutionStack()))
 		if (ExecutionManager.it().hasCurrent()) {
 			stacktrace.push({
 				class: ExecutionManager.it().currentMethod().methodObject.className,

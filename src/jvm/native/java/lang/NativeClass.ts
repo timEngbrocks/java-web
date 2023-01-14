@@ -10,7 +10,7 @@ import { RuntimeManager } from '../../../interpreter/manager/RuntimeManager'
 import { HEAP_TYPES } from '../../../interpreter/memory/HeapTypes'
 import type { ExecutionContext } from '../../../interpreter/util/ExecutionContext'
 import type { MethodObject } from '../../../interpreter/util/MethodObject'
-import { getTypeNamesFromMethodDescriptor } from '../../../interpreter/util/util'
+import { constructStringClass, getTypeNamesFromMethodDescriptor } from '../../../interpreter/util/util'
 import { FieldAccessFlags } from '../../../parser/FieldInfoParser'
 import { MethodAccessFlags } from '../../../parser/MethodInfoParser'
 import { NativeClassObject } from '../../NativeClassObject'
@@ -217,12 +217,12 @@ export class NativeClass extends NativeClassObject {
 			ExecutionManager.it().setupFunctionCall(fieldObject, '<init>', '(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IZILjava/lang/String;[B)V')
 			fieldObject.currentMethod().localVariables.set(fieldObjectRef, 0)
 			fieldObject.currentMethod().localVariables.set(classDataReference, 1)
-			fieldObject.currentMethod().localVariables.set(this.constructStringClass(key), 2)
+			fieldObject.currentMethod().localVariables.set(constructStringClass(key), 2)
 			fieldObject.currentMethod().localVariables.set(ClassManager.it().getAssociatedClassObject(signature), 3)
 			fieldObject.currentMethod().localVariables.set(new int(modifier), 4)
 			fieldObject.currentMethod().localVariables.set(new int(0), 5)
 			fieldObject.currentMethod().localVariables.set(new int(isStatic ? index - classObject.getFields().size : index), 5)
-			fieldObject.currentMethod().localVariables.set(this.constructStringClass(signature), 6)
+			fieldObject.currentMethod().localVariables.set(constructStringClass(signature), 6)
 			fieldObject.currentMethod().localVariables.set(new ArrayType(new byte()), 7)
 			ExecutionManager.it().executeFunctionCall(fieldObject)
 			ExecutionManager.it().callExecuteOutOfOrder()
@@ -243,23 +243,12 @@ export class NativeClass extends NativeClassObject {
 		const callerClass = RuntimeManager.it().load(executionContext.callerReference) as ClassInstance
 		const classDataReference = callerClass.getField('classData') as ReferenceType
 		const classObject = RuntimeManager.it().load(classDataReference) as ClassInstance
-		const name = this.constructStringClass(classObject.getName())
+		const name = constructStringClass(classObject.getName())
 		callerClass.putField('name', name)
 		executionContext.operandStack.push(name)
 	}
 
 	public toString(): string {
 		return 'native java/lang/Class'
-	}
-
-	private constructStringClass(text: string): ReferenceType {
-		const stringClass = ClassManager.it().newInstance('java/lang/String')
-		stringClass.initializeIfUninitialized()
-		const stringValue = new ArrayType(new byte())
-		for (let i = 0; i < text.length; i++) {
-			stringValue.get().push(RuntimeManager.it().allocate(new byte(text.charCodeAt(i))))
-		}
-		stringClass.putField('value', RuntimeManager.it().allocate(stringValue))
-		return RuntimeManager.it().allocate(stringClass)
 	}
 }

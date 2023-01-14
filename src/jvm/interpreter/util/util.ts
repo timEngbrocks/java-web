@@ -1,3 +1,5 @@
+import { map } from 'lodash'
+import type { ClassInstance } from '../class/ClassInstance'
 import { ArrayType } from '../data-types/ArrayType'
 import { byte } from '../data-types/byte'
 import { char } from '../data-types/char'
@@ -9,7 +11,32 @@ import { int } from '../data-types/int'
 import { long } from '../data-types/long'
 import { ReferenceType } from '../data-types/ReferenceType'
 import { short } from '../data-types/short'
+import { ClassManager } from '../manager/ClassManager'
+import { RuntimeManager } from '../manager/RuntimeManager'
 import type { MethodTypes } from './MethodTypes'
+
+export const constructStringClass = (text: string): ReferenceType => {
+	const stringClass = ClassManager.it().newInstance('java/lang/String')
+	stringClass.initializeIfUninitialized()
+	const stringValue = new ArrayType(new byte())
+	for (let i = 0; i < text.length; i++) {
+		stringValue.get().push(RuntimeManager.it().allocate(new byte(text.charCodeAt(i))))
+	}
+	stringClass.putField('value', RuntimeManager.it().allocate(stringValue))
+	return RuntimeManager.it().allocate(stringClass)
+}
+
+export const getTextFromString = (stringRef: ReferenceType): string => {
+	const stringClass = RuntimeManager.it().load(stringRef) as ClassInstance
+	const valueRef = stringClass.getField('value') as ReferenceType
+	const value = RuntimeManager.it().load(valueRef) as ArrayType
+	const bytes = []
+	for (const reference of value.get()) {
+		const byte = RuntimeManager.it().load(reference) as byte
+		bytes.push(byte.get() as number)
+	}
+	return map(bytes, x => String.fromCharCode(x)).join()
+}
 
 export const getTypeNamesFromMethodDescriptor = (descriptor: string): { parameters: string[], returnType: string } => {
 	const descriptorParts = descriptor.split(')')

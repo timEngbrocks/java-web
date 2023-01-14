@@ -1,37 +1,53 @@
-import assert from 'assert'
+import type { ExecutableInterface } from '../class/ExecutableInterface'
 import type { ReferenceType } from '../data-types/ReferenceType'
-
-export enum ThreadState {
-	NEW,
-	RUNNABLE,
-	RUNNING,
-	BLOCKED,
-	WAITING,
-	TIMED_WAITED,
-	TERMINATED,
-}
-
-export const threadPriorities = {
-	min: 1,
-	normal: 5,
-	max: 10
-}
+import { ThreadScheduler, ThreadState } from '../manager/ThreadScheduler'
+import { Stack } from '../util/Stack'
 
 export class InternalThread {
-	private state = ThreadState.NEW
-	private priority = threadPriorities.normal
+	private executionStack = new Stack<ExecutableInterface>()
+	private readonly executionStackHistory = new Stack<Stack<ExecutableInterface>>()
 
 	constructor(
 		private readonly id: number,
 		private readonly name: string,
-		private readonly threadGroupName: string,
+		private readonly threadGroupName: string | undefined,
 		private readonly threadReference: ReferenceType,
-		private readonly threadGroupReference: ReferenceType
+		private readonly threadGroupReference: ReferenceType | undefined
 	) {}
 
-	public start(): void {
-		assert(this.state === ThreadState.NEW)
-		this.state = ThreadState.RUNNABLE
+	public currentExecution(): ExecutableInterface {
+		return this.executionStack.current()
+	}
+
+	public hasCurrentExecution(): boolean {
+		return !this.executionStack.isEmpty()
+	}
+
+	public pushExecutionStack(classObject: ExecutableInterface): void {
+		this.executionStack.push(classObject)
+	}
+
+	public popExecutionStack(): ExecutableInterface {
+		return this.executionStack.pop()
+	}
+
+	public storeCurrentExecutionStack(): void {
+		this.executionStackHistory.push(this.executionStack)
+		this.executionStack = new Stack<ExecutableInterface>()
+	}
+
+	public restoreLastExecutionStack(): Stack<ExecutableInterface> {
+		const previousStack = this.executionStack
+		this.executionStack = this.executionStackHistory.pop()
+		return previousStack
+	}
+
+	public getExecutionStack(): Stack<ExecutableInterface> {
+		return this.executionStack
+	}
+
+	public getExecutionStackHistory(): Stack<Stack<ExecutableInterface>> {
+		return this.executionStackHistory
 	}
 
 	public getId(): number {
@@ -42,32 +58,20 @@ export class InternalThread {
 		return this.name
 	}
 
-	public getThreadGroupName(): string {
+	public getThreadGroupName(): string | undefined {
 		return this.threadGroupName
-	}
-
-	public getPriority(): number {
-		return this.priority
-	}
-
-	public setPriority(priority: number): void {
-		assert(priority >= threadPriorities.min && priority <= threadPriorities.max)
-		this.priority = priority
-	}
-
-	public getState(): ThreadState {
-		return this.state
 	}
 
 	public getThreadReference(): ReferenceType {
 		return this.threadReference
 	}
 
-	public getThreadGroupReference(): ReferenceType {
+	public getThreadGroupReference(): ReferenceType | undefined {
 		return this.threadGroupReference
 	}
 
 	public isAlive(): boolean {
-		return this.state !== ThreadState.NEW && this.state !== ThreadState.TERMINATED
+		const state = ThreadScheduler.it().getThreadState(this.id)
+		return state !== ThreadState.NEW && state !== ThreadState.TERMINATED
 	}
 }

@@ -6,8 +6,8 @@ import type { MethodObject } from '../../../interpreter/util/MethodObject'
 import { NativeClassObject } from '../../NativeClassObject'
 import { RuntimeManager } from '../../../interpreter/manager/RuntimeManager'
 import { ClassManager } from '../../../interpreter/manager/ClassManager'
-import { ThreadManager } from '../../../interpreter/manager/ThreadManager'
 import { cloneDeep } from 'lodash'
+import { ThreadScheduler } from '../../../interpreter/manager/ThreadScheduler'
 
 export class NativeObject extends NativeClassObject {
 	public executeMethod(method: MethodObject, executionContext: ExecutionContext): void {
@@ -59,7 +59,7 @@ export class NativeObject extends NativeClassObject {
 	}
 
 	private nativeNotifyAll(): void {
-		ThreadManager.it().notifyAll()
+		ThreadScheduler.it().notifyAll()
 	}
 
 	public toString(): string {

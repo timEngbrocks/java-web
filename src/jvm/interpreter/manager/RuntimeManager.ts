@@ -9,6 +9,7 @@ import { HEAP_TYPES } from '../memory/HeapTypes'
 import type { LocalVariables } from '../memory/LocalVariables'
 import { ClassManager } from './ClassManager'
 import { ExecutionManager } from './ExecutionManager'
+import { ThreadManager } from './ThreadManager'
 
 export class RuntimeManager {
 	private static instance: RuntimeManager | undefined = undefined
@@ -52,7 +53,7 @@ export class RuntimeManager {
 	}
 
 	public allCurrentLocals(): LocalVariables {
-		return ExecutionManager.it().getExecutionStack().current().allCurrentLocals()
+		return ThreadManager.it().current().currentExecution().allCurrentLocals()
 	}
 
 	public allocate(value: HeapData): ReferenceType {

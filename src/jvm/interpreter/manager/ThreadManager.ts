@@ -8,6 +8,7 @@ import { InternalThreadGroup } from '../thread/InternalThreadGroup'
 import { ClassManager } from './ClassManager'
 import { ExecutionManager } from './ExecutionManager'
 import { RuntimeManager } from './RuntimeManager'
+import { ThreadScheduler } from './ThreadScheduler'
 
 export class ThreadManager {
 	private static instance: ThreadManager | undefined = undefined
@@ -23,34 +24,42 @@ export class ThreadManager {
 	private primoridalThread: InternalThread = new InternalThread(
 		1,
 		'primoridal',
-		'root',
+		'system',
 		new ReferenceType(),
 		new ReferenceType()
 	)
 
-	private rootThreadGroup: InternalThreadGroup = new InternalThreadGroup('root', new ReferenceType())
+	private systemThreadGroup: InternalThreadGroup = new InternalThreadGroup('system', new ReferenceType())
 
 	private readonly threads = new Map<number, InternalThread>()
 	private readonly threadGroups = new Map<string, InternalThreadGroup>()
 
 	private nextThreadId = 2
 
-	constructor() {
+	private constructor() {
 		this.threads.set(1, this.primoridalThread)
-		this.threadGroups.set('root', this.rootThreadGroup)
+		this.threadGroups.set('system', this.systemThreadGroup)
 	}
 
-	public createThread(id: number, name: string, groupName: string): InternalThread {
+	public current(): InternalThread {
+		return this.getThread(ThreadScheduler.it().current())!
+	}
+
+	public createThread(id: number, name: string, groupName: string | undefined): InternalThread {
 		const threadObject = ClassManager.it().newInstance('java/lang/Thread')
 		threadObject.initializeIfUninitialized()
 		const threadRef = RuntimeManager.it().allocate(threadObject)
-		const threadGroup = this.threadGroups.get(groupName)
+		let threadGroupRef = new ReferenceType()
+		if (groupName) {
+			const threadGroup = this.threadGroups.get(groupName)
+			if (threadGroup) threadGroupRef = threadGroup.getThreadGroupReference()
+		}
 		const internalThread = new InternalThread(
 			id,
 			name,
 			groupName,
 			threadRef,
-			threadGroup!.getThreadGroupReference()
+			threadGroupRef
 		)
 		this.threads.set(id, internalThread)
 		if (id === 1) this.primoridalThread = internalThread
@@ -66,7 +75,7 @@ export class ThreadManager {
 		ExecutionManager.it().setupExecuteOutOfOrder()
 		ExecutionManager.it().setupFunctionCall(threadObject, '<init>', '(Ljava/lang/ThreadGroup;Ljava/lang/String;ILjava/lang/Runnable;JLjava/security/AccessControlContext;)V')
 		threadObject.setLocal(threadRef, 0)
-		threadObject.setLocal(threadGroup!.getThreadGroupReference(), 1)
+		threadObject.setLocal(threadGroupRef, 1)
 		threadObject.setLocal(nameRef, 2)
 		threadObject.setLocal(new int(0), 3)
 		threadObject.setLocal(new ReferenceType(), 4)
@@ -83,7 +92,7 @@ export class ThreadManager {
 		const threadGroupObjectRef = RuntimeManager.it().allocate(threadGroupObject)
 		const internalThreadGroup = new InternalThreadGroup(name, threadGroupObjectRef)
 		this.threadGroups.set(name, internalThreadGroup)
-		if (name === 'root') this.rootThreadGroup = internalThreadGroup
+		if (name === 'system') this.systemThreadGroup = internalThreadGroup
 		ExecutionManager.it().setupExecuteOutOfOrder()
 		ExecutionManager.it().setupFunctionCall(threadGroupObject, '<init>', '()V')
 		threadGroupObject.setLocal(threadGroupObjectRef, 0)
@@ -92,20 +101,20 @@ export class ThreadManager {
 		return internalThreadGroup
 	}
 
-	public createRootThreadGroup(): void {
-		this.createThreadGroup('root')
+	public createSystemThreadGroup(): void {
+		this.createThreadGroup('system')
 	}
 
 	public createPrimordialThread(): void {
-		this.createThread(1, 'primoridal', 'root')
+		this.createThread(1, 'primoridal', 'system')
 	}
 
 	public getPrimoridalThread(): InternalThread {
 		return this.primoridalThread
 	}
 
-	public getRootThreadGroup(): InternalThreadGroup {
-		return this.rootThreadGroup
+	public getSystemThreadGroup(): InternalThreadGroup {
+		return this.systemThreadGroup
 	}
 
 	public getNextThreadId(): number {
@@ -119,6 +128,4 @@ export class ThreadManager {
 	public getThreadGroup(name: string): InternalThreadGroup | undefined {
 		return this.threadGroups.get(name)
 	}
-
-	public notifyAll(): void {}
 }

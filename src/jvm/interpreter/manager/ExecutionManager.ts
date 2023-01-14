@@ -2,10 +2,10 @@ import { ClassObject } from '../class/ClassObject'
 import type { ExecutableInterface } from '../class/ExecutableInterface'
 import type { DataType } from '../data-types/data-type'
 import type { Instruction } from '../instructions/Instruction'
-import type { InternalThread } from '../thread/InternalThread'
 import type { ExecutionContext } from '../util/ExecutionContext'
-import { Stack } from '../util/Stack'
+import type { Stack } from '../util/Stack'
 import { DebugManager } from './DebugManager'
+import { ThreadManager } from './ThreadManager'
 
 export class ExecutionManager {
 	private static instance: ExecutionManager | undefined = undefined
@@ -14,37 +14,18 @@ export class ExecutionManager {
 		ExecutionManager.instance = new ExecutionManager(executeCallback)
 	}
 
-	constructor(private readonly executeCallback: () => void) {}
+	private constructor(private readonly executeCallback: () => void) {}
 
 	public static it(): ExecutionManager {
 		return ExecutionManager.instance!
 	}
 
-	private executionStack = new Stack<ExecutableInterface>()
-	private readonly executionStackHistory = new Stack<Stack<ExecutableInterface>>()
-
-	private thread: InternalThread | undefined = undefined
-
-	public switchToNewThread(thread: InternalThread): void {
-		this.executionStack.clear()
-		this.executionStackHistory.clear()
-		this.thread = thread
-	}
-
-	public getThread(): InternalThread {
-		return this.thread!
-	}
-
-	public setThread(thread: InternalThread): void {
-		this.thread = thread
-	}
-
 	public current(): ExecutableInterface {
-		return this.executionStack.current()
+		return ThreadManager.it().current().currentExecution()
 	}
 
 	public hasCurrent(): boolean {
-		return !this.executionStack.isEmpty()
+		return ThreadManager.it().current().hasCurrentExecution()
 	}
 
 	public setupFunctionCall(classObject: ExecutableInterface, name: string, descriptor: string): void {
@@ -53,28 +34,28 @@ export class ExecutionManager {
 	}
 
 	public executeFunctionCall(classObject: ExecutableInterface): void {
-		this.executionStack.push(classObject)
+		ThreadManager.it().current().pushExecutionStack(classObject)
 		classObject.executeFunctionCall()
 	}
 
 	public setReturnValue(value: DataType<any>): void {
-		const clazz = this.executionStack.pop()
-		if (clazz.getId() === this.executionStack.current().getId()) {
-			this.executionStack.current().setReturnValueOnSelf(value)
+		const clazz = ThreadManager.it().current().popExecutionStack()
+		if (clazz.getId() === ThreadManager.it().current().currentExecution().getId()) {
+			ThreadManager.it().current().currentExecution().setReturnValueOnSelf(value)
 		} else {
-			this.executionStack.current().push(value)
+			ThreadManager.it().current().currentExecution().push(value)
 		}
-		this.executionStack.push(clazz)
+		ThreadManager.it().current().pushExecutionStack(clazz)
 	}
 
 	public returnFromFunction(): void {
 		this.current().returnFromFunction()
-		const previousClass = this.executionStack.pop()
+		const previousClass = ThreadManager.it().current().popExecutionStack()
 		DebugManager.it().setLastClassNameAndId(`${previousClass.getName()}(${previousClass.getId()})`)
 	}
 
 	public currentMethodHasNext(): boolean {
-		if (this.executionStack.isEmpty()) return false
+		if (!ThreadManager.it().current().hasCurrentExecution()) return false
 		return this.current().currentMethodHasNext()
 	}
 
@@ -107,27 +88,16 @@ export class ExecutionManager {
 		this.current().setPC(pc)
 	}
 
-	public getExecutionStack(): Stack<ExecutableInterface> {
-		return this.executionStack
-	}
-
-	public getExecutionStackHistory(): Stack<Stack<ExecutableInterface>> {
-		return this.executionStackHistory
-	}
-
 	public addToCurrentExecutionStack(executable: ExecutableInterface): void {
-		this.executionStack.push(executable)
+		ThreadManager.it().current().pushExecutionStack(executable)
 	}
 
 	public addNewExecutionStack(): void {
-		this.executionStackHistory.push(this.executionStack)
-		this.executionStack = new Stack<ExecutableInterface>()
+		ThreadManager.it().current().storeCurrentExecutionStack()
 	}
 
 	public returnFromExecutionStack(): Stack<ExecutableInterface> {
-		const previousStack = this.getExecutionStack()
-		this.executionStack = this.getExecutionStackHistory().pop()
-		return previousStack
+		return ThreadManager.it().current().restoreLastExecutionStack()
 	}
 
 	public setupExecuteOutOfOrder(): void {

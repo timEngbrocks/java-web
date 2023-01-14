@@ -1,12 +1,11 @@
 import { readFileSync } from 'fs'
 import { get } from 'lodash'
 import { ArrayType } from '../../../../interpreter/data-types/ArrayType'
-import { byte } from '../../../../interpreter/data-types/byte'
 import { ReferenceType } from '../../../../interpreter/data-types/ReferenceType'
-import { ClassManager } from '../../../../interpreter/manager/ClassManager'
 import { RuntimeManager } from '../../../../interpreter/manager/RuntimeManager'
 import type { ExecutionContext } from '../../../../interpreter/util/ExecutionContext'
 import type { MethodObject } from '../../../../interpreter/util/MethodObject'
+import { constructStringClass } from '../../../../interpreter/util/util'
 import { NativeClassObject } from '../../../NativeClassObject'
 
 export class NativeSystemProps$Raw extends NativeClassObject {
@@ -77,7 +76,7 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 
 		const references = []
 		for (const prop of platformProps) {
-			references.push(this.constructStringClass(prop))
+			references.push(constructStringClass(prop))
 		}
 		const stringArray = new ArrayType(new ReferenceType({ address: null, name: 'platformProps' }), FIXED_LENGTH)
 		stringArray.set(references)
@@ -88,8 +87,8 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 		const vmPropsConfig = JSON.parse(readFileSync('src/jvm/config/vm-properties.json').toString())
 		const references = []
 		for (const [key, value] of Object.entries(vmPropsConfig)) {
-			references.push(this.constructStringClass(key))
-			references.push(this.constructStringClass(value as string))
+			references.push(constructStringClass(key))
+			references.push(constructStringClass(value as string))
 		}
 		references.push(new ReferenceType({ address: null, name: 'vmPropsKey' }))
 		references.push(new ReferenceType({ address: null, name: 'vmPropsValue' }))
@@ -100,16 +99,5 @@ export class NativeSystemProps$Raw extends NativeClassObject {
 
 	public toString(): string {
 		return 'native jdk/internal/util/SystemProps$Raw'
-	}
-
-	private constructStringClass(text: string): ReferenceType {
-		const stringClass = ClassManager.it().newInstance('java/lang/String')
-		stringClass.initializeIfUninitialized()
-		const stringValue = new ArrayType(new byte())
-		for (let i = 0; i < text.length; i++) {
-			stringValue.get().push(RuntimeManager.it().allocate(new byte(text.charCodeAt(i))))
-		}
-		stringClass.putField('value', RuntimeManager.it().allocate(stringValue))
-		return RuntimeManager.it().allocate(stringClass)
 	}
 }

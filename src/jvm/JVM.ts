@@ -7,6 +7,7 @@ import { ThreadManager } from './interpreter/manager/ThreadManager'
 import { ExecutionManager } from './interpreter/manager/ExecutionManager'
 import { DebugManager } from './interpreter/manager/DebugManager'
 import { FileManager } from './interpreter/manager/FileManager'
+import { ThreadScheduler } from './interpreter/manager/ThreadScheduler'
 
 export class JVM {
 	private readonly interpreter = new Interpreter()
@@ -30,9 +31,11 @@ export class JVM {
 		jvm.initializeModules()
 
 		// FIXME: Create the VMThread
-		ThreadManager.it().createRootThreadGroup()
+		ThreadManager.it().createSystemThreadGroup()
 		ThreadManager.it().createPrimordialThread()
-		ExecutionManager.it().setThread(ThreadManager.it().getPrimoridalThread())
+		ThreadScheduler.it().addNewThread(1)
+		ThreadScheduler.it().start(1)
+		ThreadScheduler.it().schedule()
 
 		if (jvm.universe.getStatus() !== VMUniverseStatus.INITIALIZED) {
 			throw new Error('VMUniverse should be fully initialized by now!')
@@ -85,6 +88,7 @@ export class JVM {
 		ClassManager.construct()
 		FileManager.construct()
 		ThreadManager.construct()
+		ThreadScheduler.construct()
 		// FIXME: initialize finalizer
 		// FIXME: initialize code cache
 		RuntimeManager.construct()
@@ -98,7 +102,7 @@ export class JVM {
 		this.initializeClass('java/lang/Class')
 		this.initializeClass('java/lang/ThreadGroup')
 		// FIXME: create initial thread group -> VMUniverse
-		ThreadManager.it().createRootThreadGroup()
+		ThreadManager.it().createSystemThreadGroup()
 		this.initializeClass('java/lang/Thread')
 		// FIXME: create initial thread
 		ThreadManager.it().createPrimordialThread()

@@ -1,6 +1,5 @@
 import type { ClassInstance } from '../../../interpreter/class/ClassInstance'
 import { ArrayType } from '../../../interpreter/data-types/ArrayType'
-import { byte } from '../../../interpreter/data-types/byte'
 import { int } from '../../../interpreter/data-types/int'
 import { ReferenceType } from '../../../interpreter/data-types/ReferenceType'
 import { ClassManager } from '../../../interpreter/manager/ClassManager'
@@ -9,6 +8,7 @@ import { ExecutionManager } from '../../../interpreter/manager/ExecutionManager'
 import { RuntimeManager } from '../../../interpreter/manager/RuntimeManager'
 import type { ExecutionContext } from '../../../interpreter/util/ExecutionContext'
 import type { MethodObject } from '../../../interpreter/util/MethodObject'
+import { constructStringClass } from '../../../interpreter/util/util'
 import { NativeClassObject } from '../../NativeClassObject'
 
 export class NativeThrowable extends NativeClassObject {
@@ -33,9 +33,9 @@ export class NativeThrowable extends NativeClassObject {
 			ExecutionManager.it().setupExecuteOutOfOrder()
 			ExecutionManager.it().setupFunctionCall(traceElementObject, '<init>', '(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V')
 			traceElementObject.setLocal(traceElementRef, 0)
-			traceElementObject.setLocal(this.constructStringClass(traceElement.class), 1)
-			traceElementObject.setLocal(this.constructStringClass(traceElement.method), 2)
-			traceElementObject.setLocal(this.constructStringClass(''), 3)
+			traceElementObject.setLocal(constructStringClass(traceElement.class), 1)
+			traceElementObject.setLocal(constructStringClass(traceElement.method), 2)
+			traceElementObject.setLocal(constructStringClass(''), 3)
 			traceElementObject.setLocal(new int(traceElement.pc), 4)
 			ExecutionManager.it().executeFunctionCall(traceElementObject)
 			ExecutionManager.it().callExecuteOutOfOrder()
@@ -49,16 +49,5 @@ export class NativeThrowable extends NativeClassObject {
 
 	public toString(): string {
 		return 'native java/lang/Throwable'
-	}
-
-	private constructStringClass(text: string): ReferenceType {
-		const stringClass = ClassManager.it().newInstance('java/lang/String')
-		stringClass.initializeIfUninitialized()
-		const stringValue = new ArrayType(new byte())
-		for (let i = 0; i < text.length; i++) {
-			stringValue.get().push(RuntimeManager.it().allocate(new byte(text.charCodeAt(i))))
-		}
-		stringClass.putField('value', RuntimeManager.it().allocate(stringValue))
-		return RuntimeManager.it().allocate(stringClass)
 	}
 }

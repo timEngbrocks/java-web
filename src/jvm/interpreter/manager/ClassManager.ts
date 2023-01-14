@@ -40,7 +40,7 @@ export class ClassManager {
 	private readonly associatedClassObjects = new Map<string, ReferenceType>()
 	private readonly state = new Map<string, ClassState>()
 
-	constructor(private readonly loader: new () => ClassLoader) {}
+	private constructor(private readonly loader: new () => ClassLoader) {}
 
 	public initializeAll(): void {
 		this.classes.forEach(classObject => {
