@@ -1,3 +1,7 @@
+## Archived
+
+This project has been archived. Development continues [here](https://github.com/timEngbrocks/dione) with the Rust language.
+
 # java-web
 
 A runtime environment for Java based on TypeScript.
